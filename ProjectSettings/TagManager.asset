@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - spawnPoint
+  - mainDesk
+  - finishedPurchase
+  - Popups
+  - CashPosition
+  - exit
+  - deskTouch
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: ShopBackground
+    uniqueID: 2172291031
+    locked: 0
+  - name: ShopEmployee
+    uniqueID: 3011866919
+    locked: 0
+  - name: ShopDecorations
+    uniqueID: 224218599
+    locked: 0
+  - name: AI
+    uniqueID: 1094730741
+    locked: 0
+  - name: Popups
+    uniqueID: 532747681
+    locked: 0
