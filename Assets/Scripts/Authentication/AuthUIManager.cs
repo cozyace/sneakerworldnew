@@ -25,6 +25,11 @@ namespace Authentication
             }
         }
 
+        private void Start()
+        {
+            FirebaseManager.instance.AssignObjects();
+        }
+
         private void ClearUI()
         {
             loginUI.SetActive(false);

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class SneakerInventoryItem : MonoBehaviour
 {
-    public string name;
+    new public string name;
     public int purchasedPrice;
     public int quantity;
     public SneakerRarity rarity;

@@ -6,6 +6,7 @@ using Firebase;
 using UnityEngine;
 using Firebase.Auth;
 using Firebase.Database;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class FirebaseManager : MonoBehaviour
@@ -28,7 +29,9 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private TMP_InputField registerPassword;
     [SerializeField] private TMP_InputField registerConfirmPassword;
     [SerializeField] private TMP_Text registerOutputText;
-    
+
+    private Coroutine loginCoroutine, signupCoroutine;
+
     private void Awake()
     {
         if (instance == null)
@@ -69,6 +72,20 @@ public class FirebaseManager : MonoBehaviour
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
     }
+
+    public void AssignObjects()
+    {
+        loginEmail = GameObject.FindGameObjectWithTag("loginEmail").GetComponent<TMP_InputField>();
+        loginPassword = GameObject.FindGameObjectWithTag("loginPassword").GetComponent<TMP_InputField>();
+        loginOutputText = GameObject.FindGameObjectWithTag("loginOutputText").GetComponent<TMP_Text>();
+
+        registerUsername = GameObject.FindGameObjectWithTag("username").GetComponent<TMP_InputField>();
+        registerEmail = GameObject.FindGameObjectWithTag("signupEmail").GetComponent<TMP_InputField>();
+        registerPassword = GameObject.FindGameObjectWithTag("signupPassword").GetComponent<TMP_InputField>();
+        registerConfirmPassword = GameObject.FindGameObjectWithTag("confirmPassword").GetComponent<TMP_InputField>();
+        registerOutputText = GameObject.FindGameObjectWithTag("signupOutputText").GetComponent<TMP_Text>();
+    }
+
     
     private IEnumerator CheckAutoLogin()
     {
@@ -130,8 +147,9 @@ public class FirebaseManager : MonoBehaviour
             userData.experience = int.Parse(snapshot.Child("experience").Value.ToString());
             userData.cash = int.Parse(snapshot.Child("cash").Value.ToString());
             userData.gems = int.Parse(snapshot.Child("gems").Value.ToString());
-            GameManager.instance.UpdateUserData(userData);
 
+            if (SceneManager.GetActiveScene().buildIndex == 1)
+                GameManager.instance.UpdateUserData(userData);
         };
     }
     
@@ -153,59 +171,69 @@ public class FirebaseManager : MonoBehaviour
     
     public void LoginButton()
     {
-        StartCoroutine(LoginLogic(loginEmail.text, loginPassword.text));
+        if (loginCoroutine != null) StopCoroutine(loginCoroutine);
+        loginCoroutine = StartCoroutine(LoginLogic(loginEmail.text, loginPassword.text));
     }
         
     public void RegisterButton()
     {
-        StartCoroutine(RegisterLogic(registerUsername.text, registerEmail.text, registerPassword.text,
+        if (signupCoroutine != null) StopCoroutine(signupCoroutine);
+        signupCoroutine = StartCoroutine(RegisterLogic(registerUsername.text, registerEmail.text, registerPassword.text,
             registerConfirmPassword.text));
     }
 
     public void SignOutButton()
     {
+        SaveData();
         auth.SignOut();
         AuthUIManager.instance.ChangeScene(0);
         AuthUIManager.instance.LoginScreen();
+        AssignObjects();
         ClearInputs();
     }
     
     private IEnumerator LoginLogic(string email, string password)
+    {
+        print("Login button is working!");
+        print(email); print(password);
+
+        Credential credential = EmailAuthProvider.GetCredential(email, password);
+        var loginTask = auth.SignInWithCredentialAsync(credential);
+        yield return new WaitUntil(predicate: () => loginTask.IsCompleted);
+
+        if (loginTask.Exception != null)
         {
-            Credential credential = EmailAuthProvider.GetCredential(email, password);
-            var loginTask = auth.SignInWithCredentialAsync(credential);
-            yield return new WaitUntil(predicate: () => loginTask.IsCompleted);
+            FirebaseException firebaseException = (FirebaseException)loginTask.Exception.GetBaseException();
+            AuthError error = (AuthError)firebaseException.ErrorCode;
 
-            if (loginTask.Exception != null)
+            string output = error switch
             {
-                FirebaseException firebaseException = (FirebaseException)loginTask.Exception.GetBaseException();
-                AuthError error = (AuthError)firebaseException.ErrorCode;
+                AuthError.MissingEmail => "Please Enter Your Email",
+                AuthError.MissingPassword => "Please Enter Your Password",
+                AuthError.InvalidEmail => "Invalid Email",
+                AuthError.WrongPassword => "Incorrect Password",
+                AuthError.UserNotFound => "Account Does Not Exist",
+                _ => "Unknown Error, Please Try Again"
+            };
 
-                string output = error switch
-                {
-                    AuthError.MissingEmail => "Please Enter Your Email",
-                    AuthError.MissingPassword => "Please Enter Your Password",
-                    AuthError.InvalidEmail => "Invalid Email",
-                    AuthError.WrongPassword => "Incorrect Password",
-                    AuthError.UserNotFound => "Account Does Not Exist",
-                    _ => "Unknown Error, Please Try Again"
-                };
-
-                loginOutputText.text = output;
+            loginOutputText.text = output;
+        }
+        else
+        {
+            if (user.IsEmailVerified)
+            {
+                AuthUIManager.instance.LoadingScreen();
+                AuthUIManager.instance.ChangeScene(1);
             }
             else
             {
-                if (user.IsEmailVerified)
-                {
-                    AuthUIManager.instance.LoadingScreen();
-                    AuthUIManager.instance.ChangeScene(1);
-                }
-                else
-                {
-                    AuthUIManager.instance.ChangeScene(0);
-                }
+                // AuthUIManager.instance.ChangeScene(0);
+
+                AuthUIManager.instance.LoadingScreen();
+                AuthUIManager.instance.ChangeScene(1);
             }
         }
+    }
 
     private IEnumerator RegisterLogic(string username, string email, string password, string confirmPassword)
         {
@@ -348,6 +376,7 @@ public class FirebaseManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        SaveData();
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+            SaveData();
     }
 }

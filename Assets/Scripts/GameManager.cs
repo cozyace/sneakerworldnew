@@ -94,4 +94,11 @@ public class GameManager : MonoBehaviour
         userData.cash -= cash;
         uiManager.UpdateUI(userData);
     }
+
+    public void SignOutButton()
+    {
+        aiManager.enabled = uiManager.enabled = employeeManager.enabled = 
+            upgradesManager.enabled = inventoryManager.enabled = false;
+        FirebaseManager.instance.SignOutButton();
+    }
 }

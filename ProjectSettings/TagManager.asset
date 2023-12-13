@@ -11,6 +11,14 @@ TagManager:
   - CashPosition
   - exit
   - deskTouch
+  - loginEmail
+  - username
+  - signupEmail
+  - signupPassword
+  - confirmPassword
+  - loginOutputText
+  - signupOutputText
+  - loginPassword
   layers:
   - Default
   - TransparentFX

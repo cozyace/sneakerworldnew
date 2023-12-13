@@ -122,4 +122,9 @@ public class AI : MonoBehaviour
         GameObject popup = Instantiate(itemPopupPrefab, popupPosition.position, Quaternion.identity);
         popup.GetComponent<ItemPopup>().SetPopup(popupPosition, sneakerInventoryItem.sneakerImage.sprite);
     }
+
+    public void IncreaseDrawOrderInLayer()
+    {
+        if (spriteRenderer != null) spriteRenderer.sortingOrder++;
+    }
 }

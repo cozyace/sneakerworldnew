@@ -1,0 +1,4 @@
+repository "sneaker-world@tobimadehin@cloud"
+  path "/"
+    br "/main"
+    co "/main"

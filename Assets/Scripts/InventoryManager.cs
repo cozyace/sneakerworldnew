@@ -28,6 +28,7 @@ public class InventoryManager : MonoBehaviour
     private void Start()
     {
         sneakers = new List<SneakerInventoryItem>();
+
         var names = new string[]
         {
             "Air forces", "Ballet shoe", "Bast shoe", "Blucher shoe", "Boat shoe", "Brogan", "Brogue shoe",
@@ -45,19 +46,22 @@ public class InventoryManager : MonoBehaviour
             "Tiger-head shoes", "Toe shoe", "Toe shoe", "Trail running shoes", "Tsarouhi", "Turnshoe",
             "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
         };
+
         for (int i = 0; i < numSneakers; i++)
         {
             var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout.transform);
             var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
             sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
-            sneakerInventoryItem.purchasedPrice = Random.Range(1, 1000);
             sneakerInventoryItem.quantity = Random.Range(50, 700);
             sneakerInventoryItem.rarity = (SneakerRarity)Random.Range(1, 5);
+            sneakerInventoryItem.purchasedPrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
             sneakerInventoryItem.aiCanBuy = false;
             sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
             sneakerInventoryItem.timestamp = DateTime.Now;
             sneakers.Add(sneakerInventoryItem);
         }
+
+        OnSneakerClick(sneakers[0]);
     }
 
     public void OnSneakerClick(SneakerInventoryItem sneakerInventoryItem)

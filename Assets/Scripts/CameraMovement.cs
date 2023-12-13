@@ -6,7 +6,7 @@ public class CameraMovement : MonoBehaviour
     public float minZoom = 1.0f;    // Minimum zoom level
     public float maxZoom = 10.0f;   // Maximum zoom level
 
-    private Camera camera;
+    new private Camera camera;
     private float initialPinchDistance;
     private float initialOrthoSize;
 
