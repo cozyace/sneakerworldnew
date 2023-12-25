@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +47,7 @@ public class UIManager : MonoBehaviour
     private string FormattedCash(float cash)
     {
         if (cash >= 1000000) return $"{(cash / 1000000f):F2}m";
-        if (cash >= 100000) return $"{(cash / 1000f):F2}k";
+        if (cash >= 1000) return $"{(cash / 1000f):F2}k";
         return cash.ToString();
     }
 

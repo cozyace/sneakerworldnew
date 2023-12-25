@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using static UnityEngine.GraphicsBuffer;
 using Random = UnityEngine.Random;
 
 public class AI : MonoBehaviour
@@ -25,7 +27,9 @@ public class AI : MonoBehaviour
     [SerializeField] private GameObject cashPopupPrefab;
     [SerializeField] private GameObject waitingBarPrefab;
     [SerializeField] private int xpPerPurchase;
-    
+    [SerializeField] private int lastKnownTransactionAmount;
+    [SerializeField] private RectTransform popupSpawn;
+
     private float waitingTime;
     private float currentWaitingTime;
     private bool waitingBarInstantiated = false;
@@ -44,6 +48,8 @@ public class AI : MonoBehaviour
         };
         waitingTime = GameManager.instance.upgradesManager.waitTime;
         currentWaitingTime = waitingTime;
+
+        popupSpawn = GameObject.FindGameObjectWithTag("popupTransform").GetComponent<RectTransform>();
     }
 
     private void Update()
@@ -93,9 +99,10 @@ public class AI : MonoBehaviour
             return;
         }
         CreateItemPopup(chosenSneaker);
-        CreateCashPopup();
         GameManager.instance.inventoryManager.BuySneaker(chosenSneaker);
         GameManager.instance.AddExperience(xpPerPurchase);
+        lastKnownTransactionAmount = chosenSneaker.purchasedPrice;
+        CreateCashPopup();
     }
 
     private SneakerInventoryItem ChooseSneaker()
@@ -113,8 +120,8 @@ public class AI : MonoBehaviour
 
     private void CreateCashPopup()
     {
-        GameObject popup = Instantiate(cashPopupPrefab, transform.position + Vector3.up * 2, Quaternion.identity, GameObject.FindGameObjectWithTag("CashPosition").transform);
-        popup.GetComponent<CashPopup>().SetPopup(100);
+        GameObject popup = Instantiate(cashPopupPrefab, popupSpawn);
+        popup.GetComponent<CashPopup>().SetPopup(lastKnownTransactionAmount);
     }
 
     private void CreateItemPopup(SneakerInventoryItem sneakerInventoryItem)

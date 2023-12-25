@@ -90,9 +90,10 @@ MonoBehaviour:
   animator: {fileID: 7298173618722100009}
   popupPosition: {fileID: 4556622734690868873}
   itemPopupPrefab: {fileID: 7449272868971740933, guid: ff8153b90aaa37c42bdba652a0546f7d, type: 3}
-  cashPopupPrefab: {fileID: 7720352705463936585, guid: 63fc0acba910c01448ef88a90b2bcf3c, type: 3}
+  cashPopupPrefab: {fileID: 8304862659455122879, guid: 9935fe14373bb4940a3208d494d98ad9, type: 3}
   waitingBarPrefab: {fileID: 1692546066539820077, guid: 93bc348c9cec6714885a9d1d98e6917f, type: 3}
   xpPerPurchase: 10
+  lastKnownTransactionAmount: 0
 --- !u!95 &7298173618722100009
 Animator:
   serializedVersion: 5

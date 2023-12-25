@@ -19,7 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int xpIncreaseAmount;
     public int xpPerLevel;
 
-    [Header("Sneakers")] [SerializeField] public List<Sneaker> _sneakers;
+    [Header("Sneakers")] 
+    [SerializeField] public List<Sneaker> _sneakers;
 
     private void Awake()
     {

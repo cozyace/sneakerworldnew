@@ -1,23 +1,35 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CashPopup : MonoBehaviour
 {
     [SerializeField] private int cash = 0;
-    [SerializeField] private float speed = 15;
+    public TMP_Text cashAmountText;
+
+    private bool hasAddedCash = false;
 
     private void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, transform.parent.position, speed * Time.deltaTime);
-        if (Vector2.Distance(transform.position, transform.parent.position) < speed * Time.deltaTime)
+        StartCoroutine(StartCoundown());
+    }
+
+    private IEnumerator StartCoundown()
+    {
+        if (!hasAddedCash)
         {
             GameManager.instance.AddCash(cash);
-            Destroy(gameObject);
+            hasAddedCash = true;
         }
+        yield return new WaitForSeconds(2);
+        Destroy(gameObject);
     }
 
     public void SetPopup(int cashAmount)
     {
         cash = cashAmount;
+        cashAmountText.text = cashAmount.ToString();
     }
 }

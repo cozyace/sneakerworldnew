@@ -19,6 +19,7 @@ TagManager:
   - loginOutputText
   - signupOutputText
   - loginPassword
+  - popupTransform
   layers:
   - Default
   - TransparentFX

@@ -17,6 +17,7 @@ public class FirebaseManager : MonoBehaviour
     public DatabaseReference dbReference;
     public FirebaseAuth auth;
     public FirebaseUser user;
+    public UserItem userItem;
     
     [Header("Login References")]
     [SerializeField] private TMP_InputField loginEmail;
@@ -29,6 +30,9 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private TMP_InputField registerPassword;
     [SerializeField] private TMP_InputField registerConfirmPassword;
     [SerializeField] private TMP_Text registerOutputText;
+
+    [Header("Friends")]
+    public List<string> usernames = new List<string>();
 
     private Coroutine loginCoroutine, signupCoroutine;
 
@@ -85,7 +89,6 @@ public class FirebaseManager : MonoBehaviour
         registerConfirmPassword = GameObject.FindGameObjectWithTag("confirmPassword").GetComponent<TMP_InputField>();
         registerOutputText = GameObject.FindGameObjectWithTag("signupOutputText").GetComponent<TMP_Text>();
     }
-
     
     private IEnumerator CheckAutoLogin()
     {
@@ -318,7 +321,54 @@ public class FirebaseManager : MonoBehaviour
         StartCoroutine(UpdateCash(userData.cash));
         StartCoroutine(UpdateGems(userData.gems));
     }
-    
+
+    public List<string> SearchUsers(string searchText)
+    {
+        dbReference.Child("users").
+        OrderByChild("username").
+        EqualTo(searchText).
+        GetValueAsync().
+        ContinueWith(task =>
+        {
+            if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                foreach (DataSnapshot user in snapshot.Children)
+                {
+                    string username = user.Child("username").Value.ToString();
+                    usernames.Clear();
+                    usernames.Add(username);
+                }
+            }
+        });
+
+        return usernames;
+    }
+
+    public void SendFriendRequest(string receiverId)
+    {
+        var friendRequest = new { FirebaseAuth.DefaultInstance.CurrentUser, receiverId, requestType = "sent" };
+        string key = dbReference.Child("friend_requests").Push().Key;
+        dbReference.Child("friend_requests").Child(key).SetValueAsync(friendRequest);
+    }
+
+    public void AcceptFriendRequest(string requestId)
+    {
+        dbReference.Child("friend_requests").Child(requestId).Child("requestType").SetValueAsync("accepted");
+    }
+
+    public void RemoveFriend(string userId, string friendId)
+    {
+        dbReference.Child("users").Child(userId).Child("friends").Child(friendId).RemoveValueAsync();
+        dbReference.Child("users").Child(friendId).Child("friends").Child(userId).RemoveValueAsync();
+    }
+
+    public void BlockFriend(string blockerId, string blockedId)
+    {
+        var blockEntry = new { blockerId = blockerId, blockedId = blockedId, requestType = "blocked" };
+        dbReference.Child("blocks").Push().SetValueAsync(blockEntry);
+    }
+
     private IEnumerator UpdateUsernameDatabase(string username)
     {
         var dbTask = dbReference.Child("users").Child(user.UserId).Child("username").SetValueAsync(username);
