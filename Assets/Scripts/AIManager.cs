@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AIManager : MonoBehaviour
 {
@@ -18,7 +19,10 @@ public class AIManager : MonoBehaviour
         
     private void Update()
     {
-        SpawnBots(botPrefab);
+        if (SceneManager.GetActiveScene().buildIndex == 1) 
+        {
+            SpawnBots(botPrefab);
+        }
     }
 
     private void SpawnBots(AI botToSpawn)

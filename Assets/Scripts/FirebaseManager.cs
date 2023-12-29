@@ -143,7 +143,7 @@ public class FirebaseManager : MonoBehaviour
     {
         dbReference.Child("users").Child(user.UserId).ValueChanged += (sender, args) =>
         {
-            var userData = new UserData();
+            var userData = new PlayerStats();
             var snapshot = args.Snapshot;
             userData.username = snapshot.Child("username").Value.ToString();
             userData.level = int.Parse(snapshot.Child("level").Value.ToString());
@@ -314,7 +314,7 @@ public class FirebaseManager : MonoBehaviour
     
     public void SaveData()
     {
-        var userData = GameManager.instance.userData;
+        var userData = GameManager.instance.playerStats;
         StartCoroutine(UpdateUsernameDatabase(userData.username));
         StartCoroutine(UpdateLevel(userData.level));
         StartCoroutine(UpdateExperience(userData.experience));

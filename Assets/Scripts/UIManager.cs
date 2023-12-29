@@ -51,16 +51,16 @@ public class UIManager : MonoBehaviour
         return cash.ToString();
     }
 
-    public void UpdateUI(UserData userData)
+    public void UpdateUI(PlayerStats playerStats)
     {
-        username.text = userData.username;
-        levelText.text = $"{userData.level}";
-        xpFillMask.fillAmount = (float) userData.experience / (userData.level * GameManager.instance.xpPerLevel);
-        cashTextMain.text = FormattedCash(userData.cash);
-        gemsTextMain.text = $"{userData.gems}";
-        cashTextStore.text = FormattedCash(userData.cash);
-        gemsTextStore.text = $"{userData.gems}";
-        welcomeText.text = $"Welcome, {userData.username}";
+        username.text = playerStats.username;
+        levelText.text = $"{playerStats.level}";
+        if (xpFillMask != null) xpFillMask.fillAmount = (float) playerStats.experience / (playerStats.level * GameManager.instance.xpPerLevel);
+        cashTextMain.text = FormattedCash(playerStats.cash);
+        gemsTextMain.text = $"{playerStats.gems}";
+        cashTextStore.text = FormattedCash(playerStats.cash);
+        gemsTextStore.text = $"{playerStats.gems}";
+        welcomeText.text = $"Welcome, {playerStats.username}";
     }
 
     public void ShowUpgrades()

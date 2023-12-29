@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,13 +15,19 @@ public class GameManager : MonoBehaviour
     public UpgradesManager upgradesManager;
     public InventoryManager inventoryManager;
 
-    [Header("User Data")]
-    [SerializeField] public UserData userData;
+    [Header("Player Stats")]
+    [SerializeField] public PlayerStats playerStats;
     [SerializeField] private int xpIncreaseAmount;
     public int xpPerLevel;
 
     [Header("Sneakers")] 
     [SerializeField] public List<Sneaker> _sneakers;
+
+    [Header("Leaderboards")]
+    public GameObject leaderboardPanel;
+    public RectTransform listingTransform;
+
+    private bool hasAssignedInitialValues;
 
     private void Awake()
     {
@@ -31,8 +38,8 @@ public class GameManager : MonoBehaviour
         }
         
         InvokeRepeating(nameof(AddExperience), 0, 60);
-        uiManager.UpdateUI(userData);
-        FirebaseManager.instance.SetupListeners();
+        PlayFabController.instance.GetPlayerStats();
+        PlayFabController.instance.GetPlayerData();
 
         var data = Resources.Load<TextAsset>("data");
         var splitDataset = data.text.Split('\n' );
@@ -47,11 +54,29 @@ public class GameManager : MonoBehaviour
             _sneakers.Add(sneaker);
         }
     }
-    
-    public void UpdateUserData(UserData data)
+
+    private void Update()
     {
-        userData = data;
-        uiManager.UpdateUI(userData);
+        StartCoroutine(AssignInitialValues(hasAssignedInitialValues));
+    }
+
+    private IEnumerator AssignInitialValues(bool hasAssignedValues)
+    {
+        while (uiManager.username.text == "")
+        {
+            if (!hasAssignedValues)
+            {
+                yield return new WaitForSeconds(0.5f);
+                UIManager.instance.UpdateUI(playerStats);
+                hasAssignedValues = true;
+            }
+        }
+    }
+
+    public void UpdateUserData(PlayerStats data)
+    {
+        playerStats = data;
+        uiManager.UpdateUI(playerStats);
     } 
     
     private void AddExperience()
@@ -61,17 +86,17 @@ public class GameManager : MonoBehaviour
 
     public void AddExperience(int xp)
     {
-        int xpTillNextLevel = (userData.level * xpPerLevel) - userData.experience;
+        int xpTillNextLevel = (playerStats.level * xpPerLevel) - playerStats.experience;
         if (xp < xpTillNextLevel)
         {
-            userData.experience += xpIncreaseAmount;
+            playerStats.experience += xpIncreaseAmount;
         }
         else if (xp >= xpTillNextLevel)
         {
-            userData.level++;
-            userData.experience = xp - xpTillNextLevel;
+            playerStats.level++;
+            playerStats.experience = xp - xpTillNextLevel;
         }
-        uiManager.UpdateUI(userData);
+        uiManager.UpdateUI(playerStats);
     }
 
     public void AddEmployee()
@@ -81,25 +106,35 @@ public class GameManager : MonoBehaviour
 
     public int GetCash()
     {
-        return userData.cash;
+        return playerStats.cash;
     }
 
     public void AddCash(int cash)
     {
-        userData.cash += cash;
-        uiManager.UpdateUI(userData);
+        playerStats.cash += cash;
+        uiManager.UpdateUI(playerStats);
     }
 
     public void DeductCash(int cash)
     {
-        userData.cash -= cash;
-        uiManager.UpdateUI(userData);
+        playerStats.cash -= cash;
+        uiManager.UpdateUI(playerStats);
+    }
+
+    public void LeaderboardButton()
+    {
+        PlayFabController.instance.GetLeaderboard();
+    }
+
+    public void CloseLeaderBoard()
+    {
+        PlayFabController.instance.CloseLeaderboard();
     }
 
     public void SignOutButton()
     {
         aiManager.enabled = uiManager.enabled = employeeManager.enabled = 
             upgradesManager.enabled = inventoryManager.enabled = false;
-        FirebaseManager.instance.SignOutButton();
+        PlayFabController.instance.SignOutButton();
     }
 }

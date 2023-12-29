@@ -867,11 +867,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: 8f7733d6-327f-4e26-9a04-ccc40f1e8372
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: sneaker-world
+  organizationId: tobimadehin
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
