@@ -2,8 +2,11 @@ using Authentication;
 using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.PfEditor.EditorModels;
+using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,8 +16,6 @@ using PlayFabError = PlayFab.PlayFabError;
 
 public class PlayFabController : MonoBehaviour
 {
-    public static PlayFabController instance;
-
     private string userEmail;
     private string userPassword;
     private string confirmPassword;
@@ -43,50 +44,56 @@ public class PlayFabController : MonoBehaviour
     [SerializeField] private GameObject leaderboardPanel;
     [SerializeField] private GameObject leaderboardListing;
     [SerializeField] private RectTransform listingTransform;
+    [SerializeField] private Leaderboard leaderboard1;
+    [SerializeField] private Leaderboard leaderboard2;
+    [SerializeField] private Leaderboard leaderboard3;
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (instance != this)
-        {
-            Destroy(gameObject);
-        }
-    }
+    [Header("Game Manager")]
+    public GameManager gameManager;
+
+    [Header("Friends")]
+    private List<FriendInfo> currentFriends;
+    [SerializeField] private List<FriendInfo> _friends;
+    [SerializeField] private GameObject friendListing;
+    [SerializeField] private GameObject friendError;
+    [SerializeField] private RectTransform friendsView;
+    [SerializeField] private string friendSearch;
+
+    private List<FriendInfo> currentAddFriends;
+    [SerializeField] private List<FriendInfo> _addFriends;
+    [SerializeField] private GameObject addFriendItemListing;
+    [SerializeField] private GameObject addFriendError;
+    [SerializeField] private RectTransform addFriendsView;
+    [SerializeField] private string addFriendSearch;
 
     public void Start()
     {
-        if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
+        if (defaults == null)
+            defaults = FindObjectOfType<DefaultValues>();
+
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
+
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+            AssignMainObjects();
+
+        if (SceneManager.GetActiveScene().buildIndex == 0)
         {
-            PlayFabSettings.TitleId = "8C815";
+            AssignObjects();
+
+            if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
+            {
+                PlayFabSettings.TitleId = "8C815";
+            }
+
+            if (PlayerPrefs.HasKey("EMAIL"))
+            {
+                userEmail = PlayerPrefs.GetString("EMAIL");
+                userPassword = PlayerPrefs.GetString("PASSWORD");
+
+                LoginButton();
+            }
         }
-
-        if (PlayerPrefs.HasKey("EMAIL"))
-        {
-            userEmail = PlayerPrefs.GetString("EMAIL");
-            userPassword = PlayerPrefs.GetString("PASSWORD");
-
-            LoginButton();
-        }
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (SceneManager.GetActiveScene().buildIndex == 0) AssignObjects();
-        if (SceneManager.GetActiveScene().buildIndex == 1) AssignMainObjects();
     }
 
     private void AssignObjects()
@@ -108,13 +115,16 @@ public class PlayFabController : MonoBehaviour
 
     private void AssignMainObjects()
     {
-        GameManager.instance.aiManager.enabled = 
-        GameManager.instance.uiManager.enabled = 
-        GameManager.instance.employeeManager.enabled =
-        GameManager.instance.upgradesManager.enabled = 
-        GameManager.instance.inventoryManager.enabled =
-        true;
+        leaderboard1 = defaults.leaderboard1;
+        leaderboard2 = defaults.leaderboard2;
+        leaderboard3 = defaults.leaderboard3;
 
+        gameManager.aiManager.enabled = 
+        gameManager.uiManager.enabled = 
+        gameManager.employeeManager.enabled =
+        gameManager.upgradesManager.enabled = 
+        gameManager.inventoryManager.enabled =
+        true;
     }
 
     private void OnLoginSuccess(LoginResult result)
@@ -184,11 +194,18 @@ public class PlayFabController : MonoBehaviour
         username = usernameIn;
     }
 
+    public void SetFriendSearch(string usernameIn)
+    {
+        friendSearch = usernameIn;
+    }
+
+    public void SetAddFriendSearch(string usernameIn)
+    {
+        addFriendSearch = usernameIn;
+    }
+
     public void LoginButton()
     {
-        Debug.Log("useremail " + userEmail);
-        Debug.Log("password " + loginPassword);
-
         var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
         PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnLoginFailure);
     }
@@ -267,14 +284,14 @@ public class PlayFabController : MonoBehaviour
     {
         PlayFabClientAPI.GetPlayerProfile(
             new GetPlayerProfileRequest(), 
-            result => GameManager.instance.playerStats.username = result.PlayerProfile.DisplayName, 
+            result => gameManager.playerStats.username = result.PlayerProfile.DisplayName, 
             error => Debug.LogError(error.GenerateErrorReport())
         );
     }
 
     private void OnGetStatus(GetPlayerStatisticsResult result)
     {
-        PlayerStats playerStats = GameManager.instance.playerStats;
+        PlayerStats playerStats = gameManager.playerStats;
         
         foreach (var eachStat in result.Statistics)
         { 
@@ -306,29 +323,55 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.DeleteAll();
     }
 
-    public void GetLeaderboard()
+    public void GetLeaderBoardFirstToThird()
     {
         SaveData();
 
         if (defaults == null)
-        {
             defaults = FindObjectOfType<DefaultValues>();
-        }
 
+        var requestLeaderboard = new GetLeaderboardRequest
+        {
+            StartPosition = 0,
+            StatisticName = "cash",
+            MaxResultsCount = 3
+        };
+        PlayFabClientAPI.GetLeaderboard(
+            requestLeaderboard,
+            OnGetLeaderboardFirstToThird,
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+    }
+
+    public void GetLeaderboard()
+    {
         leaderboardPanel = defaults.leaderboardPanel;
         listingTransform = defaults.listingTransform;
         leaderboardPanel.SetActive(true);
 
         var requestLeaderboard = new GetLeaderboardRequest { 
-            StartPosition = 0, 
+            StartPosition = 3, 
             StatisticName = "cash",  
-            MaxResultsCount = 50
+            MaxResultsCount = 47
         };
         PlayFabClientAPI.GetLeaderboard(
             requestLeaderboard, 
             OnGetLeaderboard,
             error => Debug.LogError(error.GenerateErrorReport())
         );
+    }
+
+    private void OnGetLeaderboardFirstToThird(GetLeaderboardResult result)
+    {
+        for (int i = 0; i <= result.Leaderboard.Count; i++)
+        {
+            leaderboard1.playerName.text = result.Leaderboard[0].DisplayName;
+            leaderboard1.cash.text = gameManager.uiManager.FormattedCash(result.Leaderboard[0].StatValue);
+            leaderboard2.playerName.text = result.Leaderboard[1].DisplayName;
+            leaderboard2.cash.text = gameManager.uiManager.FormattedCash(result.Leaderboard[1].StatValue);
+            leaderboard3.playerName.text = result.Leaderboard[2].DisplayName;
+            leaderboard3.cash.text = gameManager.uiManager.FormattedCash(result.Leaderboard[2].StatValue);
+        }
     }
 
     private void OnGetLeaderboard(GetLeaderboardResult result)
@@ -338,14 +381,14 @@ public class PlayFabController : MonoBehaviour
             GameObject listing = Instantiate(leaderboardListing, listingTransform);
             Leaderboard leaderboard = listing.GetComponent<Leaderboard>();
             leaderboard.playerName.text = player.DisplayName;
-            leaderboard.cash.text = player.StatValue.ToString();
+            leaderboard.cash.text = gameManager.uiManager.FormattedCash(player.StatValue);
         }
     }
 
     public void CloseLeaderboard()
     {
-        leaderboardPanel = GameManager.instance.leaderboardPanel;
-        listingTransform = GameManager.instance.listingTransform;
+        leaderboardPanel = gameManager.leaderboardPanel;
+        listingTransform = gameManager.listingTransform;
 
         int childCount = listingTransform.childCount;
 
@@ -364,9 +407,82 @@ public class PlayFabController : MonoBehaviour
         leaderboardPanel.SetActive(false);
     }
 
+    public void CloseFriends()
+    {
+        int childCount = friendsView.childCount;
+
+        for (int i = 0; i < childCount; i++)
+        {
+            var friend = friendsView.GetChild(i);
+
+            for (int j = friend.childCount - 1; j >= 0; j--)
+            {
+                var child = friend.GetChild(j);
+                Destroy(child.gameObject);
+            }
+
+            if (!friend.CompareTag("DONOTDESTROY"))
+                Destroy(friend.gameObject);
+        }
+    }
+
+    public void SearchPlayer(string username)
+    {
+        var request = new GetAccountInfoRequest
+        {
+            Username = username,
+        };
+
+        PlayFabClientAPI.GetAccountInfo(
+            request,
+            result => {
+                friendError.SetActive(false);
+                CloseFriends();
+                GameObject friend = Instantiate(friendListing, friendsView);
+                friend.GetComponent<FriendItemListing>().username.text = result.AccountInfo.Username;
+
+
+                Debug.Log($"Player ID: {result.AccountInfo.PlayFabId}");
+                Debug.Log($"Username: {result.AccountInfo.Username}");
+            },
+            error => {
+                Debug.LogError(error.GenerateErrorReport());
+                CloseFriends();
+
+                if (error.ErrorMessage == "User not found")
+                    friendError.SetActive(true);
+            }
+        );
+    }
+
+    public void GetFriends()
+    {
+        SearchPlayer(friendSearch);
+    }
+
+    private void AddFriend(string username)
+    {
+        var request = new AddFriendRequest
+        {
+            FriendUsername = username,
+        };
+        PlayFabClientAPI.AddFriend(
+            request, 
+            result => {
+                
+            },
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+    }
+
+    public void SubmitFriendRequest()
+    {
+        AddFriend(friendSearch);
+    }
+
     private void SaveData()
     {
-        SetPlayerStats(GameManager.instance.playerStats);
+        SetPlayerStats(gameManager.playerStats);
     }
 
     private void OnApplicationQuit()

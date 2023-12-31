@@ -464,8 +464,9 @@ GameObject:
   - component: {fileID: 2073365989337566891}
   - component: {fileID: 2073365989337566889}
   - component: {fileID: 2073365989337566890}
+  - component: {fileID: 3992954379841096580}
   m_Layer: 5
-  m_Name: Profile
+  m_Name: AddFriendListing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -478,7 +479,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2073365989337566892}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -534,6 +535,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3992954379841096580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073365989337566892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e775c20a7b8adb419a6dca592e49118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  username: {fileID: 2073365988139810071}
+  addFriendButton: {fileID: 92371648175502973}
+  cancelButton: {fileID: 3075936368747516548}
+  friendsButton: {fileID: 152032401366698972}
 --- !u!1 &3075936368747516548
 GameObject:
   m_ObjectHideFlags: 0

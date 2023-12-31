@@ -261,6 +261,7 @@ MonoBehaviour:
   registerConfirmPassword: {fileID: 0}
   registerOutputText: {fileID: 0}
   usernames: []
+  gameManager: {fileID: 0}
 --- !u!1 &340342666
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +307,10 @@ MonoBehaviour:
   leaderboardPanel: {fileID: 0}
   leaderboardListing: {fileID: 913053189705665331, guid: 14c125b7295fb0a4d95966b62d9c9379, type: 3}
   listingTransform: {fileID: 0}
+  leaderboard1: {fileID: 0}
+  leaderboard2: {fileID: 0}
+  leaderboard3: {fileID: 0}
+  gameManager: {fileID: 0}
 --- !u!4 &340342668
 Transform:
   m_ObjectHideFlags: 0
@@ -316,7 +321,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -500,6 +505,9 @@ MonoBehaviour:
   leaderboardPanel: {fileID: 0}
   leaderboardListing: {fileID: 0}
   listingTransform: {fileID: 0}
+  leaderboard1: {fileID: 0}
+  leaderboard2: {fileID: 0}
+  leaderboard3: {fileID: 0}
 --- !u!4 &776814595
 Transform:
   m_ObjectHideFlags: 0

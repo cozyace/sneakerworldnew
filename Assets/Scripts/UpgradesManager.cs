@@ -11,6 +11,9 @@ public class UpgradesManager : MonoBehaviour
     [SerializeField] private UpgradePanel advertisement;
     [SerializeField] private UpgradePanel improveStore;
 
+    [Header("Game Manager")]
+    public GameManager gameManager;
+
     private void Start()
     {
         employees.SetInitialValues($"Waiting time ~ {waitTime}s");
@@ -18,15 +21,16 @@ public class UpgradesManager : MonoBehaviour
 
     public void UpgradeEmployees()
     {
-        if (GameManager.instance.GetCash() >= employees.price)
+        if (gameManager.GetCash() >= employees.price)
         {
-            GameManager.instance.DeductCash(employees.price);
+            gameManager.DeductCash(employees.price);
             employees.BuyUpgrade();
             waitTime = Math.Max(0, waitTime - 0.5f);
             employees.SetDescription($"Waiting time ~ {waitTime}s");
+
             if (employees.level % 5 == 0)
             {
-                GameManager.instance.AddEmployee();
+                gameManager.AddEmployee();
             }
 
             if (employees.level == 20)

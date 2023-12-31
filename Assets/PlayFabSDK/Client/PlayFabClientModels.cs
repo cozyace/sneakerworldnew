@@ -1909,6 +1909,8 @@ namespace PlayFab.ClientModels
         /// Xbox token if Xbox friends should be included. Requires Xbox be configured on PlayFab.
         /// </summary>
         public string XboxToken;
+
+        public bool IncludeSteamFriends { get; set; }
     }
 
     /// <summary>

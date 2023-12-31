@@ -24,6 +24,7 @@ TagManager:
   - leaderboardPanel
   - loginButton
   - registerButton
+  - DONOTDESTROY
   layers:
   - Default
   - TransparentFX

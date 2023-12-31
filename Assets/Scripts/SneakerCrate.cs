@@ -6,10 +6,14 @@ public class SneakerCrate : MonoBehaviour
 {
     [SerializeField] private SneakerRarity rarity;
     [SerializeField] private TMP_Text price;
+    public GameManager gameManager;
 
     public Sneaker Buy()
     {
-        if (GameManager.instance.GetCash() <= int.Parse(price.text))
+        if (gameManager == null)
+            gameManager = FindAnyObjectByType<GameManager>();
+
+        if (gameManager.GetCash() <= int.Parse(price.text))
         {
             return new Sneaker()
             {
@@ -18,11 +22,11 @@ public class SneakerCrate : MonoBehaviour
         }
 
         List<Sneaker> availableSneakers = new List<Sneaker>();
-        for (int i = 0; i < GameManager.instance._sneakers.Count; i++)
+        for (int i = 0; i < gameManager._sneakers.Count; i++)
         {
-            if (GameManager.instance._sneakers[i].rarity == rarity)
+            if (gameManager._sneakers[i].rarity == rarity)
             {
-                availableSneakers.Add(GameManager.instance._sneakers[i]);
+                availableSneakers.Add(gameManager._sneakers[i]);
             }
         }
 

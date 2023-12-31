@@ -13,21 +13,9 @@ namespace Authentication
         [SerializeField] private GameObject registerUI;
         [SerializeField] private GameObject loadingUI;
 
-        private void Awake()
-        {
-            if (instance == null)
-            {
-                instance = this;
-            }
-            else if (instance != this)
-            {
-                Destroy(gameObject);
-            }
-        }
-
         private void Start()
         {
-            FirebaseManager.instance.AssignObjects();
+            // FirebaseManager.instance.AssignObjects();
         }
 
         private void ClearUI()

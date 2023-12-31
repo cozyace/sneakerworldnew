@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 
 public class InventoryManager : MonoBehaviour
 {
+    public InventoryStats inventoryStats;
     public SelectedSneaker selectedSneaker;
     public SneakerInventoryItem currentSneakerSelected;
     public GridLayoutGroup gridLayout;
@@ -20,8 +21,6 @@ public class InventoryManager : MonoBehaviour
     public GameObject sellButton;
 
     public List<SneakerInventoryItem> sneakers;
-
-    public int numSneakers;
 
     private bool checkboxActive = true;
 
@@ -47,7 +46,7 @@ public class InventoryManager : MonoBehaviour
             "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
         };
 
-        for (int i = 0; i < numSneakers; i++)
+        for (int i = 0; i < inventoryStats.numSneakers; i++)
         {
             var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout.transform);
             var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
@@ -62,6 +61,38 @@ public class InventoryManager : MonoBehaviour
         }
 
         OnSneakerClick(sneakers[0]);
+    }
+
+    private void InstantiateSneakers()
+    {
+        var names = new string[]
+        {
+            "Air forces", "Ballet shoe", "Bast shoe", "Blucher shoe", "Boat shoe", "Brogan", "Brogue shoe",
+            "Brothel creeper", "Bucks", "Cantabrian", "Chelsea boot", "Chopine", "Chukka boot", "Climbing shoe", "Clog",
+            "Court shoe", "Cross country running shoe", "Derby shoe", "Desert Boot", "Diabetic shoe", "Dress shoe",
+            "Driving moccasins", "Duckbill shoe", "Earth shoe", "Elevator shoes", "Espadrille", "Fashion boot",
+            "Galesh", "Geta", "Giveh", "High-heeled footwear", "Hiking shoes", "Huarache", "Jazz shoe", "Jelly shoes",
+            "Jika-tabi", "Jutti", "Kitten heel", "Kolhapuri Chappal", "Kung fu shoe", "Loafers", "Lotus shoes",
+            "Mary Jane", "Moccasin", "Mojari", "Monk shoe", "Mule", "Okobo", "Opanak", "Opinga", "Organ shoes",
+            "Orthopaedic footwear", "Over-the-knee boot", "Oxford shoe", "Pampootie", "Peep-toe shoe",
+            "Peranakan beaded slippers", "Peshawari chappal", "Platform shoe", "Plimsoll", "Pointe shoe",
+            "Pointed shoe", "Pointinini", "Riding boots", "Rocker bottom shoe", "Rope-soled shoe", "Russian boot",
+            "Saddle shoe", "Sailing boots", "Sandal", "Silver Shoes", "Slingback", "Slip-on shoe", "Slipper",
+            "Sneakers", "Snow boot", "Spectator shoe", "Spool heel", "Steel-toe boot", "Stiletto heel", "T-bar sandal",
+            "Tiger-head shoes", "Toe shoe", "Toe shoe", "Trail running shoes", "Tsarouhi", "Turnshoe",
+            "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
+        };
+
+        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout.transform);
+        var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
+        sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
+        sneakerInventoryItem.quantity = Random.Range(50, 700);
+        sneakerInventoryItem.rarity = (SneakerRarity)Random.Range(1, 5);
+        sneakerInventoryItem.purchasedPrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
+        sneakerInventoryItem.aiCanBuy = false;
+        sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
+        sneakerInventoryItem.timestamp = DateTime.Now;
+        sneakers.Add(sneakerInventoryItem);
     }
 
     public void OnSneakerClick(SneakerInventoryItem sneakerInventoryItem)
@@ -248,5 +279,11 @@ public class InventoryManager : MonoBehaviour
             currentSneakerSelected.aiCanBuy = true;
             currentSneakerSelected.toggle.isOn = true;
         }
+    }
+
+    public void AddSneakerSlot()
+    {
+        inventoryStats.numSneakers++;
+        InstantiateSneakers();
     }
 }

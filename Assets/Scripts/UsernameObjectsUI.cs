@@ -16,16 +16,16 @@ public class UsernameObjectsUI : MonoBehaviour
         errorTextGO.SetActive(false);
         string username = string.Empty;
 
-        if (FirebaseManager.instance.usernames.Count < 1)
-        {
-            errorTextGO.SetActive(true);
-        }
-        else
-        {
-            username = FirebaseManager.instance.usernames[0];
-            userItemGO.SetActive(true);
-            userItemGO.GetComponent<UserItem>().SetData(username);
-        }
+        //if (FirebaseManager.instance.usernames.Count < 1)
+        //{
+        //    errorTextGO.SetActive(true);
+        //}
+        //else
+        //{
+        //    username = FirebaseManager.instance.usernames[0];
+        //    userItemGO.SetActive(true);
+        //    userItemGO.GetComponent<UserItem>().SetData(username);
+        //}
     }
 
     public void SearchButton()
@@ -40,7 +40,7 @@ public class UsernameObjectsUI : MonoBehaviour
 
     private IEnumerator SearchLogic()
     {
-        FirebaseManager.instance.SearchUsers(searchInputField.text);
+        //FirebaseManager.instance.SearchUsers(searchInputField.text);
         yield return new WaitForSeconds(0.5f);
         UpdateUserListUI();
     }

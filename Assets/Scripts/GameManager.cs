@@ -5,9 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
-
-    [Header("Managers")] 
+    [Header("Managers")]
+    public InventoryStats inventoryStats;
+    public PlayFabController playfab;
     public AudioManager audioManager;
     public UIManager uiManager;
     public EmployeeManager employeeManager;
@@ -27,19 +27,14 @@ public class GameManager : MonoBehaviour
     public GameObject leaderboardPanel;
     public RectTransform listingTransform;
 
-    private bool hasAssignedInitialValues;
-
     private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        
+    {   
+        if (playfab == null)
+            playfab = FindObjectOfType<PlayFabController>();
+
         InvokeRepeating(nameof(AddExperience), 0, 60);
-        PlayFabController.instance.GetPlayerStats();
-        PlayFabController.instance.GetPlayerData();
+        playfab.GetPlayerStats();
+        playfab.GetPlayerData();
 
         var data = Resources.Load<TextAsset>("data");
         var splitDataset = data.text.Split('\n' );
@@ -55,21 +50,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void Start()
     {
-        StartCoroutine(AssignInitialValues(hasAssignedInitialValues));
+        StartCoroutine(AssignInitialValues());
     }
 
-    private IEnumerator AssignInitialValues(bool hasAssignedValues)
+    private IEnumerator AssignInitialValues()
     {
-        while (uiManager.username.text == "")
+        while (playerStats.username == "")
         {
-            if (!hasAssignedValues)
-            {
-                yield return new WaitForSeconds(0.5f);
-                UIManager.instance.UpdateUI(playerStats);
-                hasAssignedValues = true;
-            }
+            yield return new WaitForSeconds(0.5f);
+            uiManager.UpdateUI(playerStats);
         }
     }
 
@@ -123,18 +114,19 @@ public class GameManager : MonoBehaviour
 
     public void LeaderboardButton()
     {
-        PlayFabController.instance.GetLeaderboard();
+        playfab.GetLeaderBoardFirstToThird();
+        playfab.GetLeaderboard();
     }
 
     public void CloseLeaderBoard()
     {
-        PlayFabController.instance.CloseLeaderboard();
+        playfab.CloseLeaderboard();
     }
 
     public void SignOutButton()
     {
         aiManager.enabled = uiManager.enabled = employeeManager.enabled = 
             upgradesManager.enabled = inventoryManager.enabled = false;
-        PlayFabController.instance.SignOutButton();
+        playfab.SignOutButton();
     }
 }

@@ -16,9 +16,13 @@ public class SneakerInventoryItem : MonoBehaviour
     public Toggle toggle;
     public bool listed;
     public bool aiCanBuy;
+    public GameManager gameManager;
 
     public void OnClick()
     {
-        GameManager.instance.inventoryManager.OnSneakerClick(this);
+        if (gameManager == null)
+            gameManager = FindAnyObjectByType<GameManager>();
+
+        gameManager.inventoryManager.OnSneakerClick(this);
     }
 }

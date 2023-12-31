@@ -11,8 +11,6 @@ using TMPro;
 
 public class FirebaseManager : MonoBehaviour
 {
-    public static FirebaseManager instance;
-
     [Header("Firebase")]
     public DatabaseReference dbReference;
     public FirebaseAuth auth;
@@ -34,20 +32,13 @@ public class FirebaseManager : MonoBehaviour
     [Header("Friends")]
     public List<string> usernames = new List<string>();
 
+    [Header("Game Manager")]
+    public GameManager gameManager;
+
     private Coroutine loginCoroutine, signupCoroutine;
 
-    private void Awake()
+    private void Start()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (instance != this)
-        {
-            Destroy(gameObject);
-        }
-        
         StartCoroutine(CheckAndFixDependencies());
     }
 
@@ -152,7 +143,7 @@ public class FirebaseManager : MonoBehaviour
             userData.gems = int.Parse(snapshot.Child("gems").Value.ToString());
 
             if (SceneManager.GetActiveScene().buildIndex == 1)
-                GameManager.instance.UpdateUserData(userData);
+                gameManager.UpdateUserData(userData);
         };
     }
     
@@ -314,7 +305,7 @@ public class FirebaseManager : MonoBehaviour
     
     public void SaveData()
     {
-        var userData = GameManager.instance.playerStats;
+        var userData = gameManager.playerStats;
         StartCoroutine(UpdateUsernameDatabase(userData.username));
         StartCoroutine(UpdateLevel(userData.level));
         StartCoroutine(UpdateExperience(userData.experience));

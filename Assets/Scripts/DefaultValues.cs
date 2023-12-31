@@ -27,4 +27,8 @@ public class DefaultValues : MonoBehaviour
     public GameObject leaderboardPanel;
     public GameObject leaderboardListing;
     public RectTransform listingTransform;
+
+    public Leaderboard leaderboard1;
+    public Leaderboard leaderboard2;
+    public Leaderboard leaderboard3;
 }

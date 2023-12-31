@@ -30,6 +30,9 @@ public class AI : MonoBehaviour
     [SerializeField] private int lastKnownTransactionAmount;
     [SerializeField] private RectTransform popupSpawn;
 
+    [Header("Game Mananager")]
+    public GameManager gameManager;
+
     private float waitingTime;
     private float currentWaitingTime;
     private bool waitingBarInstantiated = false;
@@ -39,6 +42,9 @@ public class AI : MonoBehaviour
 
     private void Start()
     {
+        if (gameManager == null) 
+            gameManager = FindAnyObjectByType<GameManager>();
+
         spriteRenderer.sprite = sprites[Random.Range(0, sprites.Length)];
         waypoints = new[]
         {
@@ -46,7 +52,7 @@ public class AI : MonoBehaviour
             GameObject.FindGameObjectWithTag("finishedPurchase").transform,
             GameObject.FindGameObjectWithTag("exit").transform,
         };
-        waitingTime = GameManager.instance.upgradesManager.waitTime;
+        waitingTime = gameManager.upgradesManager.waitTime;
         currentWaitingTime = waitingTime;
 
         popupSpawn = GameObject.FindGameObjectWithTag("popupTransform").GetComponent<RectTransform>();
@@ -99,15 +105,30 @@ public class AI : MonoBehaviour
             return;
         }
         CreateItemPopup(chosenSneaker);
-        GameManager.instance.inventoryManager.BuySneaker(chosenSneaker);
-        GameManager.instance.AddExperience(xpPerPurchase);
+        gameManager.inventoryManager.BuySneaker(chosenSneaker);
+        gameManager.AddExperience(xpPerPurchase);
         lastKnownTransactionAmount = chosenSneaker.purchasedPrice;
         CreateCashPopup();
+
+        if (gameManager.playerStats.level == 10 && gameManager.inventoryStats.numSneakers < 11)
+            gameManager.inventoryManager.AddSneakerSlot();
+
+        if (gameManager.playerStats.level == 25 && gameManager.inventoryStats.numSneakers < 26)
+            gameManager.inventoryManager.AddSneakerSlot();
+
+        if (gameManager.playerStats.level == 40 && gameManager.inventoryStats.numSneakers < 41)
+            gameManager.inventoryManager.AddSneakerSlot();
+
+        if (gameManager.playerStats.level == 75 && gameManager.inventoryStats.numSneakers < 76)
+            gameManager.inventoryManager.AddSneakerSlot();
+
+        if (gameManager.playerStats.level == 100 && gameManager.inventoryStats.numSneakers < 101)
+            gameManager.inventoryManager.AddSneakerSlot();
     }
 
     private SneakerInventoryItem ChooseSneaker()
     {
-        List<SneakerInventoryItem> sneakersAvailable = GameManager.instance.inventoryManager.sneakers.Where(sneaker => sneaker.aiCanBuy).ToList();
+        List<SneakerInventoryItem> sneakersAvailable = gameManager.inventoryManager.sneakers.Where(sneaker => sneaker.aiCanBuy).ToList();
 
         if (sneakersAvailable.Count == 0)
         {

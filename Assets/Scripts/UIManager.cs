@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public static UIManager instance;
-    
     [Header("Main UI")]
     [SerializeField] private Animator uiAnimator;
     public TMP_Text username;
@@ -26,25 +25,19 @@ public class UIManager : MonoBehaviour
     [Header("Welcome Screen")]
     public TMP_Text welcomeText;
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != null)
-        {
-            Destroy(this);
-        }
-    }
+    [Header("Game Mananager")]
+    public GameManager gameManager;
 
     public void ToggleUI()
     {
+        if (gameManager == null)
+            gameManager = GetComponent<GameManager>();
+
         uiAnimator.SetBool("shown", !uiAnimator.GetBool("shown"));
-        GameManager.instance.audioManager.ButtonClick();
+        gameManager.audioManager.ButtonClick();
     }
 
-    private string FormattedCash(float cash)
+    public string FormattedCash(float cash)
     {
         if (cash >= 1000000) return $"{(cash / 1000000f):F2}m";
         if (cash >= 1000) return $"{(cash / 1000f):F2}k";
@@ -53,14 +46,19 @@ public class UIManager : MonoBehaviour
 
     public void UpdateUI(PlayerStats playerStats)
     {
-        username.text = playerStats.username;
-        levelText.text = $"{playerStats.level}";
-        if (xpFillMask != null) xpFillMask.fillAmount = (float) playerStats.experience / (playerStats.level * GameManager.instance.xpPerLevel);
-        cashTextMain.text = FormattedCash(playerStats.cash);
-        gemsTextMain.text = $"{playerStats.gems}";
-        cashTextStore.text = FormattedCash(playerStats.cash);
-        gemsTextStore.text = $"{playerStats.gems}";
-        welcomeText.text = $"Welcome, {playerStats.username}";
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            username.text = playerStats.username;
+            levelText.text = $"{playerStats.level}";
+            if (xpFillMask != null)
+                xpFillMask.fillAmount = (float)playerStats.experience /
+                    (playerStats.level * gameManager.xpPerLevel);
+            cashTextMain.text = FormattedCash(playerStats.cash);
+            gemsTextMain.text = $"{playerStats.gems}";
+            cashTextStore.text = FormattedCash(playerStats.cash);
+            gemsTextStore.text = $"{playerStats.gems}";
+            welcomeText.text = $"Welcome, {playerStats.username}";
+        }
     }
 
     public void ShowUpgrades()

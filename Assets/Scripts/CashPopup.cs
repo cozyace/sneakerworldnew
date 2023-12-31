@@ -8,10 +8,10 @@ public class CashPopup : MonoBehaviour
 {
     [SerializeField] private int cash = 0;
     public TMP_Text cashAmountText;
+    public GameManager gameManager;
+    private bool hasAddedCash;
 
-    private bool hasAddedCash = false;
-
-    private void Update()
+    private void Start()
     {
         StartCoroutine(StartCoundown());
     }
@@ -20,7 +20,10 @@ public class CashPopup : MonoBehaviour
     {
         if (!hasAddedCash)
         {
-            GameManager.instance.AddCash(cash);
+            if (gameManager == null)
+                gameManager = FindAnyObjectByType<GameManager>();
+
+            gameManager.AddCash(cash);
             hasAddedCash = true;
         }
         yield return new WaitForSeconds(2);
