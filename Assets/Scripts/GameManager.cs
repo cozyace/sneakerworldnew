@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
             uiManager.UpdateUI(playerStats);
+            playfab.SetUsername(playerStats.username);
         }
     }
 

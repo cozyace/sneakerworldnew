@@ -4,6 +4,7 @@ using PlayFab.ClientModels;
 using PlayFab.PfEditor.EditorModels;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using TMPro;
 using Unity.VisualScripting;
@@ -19,7 +20,7 @@ public class PlayFabController : MonoBehaviour
     private string userEmail;
     private string userPassword;
     private string confirmPassword;
-    private string username;
+    public string username;
 
     [Header("Reference Manager")]
     [SerializeField] private DefaultValues defaults;
@@ -52,19 +53,21 @@ public class PlayFabController : MonoBehaviour
     public GameManager gameManager;
 
     [Header("Friends")]
-    private List<FriendInfo> currentFriends;
     [SerializeField] private List<FriendInfo> _friends;
     [SerializeField] private GameObject friendListing;
     [SerializeField] private GameObject friendError;
     [SerializeField] private RectTransform friendsView;
-    [SerializeField] private string friendSearch;
+    public string friendSearch;
 
-    private List<FriendInfo> currentAddFriends;
     [SerializeField] private List<FriendInfo> _addFriends;
-    [SerializeField] private GameObject addFriendItemListing;
     [SerializeField] private GameObject addFriendError;
     [SerializeField] private RectTransform addFriendsView;
-    [SerializeField] private string addFriendSearch;
+    public string addFriendSearch;
+    [SerializeField] private List<FriendItemListing> friendItems, addFriendItems;
+
+    [Header("Trading")]
+    public GameObject tradePanel;
+    [SerializeField] private TMP_Text usernameTrade, friendUsernameTrade;
 
     public void Start()
     {
@@ -409,45 +412,52 @@ public class PlayFabController : MonoBehaviour
 
     public void CloseFriends()
     {
-        int childCount = friendsView.childCount;
-
-        for (int i = 0; i < childCount; i++)
-        {
-            var friend = friendsView.GetChild(i);
-
-            for (int j = friend.childCount - 1; j >= 0; j--)
-            {
-                var child = friend.GetChild(j);
-                Destroy(child.gameObject);
-            }
-
-            if (!friend.CompareTag("DONOTDESTROY"))
-                Destroy(friend.gameObject);
-        }
+        foreach (FriendItemListing f in friendItems)
+            if (f != null) Destroy(f.gameObject);
     }
 
-    public void SearchPlayer(string username)
+    public void CloseAddFriends()
+    {
+        foreach (FriendItemListing f in addFriendItems)
+            if (f != null) Destroy(f.gameObject);
+    }
+
+    public void SearchPlayer(string _username)
     {
         var request = new GetAccountInfoRequest
         {
-            Username = username,
+            Username = _username,
         };
 
         PlayFabClientAPI.GetAccountInfo(
             request,
             result => {
                 friendError.SetActive(false);
-                CloseFriends();
-                GameObject friend = Instantiate(friendListing, friendsView);
-                friend.GetComponent<FriendItemListing>().username.text = result.AccountInfo.Username;
+                CloseAddFriends();
 
+                if (addFriendSearch != username)
+                {
+                    GameObject friend = Instantiate(friendListing, addFriendsView);
+                    FriendItemListing listing = friend.GetComponent<FriendItemListing>();
+                    addFriendItems.Add(listing);
+                    friend.GetComponent<FriendItemListing>().username.text = result.AccountInfo.Username;
+                    listing.playfab = this;
 
-                Debug.Log($"Player ID: {result.AccountInfo.PlayFabId}");
-                Debug.Log($"Username: {result.AccountInfo.Username}");
+                    if (_friends.Any(friend => friend.Username == result.AccountInfo.Username))
+                        friend.GetComponent<FriendItemListing>().Friends();
+
+                    Debug.Log($"Player ID: {result.AccountInfo.PlayFabId}");
+                    Debug.Log($"Username: {result.AccountInfo.Username}");
+                }
+
+                else
+                {
+                    Debug.LogError("You cannot send yourself a friend request!");
+                }
             },
             error => {
                 Debug.LogError(error.GenerateErrorReport());
-                CloseFriends();
+                CloseAddFriends();
 
                 if (error.ErrorMessage == "User not found")
                     friendError.SetActive(true);
@@ -455,12 +465,40 @@ public class PlayFabController : MonoBehaviour
         );
     }
 
-    public void GetFriends()
+    public void SearchPlayerButton()
     {
-        SearchPlayer(friendSearch);
+        SearchPlayer(addFriendSearch);
     }
 
-    private void AddFriend(string username)
+    public void GetFriends()
+    {
+        PlayFabClientAPI.GetFriendsList(
+            new GetFriendsListRequest
+            {
+                IncludeSteamFriends = false,
+            }, result => {
+                _friends = result.Friends;
+                DisplayFriends(_friends);
+            }, error => { 
+                Debug.LogError(error.GenerateErrorReport());
+            }
+        );
+    }
+
+    private void DisplayFriends(List<FriendInfo> friendsCache)
+    {
+        foreach (FriendInfo f in friendsCache)
+        {
+            GameObject listing = Instantiate(friendListing, friendsView);
+            FriendItemListing item = listing.GetComponent<FriendItemListing>();
+            item.playfab = this;
+            friendItems.Add(item);
+            item.username.text = f.Username;
+            item.Friends();
+        }
+    }
+
+    public void AddFriend(string username)
     {
         var request = new AddFriendRequest
         {
@@ -469,15 +507,18 @@ public class PlayFabController : MonoBehaviour
         PlayFabClientAPI.AddFriend(
             request, 
             result => {
-                
+                Debug.Log("Friend added successfully!");
+                CloseFriends();
+                GetFriends();
             },
             error => Debug.LogError(error.GenerateErrorReport())
         );
     }
 
-    public void SubmitFriendRequest()
+    public void Trade(FriendItemListing friend)
     {
-        AddFriend(friendSearch);
+        usernameTrade.text = username;
+        friendUsernameTrade.text = friend.username.text;
     }
 
     private void SaveData()
