@@ -11,11 +11,14 @@ public class InventoryManager : MonoBehaviour
 {
     public InventoryStats inventoryStats;
     public SelectedSneaker selectedSneaker;
-    public SneakerInventoryItem currentSneakerSelected;
+    public SneakerInventoryItem currentSneakerSelected, sneakerToSwap;
     public GridLayoutGroup gridLayout;
     public TMP_InputField search;
-    public GameObject sneakerInventoryItemPrefab;
+    public GameObject sneakerInventoryItemPrefab, swapInventoryItemPrefab;
     public Sprite[] sprites;
+    public RectTransform swapSneakersInventoryTransform;
+    [SerializeField] private Image sneakerToSwapImage;
+    public GameObject swapInventoryPanel;
 
     public GameObject stopButton;
     public GameObject sellButton;
@@ -61,6 +64,12 @@ public class InventoryManager : MonoBehaviour
         }
 
         OnSneakerClick(sneakers[0]);
+
+        foreach (SneakerInventoryItem sneaker in sneakers)
+        {
+            SneakerInventoryItem _sneaker = Instantiate(sneaker, swapSneakersInventoryTransform);
+            _sneaker.isSwapItem = true;
+        }
     }
 
     private void InstantiateSneakers()
@@ -100,6 +109,13 @@ public class InventoryManager : MonoBehaviour
         selectedSneaker.UpdateDetails(sneakerInventoryItem);
         currentSneakerSelected = sneakerInventoryItem;
         SetSellButtonState(sneakerInventoryItem.aiCanBuy);
+    }
+
+    public void OnSneakerSwapClick(SneakerInventoryItem sneakerInventoryItem)
+    {
+        sneakerToSwap = sneakerInventoryItem;
+        sneakerToSwapImage.sprite = sneakerInventoryItem.sneakerImage.sprite;
+        swapInventoryPanel.SetActive(false);
     }
 
     public void ToggleCheckboxes()
@@ -255,6 +271,19 @@ public class InventoryManager : MonoBehaviour
         {
             sneaker.quantity--;
             if (currentSneakerSelected.Equals(sneaker))
+            {
+                selectedSneaker.UpdateDetails(sneaker);
+            }
+        }
+    }
+
+    public void SwapSneakers(SneakerInventoryItem sneakerInventoryItem)
+    {
+        foreach (var sneaker in sneakers.Where(sneaker => sneaker == sneakerInventoryItem))
+        {
+            sneaker.quantity--;
+
+            if (sneakerToSwap.Equals(sneaker))
             {
                 selectedSneaker.UpdateDetails(sneaker);
             }

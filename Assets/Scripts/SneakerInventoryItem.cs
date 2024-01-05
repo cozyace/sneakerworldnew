@@ -17,12 +17,16 @@ public class SneakerInventoryItem : MonoBehaviour
     public bool listed;
     public bool aiCanBuy;
     public GameManager gameManager;
+    public bool isSwapItem;
 
     public void OnClick()
     {
         if (gameManager == null)
             gameManager = FindAnyObjectByType<GameManager>();
 
-        gameManager.inventoryManager.OnSneakerClick(this);
+        if (isSwapItem) 
+            gameManager.inventoryManager.OnSneakerSwapClick(this);
+        else 
+            gameManager.inventoryManager.OnSneakerClick(this);
     }
 }
