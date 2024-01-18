@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using TMPro;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
@@ -515,10 +516,52 @@ public class PlayFabController : MonoBehaviour
         );
     }
 
-    public void Trade(FriendItemListing friend)
+    public void SetupTrade(FriendItemListing friend)
     {
         usernameTrade.text = username;
         friendUsernameTrade.text = friend.username.text;
+    }
+
+    private string Trade(string secondPlayerId, string myItemInstanceId)
+    {
+        string tradeID = "";
+
+        PlayFabClientAPI.OpenTrade(
+            new OpenTradeRequest
+            {
+                AllowedPlayerIds = new List<string> { secondPlayerId },
+                // OfferedInventoryInstanceIds = new List<string> { myItemInstanceId } // The item instanceId fetched from GetUserInventory()
+            },
+            result => tradeID = result.Trade.TradeId,
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+
+        return tradeID;
+    }
+
+    private void ExamineTrade(string firstPlayFabId, string tradeId)
+    {
+        PlayFabClientAPI.GetTradeStatus(
+            new GetTradeStatusRequest
+            {
+                OfferingPlayerId = firstPlayFabId,
+                TradeId = tradeId
+            },
+            result => Debug.Log("Successfully examined!"),
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
+    }
+    private void AcceptGiftFrom(string firstPlayFabId, string tradeId)
+    {
+        PlayFabClientAPI.AcceptTrade(
+            new AcceptTradeRequest
+            {
+                OfferingPlayerId = firstPlayFabId,
+                TradeId = tradeId
+            },
+            result => Debug.Log("Successfully swapped from " + result.Trade.AcceptedPlayerId),
+            error => Debug.LogError(error.GenerateErrorReport())
+        );
     }
 
     private void SaveData()

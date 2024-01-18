@@ -30,6 +30,6 @@ public class FriendItemListing : MonoBehaviour
     public void TradeButton()
     {
         playfab.tradePanel.SetActive(true);
-        playfab.Trade(this);
+        playfab.SetupTrade(this);
     }
 }
