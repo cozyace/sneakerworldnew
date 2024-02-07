@@ -177,6 +177,19 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.purchasing": {
+      "version": "4.10.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.androidjni": "1.0.0",
+        "com.unity.services.core": "1.8.2"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.services.authentication": {
       "version": "2.7.2",
       "depth": 2,
@@ -215,6 +228,13 @@
         "com.unity.services.authentication": "2.5.0",
         "com.unity.services.wire": "1.2.2"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.services.levelplay": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.services.wire": {
