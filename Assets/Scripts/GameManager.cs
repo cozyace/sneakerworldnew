@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     [Header("Managers")]
     public InventoryStats inventoryStats;
-    public PlayFabController playfab;
+    // public PlayFabController playfab;
     public AudioManager audioManager;
     public UIManager uiManager;
     public EmployeeManager employeeManager;
@@ -29,12 +29,12 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {   
-        if (playfab == null)
-            playfab = FindObjectOfType<PlayFabController>();
+        //if (playfab == null)
+        //    playfab = FindObjectOfType<PlayFabController>();
 
-        InvokeRepeating(nameof(AddExperience), 0, 60);
-        playfab.GetPlayerStats();
-        playfab.GetPlayerData();
+        //InvokeRepeating(nameof(AddExperience), 0, 60);
+        //playfab.GetPlayerStats();
+        //playfab.GetPlayerData();
 
         var data = Resources.Load<TextAsset>("data");
         var splitDataset = data.text.Split('\n' );
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
             uiManager.UpdateUI(playerStats);
-            playfab.SetUsername(playerStats.username);
+            // playfab.SetUsername(playerStats.username); // Commented out to remove playfab errors
         }
     }
 
@@ -115,19 +115,20 @@ public class GameManager : MonoBehaviour
 
     public void LeaderboardButton()
     {
-        playfab.GetLeaderBoardFirstToThird();
-        playfab.GetLeaderboard();
+        //playfab.GetLeaderBoardFirstToThird();
+        //playfab.GetLeaderboard();
     }
 
     public void CloseLeaderBoard()
     {
-        playfab.CloseLeaderboard();
+        //playfab.CloseLeaderboard();
     }
 
     public void SignOutButton()
     {
         aiManager.enabled = uiManager.enabled = employeeManager.enabled = 
             upgradesManager.enabled = inventoryManager.enabled = false;
-        playfab.SignOutButton();
+        //playfab.SignOutButton();
     }
 }
+

@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Authentication;
+﻿using Authentication;
 using Firebase;
-using UnityEngine;
 using Firebase.Auth;
 using Firebase.Database;
-using UnityEngine.SceneManagement;
+using Firebase.Extensions;
+using System;
+using System.Collections;
 using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
+
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -15,409 +17,334 @@ public class FirebaseManager : MonoBehaviour
     public DatabaseReference dbReference;
     public FirebaseAuth auth;
     public FirebaseUser user;
-    public UserItem userItem;
-    
-    [Header("Login References")]
-    [SerializeField] private TMP_InputField loginEmail;
-    [SerializeField] private TMP_InputField loginPassword;
-    [SerializeField] private TMP_Text loginOutputText;
-    
-    [Header("Register References")]
-    [SerializeField] private TMP_InputField registerUsername;
-    [SerializeField] private TMP_InputField registerEmail;
-    [SerializeField] private TMP_InputField registerPassword;
-    [SerializeField] private TMP_InputField registerConfirmPassword;
-    [SerializeField] private TMP_Text registerOutputText;
 
-    [Header("Friends")]
-    public List<string> usernames = new List<string>();
+    [Header("Login")]
+    public TMP_InputField loginEmail;
+    public TMP_InputField loginPassword;
 
-    [Header("Game Manager")]
-    public GameManager gameManager;
+    [Header("Sign up")]
+    public TMP_InputField SignupUsername;
+    public TMP_InputField SignupEmail;
+    public TMP_InputField SignupPassword;
+    public TMP_InputField SignupConfirmPassword;
 
-    private Coroutine loginCoroutine, signupCoroutine;
+    [Header("Extra")]
+    public GameObject loadingScreen;
+    public TextMeshProUGUI logText;
 
     private void Start()
     {
-        StartCoroutine(CheckAndFixDependencies());
-    }
+        if (PlayerPrefs.HasKey("EMAIL") && PlayerPrefs.HasKey("PASSWORD"))
+        {
+            loginEmail.text = PlayerPrefs.GetString("EMAIL");
+            loginPassword.text = PlayerPrefs.GetString("PASSWORD");
 
-    private IEnumerator CheckAndFixDependencies()
-    {
-        var checkAndFixDependenciesTask = FirebaseApp.CheckAndFixDependenciesAsync();
-        yield return new WaitUntil(predicate: () => checkAndFixDependenciesTask.IsCompleted);
-        var dependencyResult = checkAndFixDependenciesTask.Result;
-        if (dependencyResult == DependencyStatus.Available)
-        {
-            InitializeFirebase();
-        }
-        else
-        {
-            Debug.Log($"Could not resolve all Firebase dependencies: {dependencyResult}");
+            Login();
         }
     }
 
-    private void InitializeFirebase()
+    public void SignUp()
     {
-        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(true);
-        auth = FirebaseAuth.DefaultInstance;
-        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
+        loadingScreen.SetActive(true);
 
-        StartCoroutine(CheckAutoLogin());
-        auth.StateChanged += AuthStateChanged;
-        AuthStateChanged(this, null);
-    }
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        string username = SignupUsername.text;
+        string email = SignupEmail.text;
+        string password = SignupPassword.text;
+        string signupConfirmPassword = SignupConfirmPassword.text;
 
-    public void AssignObjects()
-    {
-        loginEmail = GameObject.FindGameObjectWithTag("loginEmail").GetComponent<TMP_InputField>();
-        loginPassword = GameObject.FindGameObjectWithTag("loginPassword").GetComponent<TMP_InputField>();
-        loginOutputText = GameObject.FindGameObjectWithTag("loginOutputText").GetComponent<TMP_Text>();
-
-        registerUsername = GameObject.FindGameObjectWithTag("username").GetComponent<TMP_InputField>();
-        registerEmail = GameObject.FindGameObjectWithTag("signupEmail").GetComponent<TMP_InputField>();
-        registerPassword = GameObject.FindGameObjectWithTag("signupPassword").GetComponent<TMP_InputField>();
-        registerConfirmPassword = GameObject.FindGameObjectWithTag("confirmPassword").GetComponent<TMP_InputField>();
-        registerOutputText = GameObject.FindGameObjectWithTag("signupOutputText").GetComponent<TMP_Text>();
-    }
-    
-    private IEnumerator CheckAutoLogin()
-    {
-        yield return new WaitForEndOfFrame();
-        if (user != null)
+        if (password != signupConfirmPassword)
         {
-            var reloadTask = user.ReloadAsync();
-            yield return new WaitUntil(predicate: () => reloadTask.IsCompleted);
-            if (reloadTask.Exception != null)
+            showLogMsg("Password and confirm password are not same");
+            return;
+        }
+
+        auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
+        {
+            var exception = task.Exception;
+
+            try
             {
-                AuthUIManager.instance.LoginScreen();
-            }
-            else
-            {
-                AutoLogin();
-            }
-        }
-        else
-        {
-            AuthUIManager.instance.LoginScreen();
-        }
-    }
-    
-    private void AutoLogin()
-    {
-        if (user != null)
-        {
-            AuthUIManager.instance.LoadingScreen();
-            AuthUIManager.instance.ChangeScene(1);
-        }
-        else
-        {
-            AuthUIManager.instance.LoginScreen();
-        }
-    }
-    
-    private void AuthStateChanged(object sender, EventArgs eventArgs)
-    {
-        if (auth.CurrentUser != user) {
-            bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
-            if (!signedIn && user != null) {
-                Debug.Log("Signed out " + user.UserId);
-            }
-            user = auth.CurrentUser;
-            if (signedIn) {
-                Debug.Log("Signed in " + user.UserId);
-            }
-        }
-    }
-
-    public void SetupListeners()
-    {
-        dbReference.Child("users").Child(user.UserId).ValueChanged += (sender, args) =>
-        {
-            var userData = new PlayerStats();
-            var snapshot = args.Snapshot;
-            userData.username = snapshot.Child("username").Value.ToString();
-            userData.level = int.Parse(snapshot.Child("level").Value.ToString());
-            userData.experience = int.Parse(snapshot.Child("experience").Value.ToString());
-            userData.cash = int.Parse(snapshot.Child("cash").Value.ToString());
-            userData.gems = int.Parse(snapshot.Child("gems").Value.ToString());
-
-            if (SceneManager.GetActiveScene().buildIndex == 1)
-                gameManager.UpdateUserData(userData);
-        };
-    }
-    
-    public void ClearOutputs()
-    {
-        loginOutputText.text = "";
-        registerOutputText.text = "";
-    }
-    
-    private void ClearInputs()
-    {
-        loginEmail.text = "";
-        loginPassword.text = "";
-        registerUsername.text = "";
-        registerEmail.text = "";
-        registerPassword.text = "";
-        registerConfirmPassword.text = "";
-    }
-    
-    public void LoginButton()
-    {
-        if (loginCoroutine != null) StopCoroutine(loginCoroutine);
-        loginCoroutine = StartCoroutine(LoginLogic(loginEmail.text, loginPassword.text));
-    }
-        
-    public void RegisterButton()
-    {
-        if (signupCoroutine != null) StopCoroutine(signupCoroutine);
-        signupCoroutine = StartCoroutine(RegisterLogic(registerUsername.text, registerEmail.text, registerPassword.text,
-            registerConfirmPassword.text));
-    }
-
-    public void SignOutButton()
-    {
-        SaveData();
-        auth.SignOut();
-        AuthUIManager.instance.ChangeScene(0);
-        AuthUIManager.instance.LoginScreen();
-        AssignObjects();
-        ClearInputs();
-    }
-    
-    private IEnumerator LoginLogic(string email, string password)
-    {
-        print("Login button is working!");
-        print(email); print(password);
-
-        Credential credential = EmailAuthProvider.GetCredential(email, password);
-        var loginTask = auth.SignInWithCredentialAsync(credential);
-        yield return new WaitUntil(predicate: () => loginTask.IsCompleted);
-
-        if (loginTask.Exception != null)
-        {
-            FirebaseException firebaseException = (FirebaseException)loginTask.Exception.GetBaseException();
-            AuthError error = (AuthError)firebaseException.ErrorCode;
-
-            string output = error switch
-            {
-                AuthError.MissingEmail => "Please Enter Your Email",
-                AuthError.MissingPassword => "Please Enter Your Password",
-                AuthError.InvalidEmail => "Invalid Email",
-                AuthError.WrongPassword => "Incorrect Password",
-                AuthError.UserNotFound => "Account Does Not Exist",
-                _ => "Unknown Error, Please Try Again"
-            };
-
-            loginOutputText.text = output;
-        }
-        else
-        {
-            if (user.IsEmailVerified)
-            {
-                AuthUIManager.instance.LoadingScreen();
-                AuthUIManager.instance.ChangeScene(1);
-            }
-            else
-            {
-                // AuthUIManager.instance.ChangeScene(0);
-
-                AuthUIManager.instance.LoadingScreen();
-                AuthUIManager.instance.ChangeScene(1);
-            }
-        }
-    }
-
-    private IEnumerator RegisterLogic(string username, string email, string password, string confirmPassword)
-        {
-            if (username == "")
-            {
-                registerOutputText.text = "Please Enter A Username";
-            }
-            else if (password != confirmPassword)
-            {
-                registerOutputText.text = "Passwords Do Not Match";
-            }
-            else
-            {
-                var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
-                yield return new WaitUntil(predicate: () => registerTask.IsCompleted);
-                if (registerTask.Exception != null)
+                UserProfile profile = new UserProfile
                 {
-                    FirebaseException firebaseException = (FirebaseException)registerTask.Exception.GetBaseException();
-                    AuthError error = (AuthError)firebaseException.ErrorCode;
+                    DisplayName = username
+                };
+                var defaultUserTask = user.UpdateUserProfileAsync(profile);
 
-                    string output = error switch
-                    {
-                        AuthError.InvalidEmail => "Invalid Email",
-                        AuthError.EmailAlreadyInUse => "Email Already In Use",
-                        AuthError.WeakPassword => "Weak Password",
-                        AuthError.MissingEmail => "Please Enter Your Email",
-                        AuthError.MissingPassword => "Please Enter Your Password",
-                        _ => "Unknown Error, Please Try Again"
-                    };
+                loadingScreen.SetActive(false);
+                AuthResult result = task.Result;
 
-                    registerOutputText.text = output;
+                Debug.LogFormat("Firebase user created successfully: {0} ({1})",
+                    result.User.DisplayName, result.User.UserId);
+
+                SignupUsername.text = "";
+                SignupEmail.text = "";
+                SignupPassword.text = "";
+                SignupConfirmPassword.text = "";
+
+                if (result.User.IsEmailVerified)
+                {
+                    showLogMsg("Sign up Successful");
+                    PlayerPrefs.SetString("EMAIL", email);
+                    PlayerPrefs.SetString("USERNAME", username);
+                    PlayerPrefs.SetString("PASSWORD", password);
                 }
                 else
                 {
-                    UserProfile profile = new UserProfile
-                    {
-                        DisplayName = username
-                    };
-                    var defaultUserTask = user.UpdateUserProfileAsync(profile);
-                    yield return new WaitUntil(predicate: () => defaultUserTask.IsCompleted);
-                    if (defaultUserTask.Exception != null)
-                    {
-                        user.DeleteAsync();
-                        FirebaseException firebaseException = (FirebaseException)defaultUserTask.Exception.GetBaseException();
-                        AuthError error = (AuthError)firebaseException.ErrorCode;
-
-                        string output = error switch
-                        {
-                            AuthError.Cancelled => "Update User Cancelled",
-                            AuthError.SessionExpired => "Session Expired",
-                            _ => "Unknown Error, Please Try Again"
-                        };
-                        registerOutputText.text = output;
-                    }
-                    else
-                    {
-                        Debug.Log($"Firebase User Created Successfully {user.DisplayName} ({user.UserId})");
-                        yield return StartCoroutine(AddInitialUserData());
-                        AuthUIManager.instance.LoginScreen();
-                        ClearInputs();
-                        loginOutputText.text = "Successfully registered!";
-                    }
+                    showLogMsg("Please verify your email!!");
+                    SendEmailVerification();
                 }
             }
-        }
-    
-    private IEnumerator AddInitialUserData()
-    {
-        yield return UpdateUsernameDatabase(user.DisplayName);
-        yield return UpdateLevel(1);
-        yield return UpdateExperience(20);
-        yield return UpdateCash(9999);
-        yield return UpdateGems(10);
-    }
-    
-    public void SaveData()
-    {
-        var userData = gameManager.playerStats;
-        StartCoroutine(UpdateUsernameDatabase(userData.username));
-        StartCoroutine(UpdateLevel(userData.level));
-        StartCoroutine(UpdateExperience(userData.experience));
-        StartCoroutine(UpdateCash(userData.cash));
-        StartCoroutine(UpdateGems(userData.gems));
-    }
 
-    public List<string> SearchUsers(string searchText)
-    {
-        dbReference.Child("users").
-        OrderByChild("username").
-        EqualTo(searchText).
-        GetValueAsync().
-        ContinueWith(task =>
-        {
-            if (task.IsCompleted)
+            catch
             {
-                DataSnapshot snapshot = task.Result;
-                foreach (DataSnapshot user in snapshot.Children)
-                {
-                    string username = user.Child("username").Value.ToString();
-                    usernames.Clear();
-                    usernames.Add(username);
-                }
+                loadingScreen.SetActive(false);
+                Debug.LogError($"SignInAndRetrieveDataWithCredentialAsync encountered an error: {exception.Message}");
+                showLogMsg($"{exception.Message}");
+                return;
             }
         });
 
-        return usernames;
     }
 
-    public void SendFriendRequest(string receiverId)
+    public void SendEmailVerification()
     {
-        var friendRequest = new { FirebaseAuth.DefaultInstance.CurrentUser, receiverId, requestType = "sent" };
-        string key = dbReference.Child("friend_requests").Push().Key;
-        dbReference.Child("friend_requests").Child(key).SetValueAsync(friendRequest);
+        StartCoroutine(SendEmailForVerificationAsync());
     }
 
-    public void AcceptFriendRequest(string requestId)
+    IEnumerator SendEmailForVerificationAsync()
     {
-        dbReference.Child("friend_requests").Child(requestId).Child("requestType").SetValueAsync("accepted");
-    }
-
-    public void RemoveFriend(string userId, string friendId)
-    {
-        dbReference.Child("users").Child(userId).Child("friends").Child(friendId).RemoveValueAsync();
-        dbReference.Child("users").Child(friendId).Child("friends").Child(userId).RemoveValueAsync();
-    }
-
-    public void BlockFriend(string blockerId, string blockedId)
-    {
-        var blockEntry = new { blockerId = blockerId, blockedId = blockedId, requestType = "blocked" };
-        dbReference.Child("blocks").Push().SetValueAsync(blockEntry);
-    }
-
-    private IEnumerator UpdateUsernameDatabase(string username)
-    {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("username").SetValueAsync(username);
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
-
-        if (dbTask.Exception != null)
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user != null)
         {
-            Debug.LogError($"Failed to update username in database with {dbTask.Exception}");
+            var sendEmailTask = user.SendEmailVerificationAsync();
+            yield return new WaitUntil(() => sendEmailTask.IsCompleted);
+
+            if (sendEmailTask.Exception != null)
+            {
+                print("Email send error");
+                FirebaseException firebaseException = sendEmailTask.Exception.GetBaseException() as FirebaseException;
+                AuthError error = (AuthError)firebaseException.ErrorCode;
+
+                switch (error)
+                {
+                    case AuthError.None:
+                        break;
+                    case AuthError.Unimplemented:
+                        break;
+                    case AuthError.Failure:
+                        break;
+                    case AuthError.InvalidCustomToken:
+                        break;
+                    case AuthError.CustomTokenMismatch:
+                        break;
+                    case AuthError.InvalidCredential:
+                        break;
+                    case AuthError.UserDisabled:
+                        break;
+                    case AuthError.AccountExistsWithDifferentCredentials:
+                        break;
+                    case AuthError.OperationNotAllowed:
+                        break;
+                    case AuthError.EmailAlreadyInUse:
+                        break;
+                    case AuthError.RequiresRecentLogin:
+                        break;
+                    case AuthError.CredentialAlreadyInUse:
+                        break;
+                    case AuthError.InvalidEmail:
+                        break;
+                    case AuthError.WrongPassword:
+                        break;
+                    case AuthError.TooManyRequests:
+                        break;
+                    case AuthError.UserNotFound:
+                        break;
+                    case AuthError.ProviderAlreadyLinked:
+                        break;
+                    case AuthError.NoSuchProvider:
+                        break;
+                    case AuthError.InvalidUserToken:
+                        break;
+                    case AuthError.UserTokenExpired:
+                        break;
+                    case AuthError.NetworkRequestFailed:
+                        break;
+                    case AuthError.InvalidApiKey:
+                        break;
+                    case AuthError.AppNotAuthorized:
+                        break;
+                    case AuthError.UserMismatch:
+                        break;
+                    case AuthError.WeakPassword:
+                        break;
+                    case AuthError.NoSignedInUser:
+                        break;
+                    case AuthError.ApiNotAvailable:
+                        break;
+                    case AuthError.ExpiredActionCode:
+                        break;
+                    case AuthError.InvalidActionCode:
+                        break;
+                    case AuthError.InvalidMessagePayload:
+                        break;
+                    case AuthError.InvalidPhoneNumber:
+                        break;
+                    case AuthError.MissingPhoneNumber:
+                        break;
+                    case AuthError.InvalidRecipientEmail:
+                        break;
+                    case AuthError.InvalidSender:
+                        break;
+                    case AuthError.InvalidVerificationCode:
+                        break;
+                    case AuthError.InvalidVerificationId:
+                        break;
+                    case AuthError.MissingVerificationCode:
+                        break;
+                    case AuthError.MissingVerificationId:
+                        break;
+                    case AuthError.MissingEmail:
+                        break;
+                    case AuthError.MissingPassword:
+                        break;
+                    case AuthError.QuotaExceeded:
+                        break;
+                    case AuthError.RetryPhoneAuth:
+                        break;
+                    case AuthError.SessionExpired:
+                        break;
+                    case AuthError.AppNotVerified:
+                        break;
+                    case AuthError.AppVerificationFailed:
+                        break;
+                    case AuthError.CaptchaCheckFailed:
+                        break;
+                    case AuthError.InvalidAppCredential:
+                        break;
+                    case AuthError.MissingAppCredential:
+                        break;
+                    case AuthError.InvalidClientId:
+                        break;
+                    case AuthError.InvalidContinueUri:
+                        break;
+                    case AuthError.MissingContinueUri:
+                        break;
+                    case AuthError.KeychainError:
+                        break;
+                    case AuthError.MissingAppToken:
+                        break;
+                    case AuthError.MissingIosBundleId:
+                        break;
+                    case AuthError.NotificationNotForwarded:
+                        break;
+                    case AuthError.UnauthorizedDomain:
+                        break;
+                    case AuthError.WebContextAlreadyPresented:
+                        break;
+                    case AuthError.WebContextCancelled:
+                        break;
+                    case AuthError.DynamicLinkNotActivated:
+                        break;
+                    case AuthError.Cancelled:
+                        break;
+                    case AuthError.InvalidProviderId:
+                        break;
+                    case AuthError.WebInternalError:
+                        break;
+                    case AuthError.WebStorateUnsupported:
+                        break;
+                    case AuthError.TenantIdMismatch:
+                        break;
+                    case AuthError.UnsupportedTenantOperation:
+                        break;
+                    case AuthError.InvalidLinkDomain:
+                        break;
+                    case AuthError.RejectedCredential:
+                        break;
+                    case AuthError.PhoneNumberNotFound:
+                        break;
+                    case AuthError.InvalidTenantId:
+                        break;
+                    case AuthError.MissingClientIdentifier:
+                        break;
+                    case AuthError.MissingMultiFactorSession:
+                        break;
+                    case AuthError.MissingMultiFactorInfo:
+                        break;
+                    case AuthError.InvalidMultiFactorSession:
+                        break;
+                    case AuthError.MultiFactorInfoNotFound:
+                        break;
+                    case AuthError.AdminRestrictedOperation:
+                        break;
+                    case AuthError.UnverifiedEmail:
+                        break;
+                    case AuthError.SecondFactorAlreadyEnrolled:
+                        break;
+                    case AuthError.MaximumSecondFactorCountExceeded:
+                        break;
+                    case AuthError.UnsupportedFirstFactor:
+                        break;
+                    case AuthError.EmailChangeNeedsVerification:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                print("Email successfully sent!");
+            }
         }
     }
 
-    private IEnumerator UpdateLevel(int level)
+    public void Login()
     {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("level").SetValueAsync(level);
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
+        loadingScreen.SetActive(true);
 
-        if (dbTask.Exception != null)
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        string email = loginEmail.text;
+        string password = loginPassword.text;
+
+        Credential credential =
+        EmailAuthProvider.GetCredential(email, password);
+
+        auth.SignInAndRetrieveDataWithCredentialAsync(credential).ContinueWithOnMainThread(task =>
         {
-            Debug.LogError($"Failed to update level in database with {dbTask.Exception}");
-        }
-    }
-    
-    private IEnumerator UpdateExperience(int xp)
-    {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("experience").SetValueAsync(xp);
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
+            var exception = task.Exception;
 
-        if (dbTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update experience in database with {dbTask.Exception}");
-        }
-    }
-    
-    private IEnumerator UpdateCash(int cash)
-    {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("cash").SetValueAsync(cash);
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
+            try
+            {
+                loadingScreen.SetActive(false);
+                AuthResult result = task.Result;
+                Debug.LogFormat("User signed in successfully: {0} ({1})",
+                    result.User.DisplayName, result.User.UserId);
 
-        if (dbTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update cash in database with {dbTask.Exception}");
-        }
-    }
+                if (result.User.IsEmailVerified)
+                {
+                    showLogMsg("Log in Successful");
 
-    private IEnumerator UpdateGems(int gems)
-    {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("gems").SetValueAsync(gems);
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
-
-        if (dbTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update gems in database with {dbTask.Exception}");
-        }
+                    Debug.Log("Successfully logged in Player: " + result.User.DisplayName);
+                }
+                else
+                {
+                    showLogMsg("Please verify your email!");
+                }
+            }
+            catch
+            {
+                loadingScreen.SetActive(false);
+                Debug.LogError($"SignInAndRetrieveDataWithCredentialAsync encountered an error: {exception.Message}");
+                showLogMsg($"{exception.Message}");
+                return;
+            }
+        });
     }
 
-    private void OnApplicationQuit()
+    private void showLogMsg(string msg)
     {
-        if (SceneManager.GetActiveScene().buildIndex == 1)
-            SaveData();
+        logText.text = msg;
+        logText.GetComponent<Animation>().Play();
     }
 }
