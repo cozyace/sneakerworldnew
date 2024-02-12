@@ -5,11 +5,16 @@ using Firebase.Database;
 using Firebase.Extensions;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static UnityEngine.UIElements.UxmlAttributeDescription;
-
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -17,6 +22,7 @@ public class FirebaseManager : MonoBehaviour
     public DatabaseReference dbReference;
     public FirebaseAuth auth;
     public FirebaseUser user;
+    public string userId;
 
     [Header("Login")]
     public TMP_InputField loginEmail;
@@ -28,83 +34,153 @@ public class FirebaseManager : MonoBehaviour
     public TMP_InputField SignupPassword;
     public TMP_InputField SignupConfirmPassword;
 
+    [Header("Game Manager")]
+    public GameManager gameManager;
+
     [Header("Extra")]
+    public GameObject loginScreen;
+    public GameObject signupScreen;
+    public GameObject sceneLoadScreen;
     public GameObject loadingScreen;
     public TextMeshProUGUI logText;
+    public PlayerStats playerStats;
+    public Image loadingBar;
 
-    private void Start()
+    private async void Start()
     {
-        if (PlayerPrefs.HasKey("EMAIL") && PlayerPrefs.HasKey("PASSWORD"))
+        await InitializeDefaultValues();
+
+        if (SceneManager.GetActiveScene().buildIndex == 0 && PlayerPrefs.HasKey("EMAIL") && PlayerPrefs.HasKey("PASSWORD"))
         {
             loginEmail.text = PlayerPrefs.GetString("EMAIL");
             loginPassword.text = PlayerPrefs.GetString("PASSWORD");
 
-            Login();
+            await LoginAsync();
         }
     }
 
-    public void SignUp()
+    private async Task InitializeDefaultValues()
+    {
+        auth = FirebaseAuth.DefaultInstance;
+        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
+        await FirebaseApp.CheckAndFixDependenciesAsync();
+
+        AuthStateChanged(this, null);
+    }
+
+    private void AuthStateChanged(object sender, EventArgs eventArgs)
+    {
+        if (auth.CurrentUser != user)
+        {
+            bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
+            if (!signedIn && user != null)
+            {
+                Debug.Log("Signed out " + user.UserId);
+            }
+            user = auth.CurrentUser;
+            if (signedIn)
+            {
+                Debug.Log("Signed in " + user.UserId);
+            }
+        }
+    }
+
+    public async Task LoginAsync()
     {
         loadingScreen.SetActive(true);
 
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        string email = loginEmail.text;
+        string password = loginPassword.text;
+
+        if (!ValidateLoginInput(email, password))
+        {
+            ShowLogMsg("Invalid email or password");
+            return;
+        }
+
+        try
+        {
+            Credential credential = EmailAuthProvider.GetCredential(email, password);
+            AuthResult result = await auth.SignInAndRetrieveDataWithCredentialAsync(credential);
+
+            loadingScreen.SetActive(false);
+
+            if (!result.User.IsEmailVerified)
+            {
+                ShowLogMsg("Please verify your email.");
+                throw new Exception("User email not verified! Check your inbox.");
+            }
+
+            user ??= result.User;
+            userId = result.User.UserId;
+            PlayerPrefs.SetString("EMAIL", email);
+            PlayerPrefs.SetString("PASSWORD", password);
+            ShowLogMsg("Login successful!");
+            
+            await RunCoroutine(LoadDataEnum(() => StartCoroutine(LoadSceneAsynchronously(1))));
+        }
+
+        catch (FirebaseException e)
+        {
+            loadingScreen.SetActive(false);
+            Debug.LogError($"Login failed: {e.Message}");
+            ShowLogMsg(e.Message);
+        }
+    }
+
+    public async Task SignupAsync()
+    {
+        loadingScreen.SetActive(true);
+
         string username = SignupUsername.text;
         string email = SignupEmail.text;
         string password = SignupPassword.text;
         string signupConfirmPassword = SignupConfirmPassword.text;
 
-        if (password != signupConfirmPassword)
+        if (!ValidateSignupInput(username, email, password, signupConfirmPassword))
         {
-            showLogMsg("Password and confirm password are not same");
+            ShowLogMsg("Invalid format! Check your username and password again.");
             return;
         }
 
-        auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
+        try
         {
-            var exception = task.Exception;
+            var result = await auth.CreateUserWithEmailAndPasswordAsync(email, password);
 
-            try
+            UserProfile profile = new()
             {
-                UserProfile profile = new UserProfile
-                {
-                    DisplayName = username
-                };
-                var defaultUserTask = user.UpdateUserProfileAsync(profile);
+                DisplayName = username
+            };
 
-                loadingScreen.SetActive(false);
-                AuthResult result = task.Result;
+            playerStats.username = username;
+            await result.User.UpdateUserProfileAsync(profile);
+            userId = result.User.UserId;
 
-                Debug.LogFormat("Firebase user created successfully: {0} ({1})",
-                    result.User.DisplayName, result.User.UserId);
+            loadingScreen.SetActive(false);
 
-                SignupUsername.text = "";
-                SignupEmail.text = "";
-                SignupPassword.text = "";
-                SignupConfirmPassword.text = "";
+            Debug.LogFormat("Firebase user created successfully: {0} ({1})",
+                result.User.DisplayName, result.User.UserId);
 
-                if (result.User.IsEmailVerified)
-                {
-                    showLogMsg("Sign up Successful");
-                    PlayerPrefs.SetString("EMAIL", email);
-                    PlayerPrefs.SetString("USERNAME", username);
-                    PlayerPrefs.SetString("PASSWORD", password);
-                }
-                else
-                {
-                    showLogMsg("Please verify your email!!");
-                    SendEmailVerification();
-                }
-            }
+            SignupUsername.text = "";
+            SignupEmail.text = "";
+            SignupPassword.text = "";
+            SignupConfirmPassword.text = "";
 
-            catch
-            {
-                loadingScreen.SetActive(false);
-                Debug.LogError($"SignInAndRetrieveDataWithCredentialAsync encountered an error: {exception.Message}");
-                showLogMsg($"{exception.Message}");
-                return;
-            }
-        });
+            SendEmailVerification();
 
+            ShowLogMsg("Sign up Successful! Check your email to verify your account.");
+            PlayerPrefs.SetString("EMAIL", email);
+            PlayerPrefs.SetString("PASSWORD", password);
+            await SaveDataAsync(userId, playerStats);
+        }
+
+        catch (FirebaseException e)
+        {
+            loadingScreen.SetActive(false);
+            Debug.LogError($"CreateUserWithEmailAndPasswordAsync encountered an error: {e.Message}");
+            ShowLogMsg($"{e.Message}");
+        }
     }
 
     public void SendEmailVerification()
@@ -299,52 +375,200 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    public void Login()
-    {
-        loadingScreen.SetActive(true);
-
-        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
-        string email = loginEmail.text;
-        string password = loginPassword.text;
-
-        Credential credential =
-        EmailAuthProvider.GetCredential(email, password);
-
-        auth.SignInAndRetrieveDataWithCredentialAsync(credential).ContinueWithOnMainThread(task =>
-        {
-            var exception = task.Exception;
-
-            try
-            {
-                loadingScreen.SetActive(false);
-                AuthResult result = task.Result;
-                Debug.LogFormat("User signed in successfully: {0} ({1})",
-                    result.User.DisplayName, result.User.UserId);
-
-                if (result.User.IsEmailVerified)
-                {
-                    showLogMsg("Log in Successful");
-
-                    Debug.Log("Successfully logged in Player: " + result.User.DisplayName);
-                }
-                else
-                {
-                    showLogMsg("Please verify your email!");
-                }
-            }
-            catch
-            {
-                loadingScreen.SetActive(false);
-                Debug.LogError($"SignInAndRetrieveDataWithCredentialAsync encountered an error: {exception.Message}");
-                showLogMsg($"{exception.Message}");
-                return;
-            }
-        });
-    }
-
-    private void showLogMsg(string msg)
+    private void ShowLogMsg(string msg)
     {
         logText.text = msg;
         logText.GetComponent<Animation>().Play();
+    }
+
+    public async Task SaveDataAsync(string _userId, PlayerStats _playerStats)
+    {
+        string json = JsonUtility.ToJson(_playerStats);
+        await dbReference.Child("users").Child(_userId).SetRawJsonValueAsync(json);
+    }
+
+    IEnumerator LoadDataEnum(Action callback)
+    {
+        var _stats = dbReference.Child("users").Child(userId).GetValueAsync();
+        yield return new WaitUntil(predicate: () => _stats.IsCompleted);
+
+        try
+        {
+            DataSnapshot snapshot = _stats.Result;
+            if (snapshot == null)
+            {
+                print("Error fetching data. No data was found!");
+                yield break;
+            }
+
+            string jsonData = snapshot.GetRawJsonValue();
+            if (jsonData == null)
+            {
+                print("Error fetching data. No data was found!");
+                yield break;
+            }
+
+            print($"Loaded Stats for {user.DisplayName}");
+            ShowLogMsg($"Loaded Data for {user.DisplayName}");
+
+            PlayerPrefs.SetString("PLAYER_STATS", jsonData);
+            callback?.Invoke();
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+            throw;
+        }
+    }
+
+    public IEnumerator LoadSceneAsynchronously(int sceneIndex)
+    {
+        if (loadingScreen != null) loginScreen.SetActive(false);
+        if (signupScreen != null) signupScreen.SetActive(false);
+        if (loadingScreen != null) loadingScreen.SetActive(false);
+        if (sceneLoadScreen != null) sceneLoadScreen.SetActive(true);
+
+        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneIndex);
+
+        if (loadingScreen != null) loadingScreen.SetActive(true);
+
+        while (!operation.isDone)
+        {
+            float progress = Mathf.Clamp01(operation.progress / .9f);
+            loadingBar.fillAmount = progress;
+
+            yield return null;
+        }
+    }
+
+    public async Task<Dictionary<string, int>> CalculateLeaderboardRankings()
+    {
+        DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
+        Dictionary<string, int> userCash = new();
+
+        foreach (DataSnapshot childSnapshot in userDocs.Children)
+        {
+            string username = childSnapshot.Child("username").Value.ToString();
+            int cash = Convert.ToInt32(childSnapshot.Child("cash").Value);
+            userCash.TryAdd(username, cash);
+        }
+
+        var rankedUsers = userCash
+            .OrderByDescending(u => u.Value)
+            .ToDictionary(u => u.Key, u => u.Value);
+
+        return rankedUsers;
+    }
+
+    public async Task<List<string>> SearchUsers(string _username) 
+    {
+        DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
+        List<string> matchingUsers = new();
+
+        foreach (DataSnapshot childSnapshot in userDocs.Children)
+        {
+            string username = childSnapshot.Child("username").Value.ToString();
+
+            if (username != user.DisplayName && username.Contains(_username))
+            {
+                matchingUsers.Add(username);
+            }
+        }
+
+        return matchingUsers;
+    }
+
+    private bool ValidateLoginInput(string email, string password)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(password))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool ValidateSignupInput(string username, string email, string password, string confirmPassword)
+    {
+
+        if (string.IsNullOrEmpty(username))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(email))
+        {
+            return false;
+        }
+
+        if (!IsValidEmail(email))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(password))
+        {
+            return false;
+        }
+
+        if (!IsValidPassword(password))
+        {
+            return false;
+        }
+
+        if (password != confirmPassword)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        return Regex.IsMatch(email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
+    }
+
+    private bool IsValidPassword(string password)
+    {
+        return password.Length >= 6;
+        //     &&
+        //    password.Any(char.IsUpper) &&
+        //    password.Any(char.IsLower) &&
+        //    password.Any(char.IsDigit);
+    }
+
+    public Task RunCoroutine(IEnumerator coroutine)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        StartCoroutine(RunCoroutineAndComplete(coroutine, tcs));
+        return tcs.Task;
+    }
+
+    private IEnumerator RunCoroutineAndComplete(IEnumerator coroutine, TaskCompletionSource<bool> tcs)
+    {
+        yield return StartCoroutine(coroutine);
+        tcs.SetResult(true);
+    }
+
+    public async void OnLoginButtonClick()
+    {
+        await LoginAsync();
+    }
+
+    public async void OnSignupButtonClick()
+    {
+        await SignupAsync();
+    }
+
+    public void ResetDataButton()
+    {
+        PlayerPrefs.DeleteAll();
+        ShowLogMsg("All local data has been deleted!");
     }
 }

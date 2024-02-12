@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "sneaker-world.sln"
+    "dotnet.defaultSolution": "sneaker-world.sln",
+    "dotnet.preferCSharpExtension": true
 }

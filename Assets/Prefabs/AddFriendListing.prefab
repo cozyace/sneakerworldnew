@@ -36,7 +36,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 213.7, y: -1.8198}
+  m_AnchoredPosition: {x: 380.27, y: 8}
   m_SizeDelta: {x: 155, y: 71}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6366582715313554627
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3992954379841096580}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FriendItemListing, Assembly-CSharp
         m_MethodName: TradeButton
         m_Mode: 1
@@ -166,10 +166,10 @@ RectTransform:
   m_Father: {fileID: 2073365989337566891}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -215, y: -0.00001955}
-  m_SizeDelta: {x: 265.7788, y: 67.3602}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 322, y: 6.1802998}
+  m_SizeDelta: {x: 540, y: 71.071}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2073365988139810070
 CanvasRenderer:
@@ -279,7 +279,7 @@ GameObject:
   - component: {fileID: 2073365989337566891}
   - component: {fileID: 2073365989337566889}
   - component: {fileID: 2073365989337566890}
-  - component: {fileID: 3992954379841096580}
+  - component: {fileID: 4597386090813723749}
   m_Layer: 5
   m_Name: AddFriendListing
   m_TagString: Untagged
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3992954379841096580
+--- !u!114 &4597386090813723749
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -357,14 +357,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2073365989337566892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e775c20a7b8adb419a6dca592e49118, type: 3}
+  m_Script: {fileID: 11500000, guid: 7fed2cf4ffcdac740bcacfadfec0d459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  username: {fileID: 2073365988139810071}
-  addFriendButton: {fileID: 0}
-  cancelButton: {fileID: 0}
-  friendsButton: {fileID: 152032401366698972}
-  playfab: {fileID: 0}
+  usernameText: {fileID: 2073365988139810071}
 --- !u!1 &3573417465574678525
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,7 +379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8633436873969301502
 RectTransform:
   m_ObjectHideFlags: 0
@@ -401,7 +397,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 380.27, y: -0.000027776}
+  m_AnchoredPosition: {x: 380.27, y: 8}
   m_SizeDelta: {x: 155, y: 71}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4939497837201530567

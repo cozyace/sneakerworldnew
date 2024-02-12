@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
             gemsTextMain.text = $"{playerStats.gems}";
             cashTextStore.text = FormattedCash(playerStats.cash);
             gemsTextStore.text = $"{playerStats.gems}";
-            welcomeText.text = $"Welcome, {playerStats.username}";
+            // welcomeText.text = $"Welcome, {playerStats.username}";
         }
     }
 
