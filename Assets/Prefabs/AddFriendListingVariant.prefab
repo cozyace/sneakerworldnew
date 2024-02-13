@@ -119,6 +119,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AcceptButton
       objectReference: {fileID: 0}
+    - target: {fileID: 3573417465574678525, guid: 7b9cfde781e15d04385a4f25cc9e7b5e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3826721959560753922, guid: 7b9cfde781e15d04385a4f25cc9e7b5e, type: 3}
       propertyPath: m_Sprite
       value: 

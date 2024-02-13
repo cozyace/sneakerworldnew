@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -63,6 +64,7 @@ public class FirebaseManager : MonoBehaviour
     {
         auth = FirebaseAuth.DefaultInstance;
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
+        userId = auth.CurrentUser.UserId;
         await FirebaseApp.CheckAndFixDependenciesAsync();
 
         AuthStateChanged(this, null);
@@ -118,7 +120,7 @@ public class FirebaseManager : MonoBehaviour
             PlayerPrefs.SetString("PASSWORD", password);
             ShowLogMsg("Login successful!");
             
-            await RunCoroutine(LoadDataEnum(() => StartCoroutine(LoadSceneAsynchronously(1))));
+            await RunCoroutine(LoadDataEnum(() => StartCoroutine(LoadSceneAsync(1))));
         }
 
         catch (FirebaseException e)
@@ -421,7 +423,7 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    public IEnumerator LoadSceneAsynchronously(int sceneIndex)
+    public IEnumerator LoadSceneAsync(int sceneIndex)
     {
         if (loadingScreen != null) loginScreen.SetActive(false);
         if (signupScreen != null) signupScreen.SetActive(false);
@@ -441,41 +443,171 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    public async Task<Dictionary<string, int>> CalculateLeaderboardRankings()
+    public async Task<Dictionary<string, int>> CalculateLeaderboardRankingsAsync()
     {
-        DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
         Dictionary<string, int> userCash = new();
 
-        foreach (DataSnapshot childSnapshot in userDocs.Children)
-        {
-            string username = childSnapshot.Child("username").Value.ToString();
-            int cash = Convert.ToInt32(childSnapshot.Child("cash").Value);
-            userCash.TryAdd(username, cash);
+        try {
+            DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
+            
+            foreach (DataSnapshot childSnapshot in userDocs.Children)
+            {
+                string username = childSnapshot.Child("username").Value.ToString();
+                int cash = Convert.ToInt32(childSnapshot.Child("cash").Value);
+                userCash.TryAdd(username, cash);
+            }
+
+            var rankedUsers = userCash
+                .OrderByDescending(u => u.Value)
+                .ToDictionary(u => u.Key, u => u.Value);
+
+            return rankedUsers;
         }
-
-        var rankedUsers = userCash
-            .OrderByDescending(u => u.Value)
-            .ToDictionary(u => u.Key, u => u.Value);
-
-        return rankedUsers;
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+            return userCash;
+        }
     }
 
-    public async Task<List<string>> SearchUsers(string _username) 
+    public async Task<List<string>> SearchUsersAsync(string _username) 
     {
-        DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
         List<string> matchingUsers = new();
 
-        foreach (DataSnapshot childSnapshot in userDocs.Children)
+        try
         {
-            string username = childSnapshot.Child("username").Value.ToString();
+            DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
 
-            if (username != user.DisplayName && username.Contains(_username))
+            foreach (DataSnapshot childSnapshot in userDocs.Children)
             {
-                matchingUsers.Add(username);
+                string username = childSnapshot.Child("username").Value.ToString();
+
+                if (username != user.DisplayName && username.Contains(_username))
+                {
+                    matchingUsers.Add(username);
+                }
             }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
         }
 
         return matchingUsers;
+    }
+
+    private async Task<string> GetUserIdFromUsernameAsync(string username)
+    {
+        try
+        {
+            var userSnapshot = await dbReference.Child("users")
+                                        .OrderByChild("username")
+                                        .EqualTo(username)
+                                        .LimitToFirst(1)
+                                        .GetValueAsync();
+
+            if (!userSnapshot.Exists) return "";
+
+            return userSnapshot.Children.First().Key;
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+            return "";
+        }
+    }
+
+    public async Task AddUserAsync(string _userId, string _recipientUsername) 
+    {
+        Dictionary<string, object> userData = new() { { "status", "requested" } };
+        Dictionary<string, object> recipientData = new() { { "status", "pending" } };
+
+        try 
+        {
+            string _recipientUserId = await GetUserIdFromUsernameAsync(_recipientUsername);
+
+            await dbReference.Child($"users/{_userId}/friends/{_recipientUserId}").UpdateChildrenAsync(userData);
+            await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").UpdateChildrenAsync(recipientData);
+        
+            Debug.Log($"Friend request sent to {_recipientUsername}");
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task<List<string>> UpdateFriendRequestsAsync()
+    {
+        List<string> pendingRequests = new();
+
+        try
+        {
+            DataSnapshot snapshot = await dbReference.Child($"users/{userId}/friends").GetValueAsync();
+
+            foreach(var request in snapshot.Children)
+            {
+                if (request.Child("status").Value.ToString() == "pending")
+                {
+                    pendingRequests.Add(request.Key);
+                }
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        
+        return pendingRequests;
+    }
+
+    public async Task<List<string>> UpdateFriendRequestsSentAsync()
+    {
+        List<string> sentRequests = new();
+
+        try
+        {
+            DataSnapshot snapshot = await dbReference.Child($"users/{userId}/friends").GetValueAsync();
+
+            foreach(var request in snapshot.Children)
+            {
+                if (request.Child("status").Value.ToString() == "requested")
+                {
+                    print($"Friend request sent to {request.Key}");
+                    sentRequests.Add(request.Key);
+                }
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        
+        return sentRequests;
+    }
+
+    public async Task<List<string>> UpdateFriendsAsync()
+    {
+        List<string> friends = new();
+
+        try
+        {
+            DataSnapshot snapshot = await dbReference.Child($"users/{userId}/friends").GetValueAsync();
+
+            foreach (var friend in snapshot.Children)
+            {
+                if (friend.Child("status").Value.ToString() == "mutual")
+                {
+                    friends.Add(friend.Key);
+                }
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message); 
+        }
+
+        return friends;
     }
 
     private bool ValidateLoginInput(string email, string password)

@@ -37,9 +37,15 @@ public class GameManager : MonoBehaviour
     public Leaderboard leaderboardListing;
 
     [Header("Friends")]
+    public List<string> searchedUsers;
+    public List<string> _friends;
+    public List<string> _friendRequests;
+    public List<string> _friendRequestsSent;
     public TMPro.TextMeshProUGUI logSearchUsernamesText;
     public UserItem addFriendListing;
     public RectTransform addFriendListingTransform;
+    public string _friendUsernameSelected;
+    private List<GameObject> instantiatedFriendListings = new();
 
     private void Awake()
     {   
@@ -67,6 +73,18 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateUI(playerStats);
         userId = firebase.auth.CurrentUser.UserId;
         await LeaderboardRankings();
+        _friends = await firebase.UpdateFriendsAsync();
+        _friendRequests = await firebase.UpdateFriendRequestsAsync();
+        _friendRequestsSent = await firebase.UpdateFriendRequestsSentAsync();
+        SetupDatabaseListeners();
+    }
+
+    private void SetupDatabaseListeners()
+    {
+        var snapshot = firebase.dbReference.Child($"users/{userId}/friends");
+        snapshot.ChildAdded += ListenForFriendRequests;
+        snapshot.ChildRemoved += ListenForFriendRequests;
+        snapshot.ChildChanged += ListenForFriends;
     }
 
     public void UpdateUserData(PlayerStats data)
@@ -119,7 +137,7 @@ public class GameManager : MonoBehaviour
 
     public async Task LeaderboardRankings()
     {
-        var rankings = await firebase.CalculateLeaderboardRankings();
+        var rankings = await firebase.CalculateLeaderboardRankingsAsync();
 
         foreach (var rank in rankings)
         {
@@ -134,6 +152,27 @@ public class GameManager : MonoBehaviour
     public async void LeaderboardButton()
     {
         await LeaderboardRankings();
+    }
+
+    public async Task UpdateFriendRequests()
+    {
+        _friendRequests = await firebase.UpdateFriendRequestsAsync();
+        _friendRequestsSent = await firebase.UpdateFriendRequestsSentAsync();
+    }
+
+    public async Task UpdateFriends()
+    {
+        _friends = await firebase.UpdateFriendsAsync();
+    }
+
+    public async void ListenForFriendRequests(object sender, ChildChangedEventArgs args)
+    {
+        await UpdateFriendRequests();
+    }
+
+    public async void ListenForFriends(object sender, ChildChangedEventArgs args)
+    {
+        await UpdateFriends();
     }
 
     public void CloseLeaderboard()
@@ -151,34 +190,31 @@ public class GameManager : MonoBehaviour
         try
         {
             logSearchUsernamesText.gameObject.SetActive(false);
-            foreach (Transform child in addFriendListingTransform)
-                if (!child.CompareTag("DONOTDESTROY")) Destroy(child.gameObject);
+            foreach (GameObject child in instantiatedFriendListings)
+                Destroy(child);
 
-            List<string> users = await firebase.SearchUsers(_username);
-            HashSet<string> uniqueUsers = new();
+            instantiatedFriendListings.Clear();
+            searchedUsers.Clear();
+            searchedUsers = await firebase.SearchUsersAsync(_username);
             
-            if (users.Count == 0)
+            if (searchedUsers.Count == 0)
             {
                 logSearchUsernamesText.gameObject.SetActive(true);
                 logSearchUsernamesText.text = "No matching users found!";
                 return;
             }
 
-            foreach (string user in users)
+            foreach (string user in searchedUsers)
             {
-                if (!uniqueUsers.Contains(user)) 
-                {
-                    uniqueUsers.Add(user);
-                    UserItem userItem = Instantiate(addFriendListing, addFriendListingTransform);
-                    userItem.usernameText.text = user;
-                }
+                UserItem userItem = Instantiate(addFriendListing, addFriendListingTransform);
+                userItem.usernameText.text = user;
+                instantiatedFriendListings.Add(userItem.gameObject);
             }
         }
         catch (FirebaseException e)
         {
             logSearchUsernamesText.gameObject.SetActive(true);
             logSearchUsernamesText.text = e.Message;
-            Debug.LogError(e.Message);
         }
     }
 
@@ -189,7 +225,7 @@ public class GameManager : MonoBehaviour
         await firebase.SaveDataAsync(firebase.auth.CurrentUser.UserId, playerStats);
         firebase.auth.SignOut();
         PlayerPrefs.DeleteAll();
-        await firebase.RunCoroutine(firebase.LoadSceneAsynchronously(0));
+        await firebase.RunCoroutine(firebase.LoadSceneAsync(0));
     }
 
     private void OnApplicationQuit()
@@ -208,4 +244,3 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 }
-
