@@ -496,7 +496,7 @@ public class FirebaseManager : MonoBehaviour
         return matchingUsers;
     }
 
-    private async Task<string> GetUserIdFromUsernameAsync(string username)
+    public async Task<string> GetUserIdFromUsernameAsync(string username)
     {
         try
         {
@@ -509,6 +509,23 @@ public class FirebaseManager : MonoBehaviour
             if (!userSnapshot.Exists) return "";
 
             return userSnapshot.Children.First().Key;
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+            return "";
+        }
+    }
+
+    public async Task<string> GetUsernameFromUserIdAsync(string userId)
+    {
+        try
+        {
+            var userSnapshot = await dbReference.Child("users").Child(userId).GetValueAsync();
+
+            if (!userSnapshot.Exists) return "";
+
+            return userSnapshot.Child("username").Value.ToString();
         }
         catch (FirebaseException e)
         {
@@ -530,6 +547,60 @@ public class FirebaseManager : MonoBehaviour
             await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").UpdateChildrenAsync(recipientData);
         
             Debug.Log($"Friend request sent to {_recipientUsername}");
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task CancelRequestAsync(string _userId, string _recipientUsername)
+    {
+        try
+        {
+            string _recipientUserId = await GetUserIdFromUsernameAsync(_recipientUsername);
+
+            await dbReference.Child($"users/{_userId}/friends/{_recipientUserId}").RemoveValueAsync();
+            await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").RemoveValueAsync();
+
+            Debug.Log($"Friend request cancelled to {_recipientUserId}");
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task AcceptRequestAsync(string _userId, string _recipientUsername)
+    {
+        Dictionary<string, object> userData = new() { { "status", "friend" } };
+        Dictionary<string, object> recipientData = new() { { "status", "friend" } };
+
+        try
+        {
+            string _recipientUserId = await GetUserIdFromUsernameAsync(_recipientUsername);
+
+            await dbReference.Child($"users/{_userId}/friends/{_recipientUserId}").UpdateChildrenAsync(userData);
+            await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").UpdateChildrenAsync(recipientData);
+
+            Debug.Log($"Friend request accepted from {_recipientUsername}");
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task DeclineRequestAsync(string _userId, string _recipientUsername)
+    {
+        try
+        {
+            string _recipientUserId = await GetUserIdFromUsernameAsync(_recipientUsername);
+            
+            await dbReference.Child($"users/{_userId}/friends/{_recipientUserId}").RemoveValueAsync();
+            await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").RemoveValueAsync();
+
+            Debug.Log($"Friend request declined from {_recipientUsername}");
         }
         catch (FirebaseException e)
         {
@@ -573,7 +644,6 @@ public class FirebaseManager : MonoBehaviour
             {
                 if (request.Child("status").Value.ToString() == "requested")
                 {
-                    print($"Friend request sent to {request.Key}");
                     sentRequests.Add(request.Key);
                 }
             }
@@ -596,7 +666,7 @@ public class FirebaseManager : MonoBehaviour
 
             foreach (var friend in snapshot.Children)
             {
-                if (friend.Child("status").Value.ToString() == "mutual")
+                if (friend.Child("status").Value.ToString() == "friend")
                 {
                     friends.Add(friend.Key);
                 }

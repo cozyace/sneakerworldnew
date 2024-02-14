@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1899516319210984330
 RectTransform:
   m_ObjectHideFlags: 0
@@ -499,6 +499,11 @@ MonoBehaviour:
   usernameText: {fileID: 2073365988139810071}
   gameManager: {fileID: 0}
   firebase: {fileID: 0}
+  addFriendButton: {fileID: 152032401366698972}
+  cancelFriendRequestButton: {fileID: 3573417465574678525}
+  acceptFriendRequestButton: {fileID: 0}
+  declineFriendRequestButton: {fileID: 0}
+  tradeButtton: {fileID: 0}
 --- !u!1 &3573417465574678525
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,4 +624,16 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3826721959560753922}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4597386090813723749}
+        m_TargetAssemblyTypeName: UserItem, Assembly-CSharp
+        m_MethodName: CancelFriendRequestButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
