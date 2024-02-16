@@ -55,8 +55,8 @@ public class UIManager : MonoBehaviour
                     (playerStats.level * gameManager.xpPerLevel);
             cashTextMain.text = FormattedCash(playerStats.cash);
             gemsTextMain.text = $"{playerStats.gems}";
-            cashTextStore.text = FormattedCash(playerStats.cash);
-            gemsTextStore.text = $"{playerStats.gems}";
+            // cashTextStore.text = FormattedCash(playerStats.cash);
+            // gemsTextStore.text = $"{playerStats.gems}";
             // welcomeText.text = $"Welcome, {playerStats.username}";
         }
     }
