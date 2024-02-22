@@ -7,30 +7,53 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
+[System.Serializable]
+public struct SneakersOwned
+{
+    public string name;
+    public int quantity;
+    public int purchasePrice;
+    public SneakerRarity rarity;
+}
+
 public class InventoryManager : MonoBehaviour
 {
-    public InventoryStats inventoryStats;
+    public GameManager gameManager;
+    public List<SneakersOwned> sneakersOwned;
     public SelectedSneaker selectedSneaker;
     public SneakerInventoryItem currentSneakerSelected, sneakerToSwap;
-    public GridLayoutGroup gridLayout;
+    public RectTransform gridLayout;
     public TMP_InputField search;
+    public GameObject chooseSneakerPanel;
     public GameObject sneakerInventoryItemPrefab, swapInventoryItemPrefab;
     public Sprite[] sprites;
     public RectTransform swapSneakersInventoryTransform;
     [SerializeField] private Image sneakerToSwapImage;
     public GameObject swapInventoryPanel;
-
-    public GameObject stopButton;
-    public GameObject sellButton;
-
     public List<SneakerInventoryItem> sneakers;
-
     private bool checkboxActive = true;
+    private int sneakerCount; 
+    private int sneakerRarity;
 
-    private void Start()
+    private async void Start()
     {
-        sneakers = new List<SneakerInventoryItem>();
+        List<SneakersOwned> sneakers = await gameManager.firebase.GetSneakerAsync(gameManager.firebase.userId);
+        
+        if (sneakers.Count > 0) 
+        {
+            chooseSneakerPanel.SetActive(false);
 
+            foreach (SneakersOwned sneaker in sneakers)
+            {
+                InstantiateSneakers(sneaker);
+            }
+
+            gameManager.aiManager.enabled = true;
+        }
+    }
+
+    private void InitializeSneakers()
+    {
         var names = new string[]
         {
             "Air forces", "Ballet shoe", "Bast shoe", "Blucher shoe", "Boat shoe", "Brogan", "Brogue shoe",
@@ -49,66 +72,74 @@ public class InventoryManager : MonoBehaviour
             "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
         };
 
-        for (int i = 0; i < inventoryStats.numSneakers; i++)
-        {
-            var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout.transform);
-            var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
-            sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
-            sneakerInventoryItem.quantity = Random.Range(50, 700);
-            sneakerInventoryItem.rarity = (SneakerRarity)Random.Range(1, 5);
-            sneakerInventoryItem.purchasedPrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
-            sneakerInventoryItem.aiCanBuy = false;
-            sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
-            sneakerInventoryItem.timestamp = DateTime.Now;
-            sneakers.Add(sneakerInventoryItem);
-        }
-
-        OnSneakerClick(sneakers[0]);
+        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
+        var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
+        sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
+        sneakerInventoryItem.quantity = sneakerCount;
+        sneakerInventoryItem.rarity = (SneakerRarity)sneakerRarity;
+        sneakerInventoryItem.purchasePrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
+        sneakerInventoryItem.aiCanBuy = false;
+        sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
+        sneakerInventoryItem.timestamp = DateTime.Now;
+        sneakerInventoryItem.nameText.text = sneakerInventoryItem.name;
+        sneakers.Add(sneakerInventoryItem);
 
         foreach (SneakerInventoryItem sneaker in sneakers)
         {
             SneakerInventoryItem _sneaker = Instantiate(sneaker, swapSneakersInventoryTransform);
             _sneaker.isSwapItem = true;
+
+            SneakersOwned _sneakers = new()
+            {
+                name = sneaker.name,
+                quantity = sneaker.quantity,
+                purchasePrice = sneaker.purchasePrice,
+                rarity = sneaker.rarity
+            };
+
+            sneakersOwned.Add(_sneakers);
         }
+
+        OnSneakerClick(sneakers[0]);
     }
 
-    private void InstantiateSneakers()
+    private void InstantiateSneakers(SneakersOwned _sneakersOwned)
     {
-        var names = new string[]
-        {
-            "Air forces", "Ballet shoe", "Bast shoe", "Blucher shoe", "Boat shoe", "Brogan", "Brogue shoe",
-            "Brothel creeper", "Bucks", "Cantabrian", "Chelsea boot", "Chopine", "Chukka boot", "Climbing shoe", "Clog",
-            "Court shoe", "Cross country running shoe", "Derby shoe", "Desert Boot", "Diabetic shoe", "Dress shoe",
-            "Driving moccasins", "Duckbill shoe", "Earth shoe", "Elevator shoes", "Espadrille", "Fashion boot",
-            "Galesh", "Geta", "Giveh", "High-heeled footwear", "Hiking shoes", "Huarache", "Jazz shoe", "Jelly shoes",
-            "Jika-tabi", "Jutti", "Kitten heel", "Kolhapuri Chappal", "Kung fu shoe", "Loafers", "Lotus shoes",
-            "Mary Jane", "Moccasin", "Mojari", "Monk shoe", "Mule", "Okobo", "Opanak", "Opinga", "Organ shoes",
-            "Orthopaedic footwear", "Over-the-knee boot", "Oxford shoe", "Pampootie", "Peep-toe shoe",
-            "Peranakan beaded slippers", "Peshawari chappal", "Platform shoe", "Plimsoll", "Pointe shoe",
-            "Pointed shoe", "Pointinini", "Riding boots", "Rocker bottom shoe", "Rope-soled shoe", "Russian boot",
-            "Saddle shoe", "Sailing boots", "Sandal", "Silver Shoes", "Slingback", "Slip-on shoe", "Slipper",
-            "Sneakers", "Snow boot", "Spectator shoe", "Spool heel", "Steel-toe boot", "Stiletto heel", "T-bar sandal",
-            "Tiger-head shoes", "Toe shoe", "Toe shoe", "Trail running shoes", "Tsarouhi", "Turnshoe",
-            "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
-        };
-
-        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout.transform);
+        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
         var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
-        sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
-        sneakerInventoryItem.quantity = Random.Range(50, 700);
-        sneakerInventoryItem.rarity = (SneakerRarity)Random.Range(1, 5);
-        sneakerInventoryItem.purchasedPrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
+        sneakerInventoryItem.name = _sneakersOwned.name;
+        sneakerInventoryItem.quantity = _sneakersOwned.quantity;
+        sneakerInventoryItem.rarity = _sneakersOwned.rarity;
+        sneakerInventoryItem.purchasePrice = _sneakersOwned.purchasePrice;
         sneakerInventoryItem.aiCanBuy = false;
         sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
         sneakerInventoryItem.timestamp = DateTime.Now;
+        sneakerInventoryItem.nameText.text = sneakerInventoryItem.name;
         sneakers.Add(sneakerInventoryItem);
+
+        foreach (SneakerInventoryItem sneaker in sneakers)
+        {
+            SneakerInventoryItem _sneaker = Instantiate(sneaker, swapSneakersInventoryTransform);
+            _sneaker.isSwapItem = true;
+
+            SneakersOwned _sneakers = new()
+            {
+                name = sneaker.name,
+                quantity = sneaker.quantity,
+                purchasePrice = sneaker.purchasePrice,
+                rarity = sneaker.rarity
+            };
+
+            sneakersOwned.Add(_sneakers);
+        }
+
+        OnSneakerClick(sneakers[0]);
     }
 
     public void OnSneakerClick(SneakerInventoryItem sneakerInventoryItem)
     {
         selectedSneaker.UpdateDetails(sneakerInventoryItem);
         currentSneakerSelected = sneakerInventoryItem;
-        SetSellButtonState(sneakerInventoryItem.aiCanBuy);
     }
 
     public void OnSneakerSwapClick(SneakerInventoryItem sneakerInventoryItem)
@@ -253,13 +284,13 @@ public class InventoryManager : MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().purchasedPrice
-                .CompareTo(t2.GetComponent<SneakerInventoryItem>().purchasedPrice));
+            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().purchasePrice
+                .CompareTo(t2.GetComponent<SneakerInventoryItem>().purchasePrice));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().purchasedPrice
-                .CompareTo(t1.GetComponent<SneakerInventoryItem>().purchasedPrice));
+            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().purchasePrice
+                .CompareTo(t1.GetComponent<SneakerInventoryItem>().purchasePrice));
         }
 
         return sneakers;
@@ -290,12 +321,6 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void SetSellButtonState(bool aiCanBuy)
-    {
-        sellButton.SetActive(!aiCanBuy);
-        stopButton.SetActive(aiCanBuy);
-    }
-
     public void SetSellState()
     {
         if (currentSneakerSelected.aiCanBuy)
@@ -312,7 +337,24 @@ public class InventoryManager : MonoBehaviour
 
     public void AddSneakerSlot()
     {
-        inventoryStats.numSneakers++;
-        InstantiateSneakers();
+        InitializeSneakers();
+    }
+
+    public async void CommonSneakersButton()
+    {
+        sneakerCount = 50;
+        sneakerRarity = 1;
+        InitializeSneakers();
+        await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
+        gameManager.aiManager.enabled = true;
+    }
+
+    public async void UncommonSneakersButton()
+    {
+        sneakerCount = 25;
+        sneakerRarity = 2;
+        InitializeSneakers();
+        await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
+        gameManager.aiManager.enabled = true;
     }
 }

@@ -377,6 +377,53 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
+    public async Task ChooseSneakerAsync(string _userId, SneakersOwned sneakers)
+    {
+        var sneakerData = new Dictionary<string, object>
+        {
+            ["name"] = sneakers.name,
+            ["quantity"] = sneakers.quantity,
+            ["purchasePrice"] = sneakers.purchasePrice,
+            ["rarity"] = (int)sneakers.rarity
+        };
+  
+        var updates = new Dictionary<string, object> {
+            { $"/sneakers/{sneakers.name}", sneakerData } 
+        };
+
+        try
+        {
+            await dbReference.Child($"users/{_userId}").UpdateChildrenAsync(updates);
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task<List<SneakersOwned>> GetSneakerAsync(string _userId)
+    {
+        var sneakersRef = dbReference.Child($"users/{_userId}/sneakers");
+        List<SneakersOwned> sneakers = new();
+
+        try
+        {
+            var snapshot = await sneakersRef.GetValueAsync();
+
+            foreach(DataSnapshot childSnapshot in snapshot.Children) 
+            {
+                string json = childSnapshot.GetRawJsonValue();           
+                SneakersOwned sneaker = JsonUtility.FromJson<SneakersOwned>(json);
+                sneakers.Add(sneaker);
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        return sneakers;
+    }
+
     private void ShowLogMsg(string msg)
     {
         logText.text = msg;
@@ -386,7 +433,33 @@ public class FirebaseManager : MonoBehaviour
     public async Task SaveDataAsync(string _userId, PlayerStats _playerStats)
     {
         string json = JsonUtility.ToJson(_playerStats);
-        await dbReference.Child("users").Child(_userId).SetRawJsonValueAsync(json);
+
+        try
+        {
+            await dbReference.Child("users").Child(_userId).SetRawJsonValueAsync(json);
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task<PlayerStats> LoadDataAsync(string _userId)
+    {
+        PlayerStats playerStats = new();
+
+        try
+        {
+            var snapshot = await dbReference.Child($"users/{_userId}").GetValueAsync();
+            string json = snapshot.GetRawJsonValue();
+            playerStats = JsonUtility.FromJson<PlayerStats>(json);
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+
+        return playerStats;
     }
 
     IEnumerator LoadDataEnum(Action callback)
@@ -496,13 +569,13 @@ public class FirebaseManager : MonoBehaviour
         return matchingUsers;
     }
 
-    public async Task<string> GetUserIdFromUsernameAsync(string username)
+    public async Task<string> GetUserIdFromUsernameAsync(string _username)
     {
         try
         {
             var userSnapshot = await dbReference.Child("users")
                                         .OrderByChild("username")
-                                        .EqualTo(username)
+                                        .EqualTo(_username)
                                         .LimitToFirst(1)
                                         .GetValueAsync();
 
@@ -517,11 +590,11 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    public async Task<string> GetUsernameFromUserIdAsync(string userId)
+    public async Task<string> GetUsernameFromUserIdAsync(string _userId)
     {
         try
         {
-            var userSnapshot = await dbReference.Child("users").Child(userId).GetValueAsync();
+            var userSnapshot = await dbReference.Child("users").Child(_userId).GetValueAsync();
 
             if (!userSnapshot.Exists) return "";
 

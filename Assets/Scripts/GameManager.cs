@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     public DatabaseReference dbReference;
 
     [Header("Managers")]
-    public InventoryStats inventoryStats;
     public FirebaseManager firebase;
     public AudioManager audioManager;
     public UIManager uiManager;
@@ -28,7 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int xpIncreaseAmount;
     public int xpPerLevel;
 
-    [Header("Sneakers")] 
+    [Header("Sneakers")]
     public List<Sneaker> _sneakers;
 
     [Header("Leaderboards")]
@@ -49,25 +48,28 @@ public class GameManager : MonoBehaviour
     public string _friendUsernameSelected;
     private List<string> instantiatedFriendNames = new();
     private List<UserItem> instantiatedFriendListings = new();
-    private List <string> instantiatedFriendRequestsNames = new();
+    private List<string> instantiatedFriendRequestsNames = new();
     private List<GameObject> instantiatedFriendRequestsListings = new();
+    public GameObject tradePanel;
 
     private void Awake()
-    {   
+    {
         if (firebase == null)
             firebase = FindObjectOfType<FirebaseManager>();
 
         playerStats = JsonUtility.FromJson<PlayerStats>(PlayerPrefs.GetString("PLAYER_STATS"));
 
         var data = Resources.Load<TextAsset>("data");
-        var splitDataset = data.text.Split('\n' );
+        var splitDataset = data.text.Split('\n');
 
         for (int i = 0; i < splitDataset.Length; i++)
         {
             string[] row = splitDataset[i].Split(',');
             Sneaker sneaker = new()
             {
-                name = row[0], rarity = row[1].ToEnum<SneakerRarity>(), imagePath = $"{row[2]}.png"
+                name = row[0],
+                rarity = row[1].ToEnum<SneakerRarity>(),
+                imagePath = $"{row[2]}.png"
             };
             _sneakers.Add(sneaker);
         }
@@ -82,6 +84,8 @@ public class GameManager : MonoBehaviour
         _friendRequests = await firebase.UpdateFriendRequestsAsync();
         _friendRequestsSent = await firebase.UpdateFriendRequestsSentAsync();
         SetupDatabaseListeners();
+        playerStats = await firebase.LoadDataAsync(firebase.userId);
+        InvokeRepeating(nameof(SaveToDatabase), 0f, 5f);
     }
 
     private void SetupDatabaseListeners()
@@ -96,8 +100,8 @@ public class GameManager : MonoBehaviour
     {
         playerStats = data;
         uiManager.UpdateUI(playerStats);
-    } 
-    
+    }
+
     private void AddExperience()
     {
         AddExperience(xpIncreaseAmount);
@@ -198,7 +202,7 @@ public class GameManager : MonoBehaviour
             instantiatedFriendRequestsNames.Clear();
             searchedUsers.Clear();
             searchedUsers = await firebase.SearchUsersAsync(_username);
-            
+
             foreach (string friend in _friends)
             {
                 string username = await firebase.GetUsernameFromUserIdAsync(friend);
@@ -269,7 +273,7 @@ public class GameManager : MonoBehaviour
         {
             string username = await firebase.GetUsernameFromUserIdAsync(friend);
 
-            if (!instantiatedFriendNames.Contains(username)) 
+            if (!instantiatedFriendNames.Contains(username))
             {
                 instantiatedFriendNames.Add(username);
                 UserItem userItem = Instantiate(friendListing, friendListingTransform);
@@ -300,7 +304,7 @@ public class GameManager : MonoBehaviour
         if (item.declineFriendRequestButton != null) item.declineFriendRequestButton.SetActive(false);
         if (item.addFriendButton != null) item.addFriendButton.SetActive(true);
     }
-    
+
     public void CloseLeaderboard()
     {
         foreach (Transform child in listingTransform)
@@ -322,7 +326,7 @@ public class GameManager : MonoBehaviour
 
     public async void SignOutButton()
     {
-        aiManager.enabled = uiManager.enabled = employeeManager.enabled = 
+        aiManager.enabled = uiManager.enabled = employeeManager.enabled =
             upgradesManager.enabled = inventoryManager.enabled = false;
         await firebase.SaveDataAsync(firebase.auth.CurrentUser.UserId, playerStats);
         firebase.auth.SignOut();
@@ -330,12 +334,52 @@ public class GameManager : MonoBehaviour
         await firebase.RunCoroutine(firebase.LoadSceneAsync(0));
     }
 
+    private async void SaveToDatabase()
+    {
+        await SaveDataAsyc(firebase.userId);
+    }
+
+    private async Task SaveDataAsyc(string _userId)
+    {
+        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
+
+        var data = new Dictionary<string, object>()
+        {
+            ["username"] = playerStats.username,
+            ["level"] = playerStats.level,
+            ["experience"] = playerStats.experience,
+            ["cash"] = playerStats.cash,
+            ["gems"] = playerStats.gems,
+        };
+
+        try
+        {
+            await dbReference.Child($"users/{_userId}").UpdateChildrenAsync(data);
+
+            foreach (SneakersOwned sneaker in inventoryManager.sneakersOwned)
+            {
+                var sneakerData = new Dictionary<string, object>
+                {
+                    ["name"] = sneaker.name,
+                    ["quantity"] = sneaker.quantity,
+                    ["purchasePrice"] = sneaker.purchasePrice,
+                    ["rarity"] = (int)sneaker.rarity
+                };
+
+                await dbReference.Child($"users/{_userId}/sneakers/{sneaker.name}").UpdateChildrenAsync(sneakerData);
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
     private void OnApplicationQuit()
     {
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
             print("Saving data...");
-            // Fix later to implement save data every interval
             StartCoroutine(SaveData());
         }
     }

@@ -45,4 +45,9 @@ public class UserItem : MonoBehaviour
         gameManager._friendUsernameSelected = usernameText.text;
         await firebase.DeclineRequestAsync(firebase.auth.CurrentUser.UserId, usernameText.text);
     }
+
+    public void TradeButton()
+    {
+        gameManager.tradePanel.SetActive(true);
+    }
 }

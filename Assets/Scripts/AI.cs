@@ -107,22 +107,22 @@ public class AI : MonoBehaviour
         CreateItemPopup(chosenSneaker);
         gameManager.inventoryManager.BuySneaker(chosenSneaker);
         gameManager.AddExperience(xpPerPurchase);
-        lastKnownTransactionAmount = chosenSneaker.purchasedPrice;
+        lastKnownTransactionAmount = chosenSneaker.purchasePrice;
         CreateCashPopup();
 
-        if (gameManager.playerStats.level == 10 && gameManager.inventoryStats.numSneakers < 11)
+        if (gameManager.playerStats.level == 10)
             gameManager.inventoryManager.AddSneakerSlot();
 
-        if (gameManager.playerStats.level == 25 && gameManager.inventoryStats.numSneakers < 26)
+        if (gameManager.playerStats.level == 25)
             gameManager.inventoryManager.AddSneakerSlot();
 
-        if (gameManager.playerStats.level == 40 && gameManager.inventoryStats.numSneakers < 41)
+        if (gameManager.playerStats.level == 40)
             gameManager.inventoryManager.AddSneakerSlot();
 
-        if (gameManager.playerStats.level == 75 && gameManager.inventoryStats.numSneakers < 76)
+        if (gameManager.playerStats.level == 75)
             gameManager.inventoryManager.AddSneakerSlot();
 
-        if (gameManager.playerStats.level == 100 && gameManager.inventoryStats.numSneakers < 101)
+        if (gameManager.playerStats.level == 100)
             gameManager.inventoryManager.AddSneakerSlot();
     }
 
