@@ -52,34 +52,22 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    private void InitializeSneakers()
+    private void InitializeSneakers(int rarityLevel)
     {
         var names = new string[]
         {
-            "Air forces", "Ballet shoe", "Bast shoe", "Blucher shoe", "Boat shoe", "Brogan", "Brogue shoe",
-            "Brothel creeper", "Bucks", "Cantabrian", "Chelsea boot", "Chopine", "Chukka boot", "Climbing shoe", "Clog",
-            "Court shoe", "Cross country running shoe", "Derby shoe", "Desert Boot", "Diabetic shoe", "Dress shoe",
-            "Driving moccasins", "Duckbill shoe", "Earth shoe", "Elevator shoes", "Espadrille", "Fashion boot",
-            "Galesh", "Geta", "Giveh", "High-heeled footwear", "Hiking shoes", "Huarache", "Jazz shoe", "Jelly shoes",
-            "Jika-tabi", "Jutti", "Kitten heel", "Kolhapuri Chappal", "Kung fu shoe", "Loafers", "Lotus shoes",
-            "Mary Jane", "Moccasin", "Mojari", "Monk shoe", "Mule", "Okobo", "Opanak", "Opinga", "Organ shoes",
-            "Orthopaedic footwear", "Over-the-knee boot", "Oxford shoe", "Pampootie", "Peep-toe shoe",
-            "Peranakan beaded slippers", "Peshawari chappal", "Platform shoe", "Plimsoll", "Pointe shoe",
-            "Pointed shoe", "Pointinini", "Riding boots", "Rocker bottom shoe", "Rope-soled shoe", "Russian boot",
-            "Saddle shoe", "Sailing boots", "Sandal", "Silver Shoes", "Slingback", "Slip-on shoe", "Slipper",
-            "Sneakers", "Snow boot", "Spectator shoe", "Spool heel", "Steel-toe boot", "Stiletto heel", "T-bar sandal",
-            "Tiger-head shoes", "Toe shoe", "Toe shoe", "Trail running shoes", "Tsarouhi", "Turnshoe",
-            "Venetian-style shoe", "Walk-Over shoes", "Wedge", "Wellington boot", "Winklepicker", "Wörishofer", "Zori"
+            "Sneaker World I Low", "Sneaker World I High", "Sneaker World I High Sky", "Jordan 1 Chicago", "Jordan 3 Cement", 
+            "Jordan 4 Bred", "Jordan 5 Supreme", "Jordan 6 Infrared"
         };
 
         var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
         var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
-        sneakerInventoryItem.name = names[Random.Range(0, names.Length)];
+        sneakerInventoryItem.name = names[rarityLevel];
         sneakerInventoryItem.quantity = sneakerCount;
         sneakerInventoryItem.rarity = (SneakerRarity)sneakerRarity;
-        sneakerInventoryItem.purchasePrice = Random.Range(120, 200) * (int)sneakerInventoryItem.rarity;
+        sneakerInventoryItem.purchasePrice = Random.Range(120, 150) * (int)sneakerInventoryItem.rarity;
         sneakerInventoryItem.aiCanBuy = false;
-        sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
+        sneakerInventoryItem.sneakerImage.sprite = sprites[rarityLevel];
         sneakerInventoryItem.timestamp = DateTime.Now;
         sneakerInventoryItem.nameText.text = sneakerInventoryItem.name;
         sneakers.Add(sneakerInventoryItem);
@@ -337,14 +325,14 @@ public class InventoryManager : MonoBehaviour
 
     public void AddSneakerSlot()
     {
-        InitializeSneakers();
+        InitializeSneakers(0);
     }
 
     public async void CommonSneakersButton()
     {
         sneakerCount = 50;
         sneakerRarity = 1;
-        InitializeSneakers();
+        InitializeSneakers(0);
         await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
@@ -353,7 +341,7 @@ public class InventoryManager : MonoBehaviour
     {
         sneakerCount = 25;
         sneakerRarity = 2;
-        InitializeSneakers();
+        InitializeSneakers(1);
         await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
