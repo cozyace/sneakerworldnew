@@ -34,6 +34,7 @@ public class InventoryManager : MonoBehaviour
     private bool checkboxActive = true;
     private int sneakerCount; 
     private int sneakerRarity;
+    private int rarityLevel;
 
     private async void Start()
     {
@@ -52,7 +53,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    private void InitializeSneakers(int rarityLevel)
+    private void InitializeSneakers()
     {
         var names = new string[]
         {
@@ -100,7 +101,7 @@ public class InventoryManager : MonoBehaviour
         sneakerInventoryItem.rarity = _sneakersOwned.rarity;
         sneakerInventoryItem.purchasePrice = _sneakersOwned.purchasePrice;
         sneakerInventoryItem.aiCanBuy = false;
-        sneakerInventoryItem.sneakerImage.sprite = sprites[Random.Range(0, sprites.Length)];
+        sneakerInventoryItem.sneakerImage.sprite = sprites[rarityLevel];
         sneakerInventoryItem.timestamp = DateTime.Now;
         sneakerInventoryItem.nameText.text = sneakerInventoryItem.name;
         sneakers.Add(sneakerInventoryItem);
@@ -325,14 +326,15 @@ public class InventoryManager : MonoBehaviour
 
     public void AddSneakerSlot()
     {
-        InitializeSneakers(0);
+        InitializeSneakers();
     }
 
     public async void CommonSneakersButton()
     {
         sneakerCount = 50;
         sneakerRarity = 1;
-        InitializeSneakers(0);
+        rarityLevel = 0;
+        InitializeSneakers();
         await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
@@ -341,7 +343,8 @@ public class InventoryManager : MonoBehaviour
     {
         sneakerCount = 25;
         sneakerRarity = 2;
-        InitializeSneakers(1);
+        rarityLevel = 1;
+        InitializeSneakers();
         await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
