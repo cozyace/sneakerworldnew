@@ -70233,7 +70233,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 88.6, y: -246.11}
+  m_AnchoredPosition: {x: 81, y: -350.89}
   m_SizeDelta: {x: 515.5, y: 89.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1807441206
@@ -74110,17 +74110,19 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1918330979}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8062997dfeb7d342839a7fe10cfe423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 1918330983}
+  sneakersOwned: []
   selectedSneaker: {fileID: 271293026}
   currentSneakerSelected: {fileID: 0}
   sneakerToSwap: {fileID: 0}
   gridLayout: {fileID: 700873065}
   search: {fileID: 1305216265}
+  chooseSneakerPanel: {fileID: 2074263220}
   sneakerInventoryItemPrefab: {fileID: 6964757357192958024, guid: 9c85e2659ccab3b42a9bbba63faef398, type: 3}
   swapInventoryItemPrefab: {fileID: 6964757357192958024, guid: 9c85e2659ccab3b42a9bbba63faef398, type: 3}
   sprites:
