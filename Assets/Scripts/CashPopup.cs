@@ -26,7 +26,7 @@ public class CashPopup : MonoBehaviour
             gameManager.AddCash(cash);
             hasAddedCash = true;
         }
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(0.5f);
         Destroy(gameObject);
     }
 

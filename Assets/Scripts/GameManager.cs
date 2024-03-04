@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public AIManager aiManager;
     public UpgradesManager upgradesManager;
     public InventoryManager inventoryManager;
+    public CustomerQueue _CustomerQueue;
 
     [Header("Player Stats")]
     [SerializeField] private string userId;
