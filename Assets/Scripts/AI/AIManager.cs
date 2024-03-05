@@ -69,22 +69,15 @@ public class AIManager : MonoBehaviour
         GameManager._CustomerQueue.AddCustomerToQueue(spawnedBot);
         
         //Adds the bot to the list of existing bots, and updates its draw order layer.
-        UpdateBotsInventory(spawnedBot);
+        AddBotToList(spawnedBot);
     }
     
-    //This updates the list of bots existing in the store, and updates their draw order.
-    private void UpdateBotsInventory(AI botToAdd)
+    //This updates the list of bots existing in the store, that haven't yet gotten their order.
+    private void AddBotToList(AI botToAdd)
     {
         _UnsatisfiedAI.Add(botToAdd);
-        UpdateBotsDrawOrderInLayer(_UnsatisfiedAI);
     }
-    
-    //This handles the Z-index issues with having multiple sprite renderers overlapping.
-    private void UpdateBotsDrawOrderInLayer(List<AI> botsToSort)
-    {
-        foreach (AI bot in botsToSort)
-            bot.IncreaseDrawOrderInLayer();
-    }
+
 
     //Removes an AI from the store, by deleting them from the list & destroying the gameobject.
     public void DeleteAI(AI ai) => Destroy(ai.gameObject);

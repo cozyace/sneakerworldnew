@@ -117,7 +117,7 @@ MonoBehaviour:
   clearStateOnDisable: 0
   tintBlack: 0
   singleSubmesh: 0
-  fixDrawOrder: 0
+  fixDrawOrder: 1
   addNormals: 0
   calculateTangents: 0
   maskInteraction: 0
@@ -216,14 +216,12 @@ MonoBehaviour:
   SpriteRenderer: {fileID: 7298173619633758307}
   Skeleton: {fileID: 7779241704475449017}
   MoveSpeed: 1
-  CurrentWaypointIndex: 0
   Animator: {fileID: 7298173618722100009}
   PopupPosition: {fileID: 4556622734690868873}
   ItemPopupPrefab: {fileID: 7449272868971740933, guid: ff8153b90aaa37c42bdba652a0546f7d, type: 3}
   CashPopupPrefab: {fileID: 1893233047879416294, guid: 9935fe14373bb4940a3208d494d98ad9, type: 3}
   WaitingBarPrefab: {fileID: 1692546066539820077, guid: 93bc348c9cec6714885a9d1d98e6917f, type: 3}
   XpGainedPerPurchase: 10
-  LastKnownTransactionAmount: 0
 --- !u!95 &7298173618722100009
 Animator:
   serializedVersion: 5

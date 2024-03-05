@@ -12,7 +12,6 @@ public class AI : MonoBehaviour
 {
     [Header("Sprites")]
     [SerializeField] private Sprite[] AvailableSprites;
-    [SerializeField] private SpriteRenderer SpriteRenderer;
     [SerializeField] private SkeletonAnimation Skeleton;
 
     [Header("Movement")]
@@ -29,7 +28,6 @@ public class AI : MonoBehaviour
     [SerializeField] private CashPopup CashPopupPrefab;
     [SerializeField] private GameObject WaitingBarPrefab;
     [SerializeField] private int XpGainedPerPurchase;
-    [SerializeField] private int LastKnownTransactionAmount;
     
     private RectTransform _PopupParentObject;
     private GameManager _GameManager;
@@ -51,7 +49,7 @@ public class AI : MonoBehaviour
             _GameManager = FindAnyObjectByType<GameManager>();
 
         //Assign this AI's sprite to a randomized sprite within a list.
-        SpriteRenderer.sprite = AvailableSprites[Random.Range(0, AvailableSprites.Length)];
+       // SpriteRenderer.sprite = AvailableSprites[Random.Range(0, AvailableSprites.Length)];
         
         //Get the store exit waypoint.
         _ExitStoreWaypoint = GameObject.FindGameObjectWithTag("exit").transform;
@@ -77,15 +75,6 @@ public class AI : MonoBehaviour
             transform.position = Vector2.MoveTowards(transform.position, _CurrentWaypoint.position, MoveSpeed * Time.deltaTime);
             Skeleton.AnimationName = "Walk";
             Animator.SetBool(Buy, false);
-            
-            if (transform.position.x < _CurrentWaypoint.position.x)
-            {
-                SpriteRenderer.flipX = true;
-            }
-            else
-            {
-                SpriteRenderer.flipX = false;
-            }
         }
         else //If the AI has reached the desired waypoint.
         {
@@ -102,6 +91,7 @@ public class AI : MonoBehaviour
             if (_CurrentWaypoint.CompareTag("finishedPurchase"))
             {
                 UpdateDestination(_ExitStoreWaypoint);
+                FlipSkeletonSprite();
             }
             
             //If the AI has arrived at the counter to purchase a shoe.
@@ -144,16 +134,13 @@ public class AI : MonoBehaviour
         
         //Create the Item & Cash UI popups.
         CreateItemPopup(chosenSneaker);
-        CreateCashPopup();
+        CreateCashPopup(chosenSneaker.purchasePrice);
         
         //Remove the X amount of quantity from the sneaker the AI desired to purchase.
         _GameManager.inventoryManager.BuySneaker(chosenSneaker);
         
         //Give the player the experience given per purchase.
         _GameManager.AddExperience(XpGainedPerPurchase);
-        
-        //Store the last known transaction.
-        LastKnownTransactionAmount = chosenSneaker.purchasePrice;
         
 
         //Move the below code to the GameManager
@@ -187,10 +174,10 @@ public class AI : MonoBehaviour
     }
     
     //Instantiates the UI popup for the cash gained from the transaction.
-    private void CreateCashPopup()
+    private void CreateCashPopup(int amount)
     {
         CashPopup popup = Instantiate(CashPopupPrefab, _PopupParentObject);
-        popup.SetPopup(LastKnownTransactionAmount);
+        popup.SetPopup(amount);
     }
 
     
@@ -201,10 +188,10 @@ public class AI : MonoBehaviour
         popup.GetComponent<ItemPopup>().SetPopup(PopupPosition, sneakerInventoryItem.sneakerImage.sprite);
     }
     
-    //Reorders the sprite of the AI.
-    public void IncreaseDrawOrderInLayer()
+
+    private void FlipSkeletonSprite()
     {
-        if (SpriteRenderer != null) SpriteRenderer.sortingOrder++;
+        Skeleton.transform.localScale = new Vector3(-Skeleton.transform.localScale.x, 0.1f, 1f);
     }
     
 }

@@ -13,7 +13,7 @@ public class CustomerQueue : MonoBehaviour
     //All of the space in your store you have for customers to form a line (based on how large your store is)
     public List<Transform> QueuePositions = new List<Transform>();
 
-    //All of the available counter positions (based on how many employees you have)
+    //All of the available counter positions (based on how many employees you have) YOU CAN DISABLE A COUNTER POSITION BY TICKING THE UNLOCKED OFF
     public List<TransactionCounterPosition> CounterPositions = new List<TransactionCounterPosition>();
     
     public Transform LeaveCounterWaypoint;
