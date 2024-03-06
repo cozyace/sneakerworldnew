@@ -91,6 +91,8 @@ public class MarketManager :MonoBehaviour
 
         private async void GetListings()
         {
+                DestroyAllListings();
+                
                 _Listings = await _GameManager.firebase.GetMarketplaceListingsAsync();
                 
                 _MyListings.Clear();
