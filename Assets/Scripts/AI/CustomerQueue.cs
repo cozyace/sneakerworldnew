@@ -77,7 +77,7 @@ public class CustomerQueue : MonoBehaviour
         //Set the next open position to the next empty queue position.
         customer.UpdateDestination(QueuePositions[CustomersInQueue.Count -1]);
     }
-
+    
     //Returns how many people the AIManager should spawn maximum.
     public int GetStoreCapacityLevel()
     {

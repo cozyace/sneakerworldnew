@@ -14,6 +14,14 @@ public struct SneakersOwned
     public int quantity;
     public int purchasePrice;
     public SneakerRarity rarity;
+
+    public SneakersOwned(string n, int q, int p, SneakerRarity r)
+    {
+        name = n;
+        quantity = q;
+        purchasePrice = p;
+        rarity = r;
+    }
 }
 
 public class InventoryManager : MonoBehaviour
@@ -90,6 +98,18 @@ public class InventoryManager : MonoBehaviour
         }
 
         OnSneakerClick(sneakers[0]);
+    }
+
+    public void AddShoesToCollection(SneakersOwned sneaker)
+    {
+        if (sneakersOwned.Any(x => x.name == sneaker.name))
+        {
+            SneakersOwned sneakerInstance = sneakersOwned[sneakersOwned.FindIndex(x => x.name == sneaker.name)];
+            sneakerInstance.quantity += sneaker.quantity;
+            sneakersOwned[sneakersOwned.FindIndex(x => x.name == sneaker.name)] = sneakerInstance;
+        }
+        else // if the player doesn't have the shoe.
+            sneakersOwned.Add(sneaker);
     }
 
     private void InstantiateSneakers(SneakersOwned _sneakersOwned)
@@ -287,9 +307,16 @@ public class InventoryManager : MonoBehaviour
 
     public void BuySneaker(SneakerInventoryItem sneakerInventoryItem)
     {
-        foreach (var sneaker in sneakers.Where(sneaker => sneaker == sneakerInventoryItem))
+        foreach (SneakerInventoryItem sneaker in sneakers.Where(sneaker => sneaker == sneakerInventoryItem))
         {
-            sneaker.quantity--;
+            if (sneaker.quantity > 0)
+                sneaker.quantity--;
+            else
+            {
+                print("Tried to remove sneaker while none are left!");
+                return;
+            }
+            
             if (currentSneakerSelected.Equals(sneaker))
             {
                 selectedSneaker.UpdateDetails(sneaker);
@@ -299,7 +326,7 @@ public class InventoryManager : MonoBehaviour
 
     public void SwapSneakers(SneakerInventoryItem sneakerInventoryItem)
     {
-        foreach (var sneaker in sneakers.Where(sneaker => sneaker == sneakerInventoryItem))
+        foreach (SneakerInventoryItem sneaker in sneakers.Where(sneaker => sneaker == sneakerInventoryItem))
         {
             sneaker.quantity--;
 
@@ -334,8 +361,8 @@ public class InventoryManager : MonoBehaviour
         sneakerCount = 50;
         sneakerRarity = 1;
         rarityLevel = 0;
-        InitializeSneakers();
-        await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
+        //InitializeSneakers();
+       // await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
 
@@ -344,8 +371,8 @@ public class InventoryManager : MonoBehaviour
         sneakerCount = 25;
         sneakerRarity = 2;
         rarityLevel = 1;
-        InitializeSneakers();
-        await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
+       // InitializeSneakers();
+       // await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
         gameManager.aiManager.enabled = true;
     }
 }

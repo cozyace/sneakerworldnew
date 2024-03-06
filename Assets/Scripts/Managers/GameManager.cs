@@ -125,12 +125,17 @@ public class GameManager : MonoBehaviour
 
     public void AddEmployee()
     {
-        employeeManager.AddEmployee();
+        employeeManager.SetActiveEmployeeCount(employeeManager.ActiveEmployees.Count + 1);
     }
 
     public int GetCash()
     {
         return playerStats.cash;
+    }
+
+    public int GetGems()
+    {
+        return playerStats.gems;
     }
 
     public void AddCash(int cash)
@@ -142,6 +147,12 @@ public class GameManager : MonoBehaviour
     public void DeductCash(int cash)
     {
         playerStats.cash -= cash;
+        uiManager.UpdateUI(playerStats);
+    }
+
+    public void DeductGems(int gems)
+    {
+        playerStats.gems -= gems;
         uiManager.UpdateUI(playerStats);
     }
 
@@ -338,6 +349,7 @@ public class GameManager : MonoBehaviour
     private async void SaveToDatabase()
     {
         await SaveDataAsyc(firebase.userId);
+        //playerStats = await firebase.LoadDataAsync(firebase.userId);
     }
 
     private async Task SaveDataAsyc(string _userId)

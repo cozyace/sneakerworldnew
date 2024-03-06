@@ -165,12 +165,17 @@ public class AI : MonoBehaviour
     {
         List<SneakerInventoryItem> sneakersAvailable = _GameManager.inventoryManager.sneakers.Where(sneaker => sneaker.aiCanBuy).ToList();
 
-        if (sneakersAvailable.Count == 0)
+        foreach (SneakerInventoryItem sneaker in sneakersAvailable.Where(sneaker => sneaker.quantity == 0))
         {
-            Debug.Log("No sneakers available to buy!");
-            return null;
+            sneakersAvailable.Remove(sneaker);
         }
-        return sneakersAvailable[Random.Range(0, sneakersAvailable.Count)];
+
+        //Only return a sneaker if there's available sneakers.
+        if (sneakersAvailable.Count != 0)
+            return sneakersAvailable[Random.Range(0, sneakersAvailable.Count)];
+        
+        Debug.Log("No sneakers available to buy!");
+        return null;
     }
     
     //Instantiates the UI popup for the cash gained from the transaction.

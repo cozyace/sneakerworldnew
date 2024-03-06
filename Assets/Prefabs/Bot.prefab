@@ -213,9 +213,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 24070c7228f8ab54e8f62cea7fd36226, type: 3}
   - {fileID: 21300000, guid: fd09930fbd20a6747b2472e09b42a300, type: 3}
   - {fileID: 21300000, guid: 4377289b65b54a44784671f7d4f5c5fb, type: 3}
-  SpriteRenderer: {fileID: 7298173619633758307}
   Skeleton: {fileID: 7779241704475449017}
-  MoveSpeed: 1
+  MoveSpeed: 1.5
   Animator: {fileID: 7298173618722100009}
   PopupPosition: {fileID: 4556622734690868873}
   ItemPopupPrefab: {fileID: 7449272868971740933, guid: ff8153b90aaa37c42bdba652a0546f7d, type: 3}

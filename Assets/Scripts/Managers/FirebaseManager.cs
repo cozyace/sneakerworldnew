@@ -403,13 +403,17 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<List<SneakersOwned>> GetSneakerAsync(string _userId)
     {
+        //Establishes a connection to the section of the database within the user data called 'sneakers'
         var sneakersRef = dbReference.Child($"users/{_userId}/sneakers");
+        //Creates a new list for storing the sneakers found.
         List<SneakersOwned> sneakers = new();
 
         try
         {
-            var snapshot = await sneakersRef.GetValueAsync();
+            //Grabs the values from the Database section, and stores them as children in this object.
+            DataSnapshot snapshot = await sneakersRef.GetValueAsync();
 
+            //Go through each of the children of the database snapshot, and add them to the list.
             foreach(DataSnapshot childSnapshot in snapshot.Children) 
             {
                 string json = childSnapshot.GetRawJsonValue();           
@@ -422,6 +426,62 @@ public class FirebaseManager : MonoBehaviour
             Debug.LogError(e.Message);
         }
         return sneakers;
+    }
+    
+
+    //Gets all active market listings. (Not including the logged-in user's)
+    public async Task<List<MarketListing>> GetMarketplaceListingsAsync()
+    {
+        List<MarketListing> marketListings = new List<MarketListing>();
+        
+        try
+        {
+            //Grabs the values from the Database section, and stores them as children in this object.
+            DataSnapshot snapshot = await dbReference.Child("market").GetValueAsync();
+
+            //Go through each of the children of the database snapshot, and add them to the list.
+            foreach(DataSnapshot childSnapshot in snapshot.Children) 
+            {
+                string json = childSnapshot.GetRawJsonValue();  
+                print(json);
+                MarketListing sneaker = JsonUtility.FromJson<MarketListing>(json);
+                marketListings.Add(sneaker);
+            }
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        
+        return marketListings;
+    }
+
+    public async Task RemoveMarketListing(string key)
+    {
+        try
+        {
+            //Grabs the values from the Database section, and stores them as children in this object.
+            await dbReference.Child($"market/{key}").RemoveValueAsync();
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task AddMarketListing(MarketListing info)
+    {
+        string json = JsonUtility.ToJson(info);
+        
+        try
+        {
+            //Grabs the values from the Database section, and stores them as children in this object.
+            await dbReference.Child($"market/{info.key}").SetRawJsonValueAsync(json);
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 
     private void ShowLogMsg(string msg)
