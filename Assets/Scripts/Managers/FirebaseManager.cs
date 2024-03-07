@@ -549,7 +549,7 @@ public class FirebaseManager : MonoBehaviour
     {
         try
         {
-            var currentValue = await dbReference.Child($"users/{userId}/cash").GetValueAsync();
+            var currentValue = await dbReference.Child($"users/{userID}/cash").GetValueAsync();
             print(currentValue.GetRawJsonValue());
             //Set the value of cash in the specific user's data.
            await dbReference.Child($"users/{userID}/cash").SetValueAsync(int.Parse(currentValue.GetRawJsonValue()) + count);
