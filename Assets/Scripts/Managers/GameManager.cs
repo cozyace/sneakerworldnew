@@ -94,6 +94,8 @@ public class GameManager : MonoBehaviour
             PlayerStats newStats = await firebase.LoadDataAsync(firebase.userId);
 
             playerStats = newStats;
+            
+            uiManager.UpdateUI(playerStats);
 
             await firebase.ClearNotifications(firebase.userId);
         }
