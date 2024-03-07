@@ -492,32 +492,38 @@ public class FirebaseManager : MonoBehaviour
         await dbReference.Child($"users/{userID}/notifications/").UpdateChildrenAsync(notificationData);
     }
 
-    public async Task<Dictionary<string, object>> GetUserNotifications(string userID)
+    public async Task<string> GetUserNotifications(string userID)
     {
         Dictionary<string, object> notificationData = new Dictionary<string, object>();
-        
+
         try
         {
             var snapshot = await dbReference.Child($"users/{userId}/notifications/").GetValueAsync();
             string json = snapshot.GetRawJsonValue();
+
+            if (json == null || snapshot == null)
+                return "";
+            
             string fixedNotification = json.Substring(9, json.Length - 10);
-            print(fixedNotification);
-            
+
+            return fixedNotification;
             //Use split instead, because all of the notifications will be the same line anyway.
-            
+
             notificationData = JsonUtility.FromJson<Dictionary<string, object>>(json);
-            
-            //Clears all of the notifications.
-            await dbReference.Child($"users/{userId}/notifications/").RemoveValueAsync();
-        }
-        catch (FirebaseException e)
+        } catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
         }
-    
-        
-        return notificationData;
+        return "";
+        // return notificationData;
     }
+
+    public async Task ClearNotifications(string userID)
+        {
+                        
+            //Clears all of the notifications.
+            await dbReference.Child($"users/{userId}/notifications/").RemoveValueAsync();
+        }
 
     private void ShowLogMsg(string msg)
     {
@@ -537,6 +543,23 @@ public class FirebaseManager : MonoBehaviour
         {
             Debug.LogError(e.Message);
         }
+    }
+
+    public async Task UpdateGoldAsync(string userID, int count)
+    {
+        try
+        {
+            var currentValue = await dbReference.Child($"users/{userId}/cash").GetValueAsync();
+            print(currentValue.GetRawJsonValue());
+            //Set the value of cash in the specific user's data.
+           await dbReference.Child($"users/{userID}/cash").SetValueAsync(int.Parse(currentValue.GetRawJsonValue()) + count);
+            
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+
     }
 
     public async Task<PlayerStats> LoadDataAsync(string _userId)

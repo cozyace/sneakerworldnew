@@ -263,17 +263,18 @@ public class MarketManager :MonoBehaviour
                 GetListings(false);
                 
                 //Store a copy of the seller's current stats.
-                PlayerStats modifiedSellerStats = await _GameManager.firebase.LoadDataAsync(listing.sellerId);
-                
+               // PlayerStats modifiedSellerStats = await _GameManager.firebase.LoadDataAsync(listing.sellerId);
+                print(listing.sellerId);
+               await _GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
                 
                 //Check again what the currency type is, so that the right property can be adjusted.
-                if (listing.listingPriceCash > 0)
-                        modifiedSellerStats.cash += purchasePrice;
-                else if (listing.listingPriceGems > 0)
-                        modifiedSellerStats.gems += purchasePrice;
+                //if (listing.listingPriceCash > 0)
+               //         modifiedSellerStats.cash += purchasePrice;
+               // else if (listing.listingPriceGems > 0)
+                //        modifiedSellerStats.gems += purchasePrice;
                 //
                 //Overwrite the seller's data with this new data.
-                await _GameManager.firebase.SaveDataAsync(listing.sellerId, modifiedSellerStats);
+               // await _GameManager.firebase.SaveDataAsync(listing.sellerId, modifiedSellerStats);
                 
                 //need to verify that the other logged in user will actually recieve this money in real-time, or if they'll need to restart.
                 //Might have to put a LoadAsync into that Invoked function, so it updates atleast after a bit.
@@ -315,7 +316,6 @@ public class MarketManager :MonoBehaviour
                 ResetListingElements();
 
                 await _GameManager.firebase.AddNotificationToUser(_GameManager.firebase.userId, $"You've listed a {newData.name} for {cashValue} Cash, {gemValue} Gems.");
-                print(await _GameManager.firebase.GetUserNotifications(_GameManager.firebase.userId));
                 
                 CreateListingPanel.SetActive(false);
                 MyListingsPanel.SetActive(true);

@@ -2,6 +2,7 @@
 using Firebase.Database;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
@@ -53,6 +54,8 @@ public class GameManager : MonoBehaviour
     private List<GameObject> instantiatedFriendRequestsListings = new();
     public GameObject tradePanel;
 
+    public string Notifications;
+
     private void Awake()
     {
         if (firebase == null)
@@ -74,6 +77,27 @@ public class GameManager : MonoBehaviour
             };
             _sneakers.Add(sneaker);
         }
+    }
+
+    public void Update()
+    {
+        UpdateNotifications();
+    }
+    
+    //This is used to grab all notifications the player has in their account's database.
+    public async void UpdateNotifications()
+    {
+        Notifications = await firebase.GetUserNotifications(firebase.userId);
+        if (Notifications.Contains("Your listing of") || Notifications.Contains("You've listed"))
+        {
+            print("Listing Notification Found.");
+            PlayerStats newStats = await firebase.LoadDataAsync(firebase.userId);
+
+            playerStats = newStats;
+
+            await firebase.ClearNotifications(firebase.userId);
+        }
+        
     }
 
     private async void Start()
@@ -387,6 +411,10 @@ public class GameManager : MonoBehaviour
             Debug.LogError(e.Message);
         }
     }
+    
+    
+    
+    
 
     private void OnApplicationQuit()
     {

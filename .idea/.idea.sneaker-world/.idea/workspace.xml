@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/SneakerDatabaseObject.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/SneakerDatabaseObject.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Main/Icons/tag.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Main/Icons/tag.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/MarketInventoryPrefab.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/MarketInventoryPrefab.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/MarketListingPrefab.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/MarketListingPrefab.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/Main/Market/RefreshButton.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/Main/Market/RefreshButton.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -109,7 +102,7 @@
       <option name="presentableId" value="Default" />
       <updated>1709583170914</updated>
       <workItem from="1709583179390" duration="63123000" />
-      <workItem from="1709833171109" duration="6563000" />
+      <workItem from="1709833171109" duration="9923000" />
     </task>
     <servers />
   </component>
