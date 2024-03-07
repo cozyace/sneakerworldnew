@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ffe1c6687d645818cb3fcfa6ca8f74d, type: 3}
+  m_Name: SneakerDatabase
+  m_EditorClassIdentifier: 
+  SneakerDatabase:
+  - Name: Jordan 4 Red Cement
+    Description: 
+    Value: 1
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Jordan 4 Retro Taupe Haze
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Jordan 5 UNC
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Louis Vuitton Trainer
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Sneaker World I Abyss
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Sneaker World I Blood
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Sneaker World I Grape
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Sneaker World I Green Goblin
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Yeezy Boost 700 V2
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: Yeezy Slide Bone
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0

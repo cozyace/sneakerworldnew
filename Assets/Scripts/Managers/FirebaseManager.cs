@@ -484,6 +484,41 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
+    public async Task AddNotificationToUser(string userID, string message)
+    {
+        Dictionary<string, object> notificationData = new Dictionary<string, object>
+            { { "notification", message } };
+        
+        await dbReference.Child($"users/{userID}/notifications/").UpdateChildrenAsync(notificationData);
+    }
+
+    public async Task<Dictionary<string, object>> GetUserNotifications(string userID)
+    {
+        Dictionary<string, object> notificationData = new Dictionary<string, object>();
+        
+        try
+        {
+            var snapshot = await dbReference.Child($"users/{userId}/notifications/").GetValueAsync();
+            string json = snapshot.GetRawJsonValue();
+            string fixedNotification = json.Substring(9, json.Length - 10);
+            print(fixedNotification);
+            
+            //Use split instead, because all of the notifications will be the same line anyway.
+            
+            notificationData = JsonUtility.FromJson<Dictionary<string, object>>(json);
+            
+            //Clears all of the notifications.
+            await dbReference.Child($"users/{userId}/notifications/").RemoveValueAsync();
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    
+        
+        return notificationData;
+    }
+
     private void ShowLogMsg(string msg)
     {
         logText.text = msg;

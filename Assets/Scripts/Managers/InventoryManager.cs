@@ -65,7 +65,7 @@ public class InventoryManager : MonoBehaviour
     {
         var names = new string[]
         {
-            "Sneaker World I Low", "Sneaker World I High", "Sneaker World I High Sky", "Jordan 1 Chicago", "Jordan 3 Cement", 
+            "Sneaker World I", "Sneaker World I High", "Sneaker World I High Sky", "Jordan 1 Chicago", "Jordan 3 Cement", 
             "Jordan 4 Bred", "Jordan 5 Supreme", "Jordan 6 Infrared"
         };
 
