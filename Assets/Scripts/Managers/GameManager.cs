@@ -72,11 +72,12 @@ public class GameManager : MonoBehaviour
     public async void UpdateNotifications()
     {
         Notifications = await firebase.GetUserNotifications(firebase.userId);
-        if (Notifications.Contains("Your listing of") || Notifications.Contains("You've listed"))
+        if (Notifications.Contains("Your listing of"))
         {
             print("Listing Notification Found.");
+            print(Notifications);
             PlayerStats newStats = await firebase.LoadDataAsync(firebase.userId);
-
+            print(newStats.cash);
             playerStats = newStats;
             
             uiManager.UpdateUI(playerStats);
@@ -358,7 +359,9 @@ public class GameManager : MonoBehaviour
 
     private async void SaveToDatabase()
     {
-        await SaveDataAsyc(firebase.userId);
+        print("SAVING DATA");
+        if(!Notifications.Contains("Your listing of"))
+            await SaveDataAsyc(firebase.userId);
         //playerStats = await firebase.LoadDataAsync(firebase.userId);
     }
 

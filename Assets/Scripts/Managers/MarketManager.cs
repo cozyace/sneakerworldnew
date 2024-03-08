@@ -211,27 +211,23 @@ public class MarketManager :MonoBehaviour
                 int purchasePrice = 0;
                 string purchaseNotificatonString = "";
                 
+                print($"Your Cash - {_GameManager.GetCash()}");
+                print($"Listing Cost - {listing.listingPriceCash}");
+                
+                if (_GameManager.GetGems() < listing.listingPriceGems || _GameManager.GetCash() < listing.listingPriceCash)
+                {
+                        print("Insufficient Currency to Purchase!");
+                        return;
+                }
                 
                 //Check if cost requirements are met.
                 if (listing.listingPriceCash > 0)
                 {
-                        if (_GameManager.GetGems() < listing.listingPriceGems)
-                        {
-                                print("Insufficient Cash to Purchase!");
-                                return;
-                        }
-                        
                         purchasePrice = listing.listingPriceCash;
                         purchaseNotificatonString = purchasePrice + " Cash";
                 }
                 else if (listing.listingPriceGems > 0)
                 {
-                        if (_GameManager.GetCash() < listing.listingPriceCash)
-                        {
-                                print("Insufficient Gems to Purchase!");
-                                return;
-                        }
-                        
                         purchasePrice = listing.listingPriceGems;
                         purchaseNotificatonString = purchasePrice + " Gems";
                 }
@@ -248,9 +244,6 @@ public class MarketManager :MonoBehaviour
                 //Remove the shoe from the listing.
                 await _GameManager.firebase.RemoveMarketListing(listing.key);
                 
-                //Inform the seller that their listing has been sold.
-                await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {purchaseNotificatonString}");
-                
                 _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Value, sneaker.rarity));
                         
                 _GameManager.DeductCash(listing.listingPriceCash);
@@ -263,6 +256,11 @@ public class MarketManager :MonoBehaviour
                // PlayerStats modifiedSellerStats = await _GameManager.firebase.LoadDataAsync(listing.sellerId);
                 print(listing.sellerId);
                await _GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
+               
+               
+                               
+               //Inform the seller that their listing has been sold.
+               await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {purchaseNotificatonString}");
                 
                 //Check again what the currency type is, so that the right property can be adjusted.
                 //if (listing.listingPriceCash > 0)
@@ -311,8 +309,6 @@ public class MarketManager :MonoBehaviour
                 GetListings(false);
                 RefreshInventory();
                 ResetListingElements();
-
-                await _GameManager.firebase.AddNotificationToUser(_GameManager.firebase.userId, $"You've listed a {newData.name} for {cashValue} Cash, {gemValue} Gems.");
                 
                 CreateListingPanel.SetActive(false);
                 MyListingsPanel.SetActive(true);
