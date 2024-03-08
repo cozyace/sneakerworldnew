@@ -251,7 +251,7 @@ public class MarketManager :MonoBehaviour
                 //Inform the seller that their listing has been sold.
                 await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {purchaseNotificatonString}");
                 
-                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, 100, sneaker.rarity));
+                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Value, sneaker.rarity));
                         
                 _GameManager.DeductCash(listing.listingPriceCash);
                 _GameManager.DeductGems(listing.listingPriceGems);
@@ -627,7 +627,7 @@ public class MarketManager :MonoBehaviour
         private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
         {
                 //Give the shoe back to the lister.
-                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, 100, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
+                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
                 
                 //Disable the confirmation menu.
                 DeleteListingConfirmationMenu.SetActive(false);

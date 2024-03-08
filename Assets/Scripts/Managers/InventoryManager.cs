@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -7,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-[System.Serializable]
+[Serializable]
 public struct SneakersOwned
 {
     public string name;
@@ -40,9 +39,13 @@ public class InventoryManager : MonoBehaviour
     public GameObject swapInventoryPanel;
     public List<SneakerInventoryItem> sneakers;
     private bool checkboxActive = true;
+    
+    
     private int sneakerCount; 
     private int sneakerRarity;
     private int rarityLevel;
+    
+    
 
     private async void Start()
     {
