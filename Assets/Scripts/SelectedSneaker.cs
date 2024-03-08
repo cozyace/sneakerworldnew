@@ -12,6 +12,16 @@ public class SelectedSneaker : MonoBehaviour
     [SerializeField] TMP_Text _quantity;
     [SerializeField] TMP_Text _rarity;
     [SerializeField] private Image sneakerImage;
+
+
+    private void Start()
+    {
+        _name.text = "";
+        _price.text = "";
+        _quantity.text = "";
+       // _rarity.text = "";
+        sneakerImage.sprite = Resources.Load<Sprite>("Transparent");
+    }
     
     public void UpdateDetails(SneakerInventoryItem sneakerInventoryItem)
     {

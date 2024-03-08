@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ffe1c6687d645818cb3fcfa6ca8f74d, type: 3}
   m_Name: SneakerDatabase
   m_EditorClassIdentifier: 
-  SneakerDatabase:
+  Database:
   - Name: Jordan 4 Red Cement
     Description: 
     Value: 1
@@ -63,3 +63,18 @@ MonoBehaviour:
     Value: 0
     Icon: {fileID: 0}
     Rarity: 0
+  - Name: PlaceHolder #11
+    Description: 
+    Value: 0
+    Icon: {fileID: 0}
+    Rarity: 0
+  - Name: PlaceHolder #12
+    Description: 
+    Value: 15
+    Icon: {fileID: 21300000, guid: cecda9a7a79d45d439a56fc606f959e8, type: 3}
+    Rarity: 1
+  - Name: Sneaker World I
+    Description: 
+    Value: 30
+    Icon: {fileID: 21300000, guid: f07f00af43314174480d38ccac405411, type: 3}
+    Rarity: 1

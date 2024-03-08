@@ -46,32 +46,32 @@ public class InventoryManager : MonoBehaviour
 
     private async void Start()
     {
-        List<SneakersOwned> sneakers = await gameManager.firebase.GetSneakerAsync(gameManager.firebase.userId);
+        //Get the list of all of the player's sneakers from the database under /players/userId/sneakers
+        List<SneakersOwned> loadedSneakers = await gameManager.firebase.GetSneakerAsync(gameManager.firebase.userId);
         
-        if (sneakers.Count > 0) 
+        //If the player actually has sneakers.
+        if (loadedSneakers.Count > 0) 
         {
+            //Make sure the 'choose shoe' panel turns off.
             chooseSneakerPanel.SetActive(false);
 
-            foreach (SneakersOwned sneaker in sneakers)
+            //For each sneaker that the player owns.
+            foreach (SneakersOwned sneaker in loadedSneakers)
             {
-                InstantiateSneakers(sneaker);
+                //Instantiate the UI representation of the sneaker.
+                CreateSneakerUIObject(sneaker);
             }
 
+            //Enable the AI controller.
             gameManager.aiManager.enabled = true;
         }
     }
 
     private void InitializeSneakers()
     {
-        var names = new string[]
-        {
-            "Sneaker World I", "Sneaker World I High", "Sneaker World I High Sky", "Jordan 1 Chicago", "Jordan 3 Cement", 
-            "Jordan 4 Bred", "Jordan 5 Supreme", "Jordan 6 Infrared"
-        };
-
-        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
-        var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
-        sneakerInventoryItem.name = names[rarityLevel];
+        GameObject newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
+        SneakerInventoryItem sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
+       // sneakerInventoryItem.name = names[rarityLevel];
         sneakerInventoryItem.quantity = sneakerCount;
         sneakerInventoryItem.rarity = (SneakerRarity)sneakerRarity;
         sneakerInventoryItem.purchasePrice = Random.Range(120, 150) * (int)sneakerInventoryItem.rarity;
@@ -112,20 +112,69 @@ public class InventoryManager : MonoBehaviour
             sneakersOwned.Add(sneaker);
     }
 
-    private void InstantiateSneakers(SneakersOwned _sneakersOwned)
+    public bool RemoveShoeFromCollection(SneakersOwned sneaker)
     {
-        var newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
-        var sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
-        sneakerInventoryItem.name = _sneakersOwned.name;
-        sneakerInventoryItem.quantity = _sneakersOwned.quantity;
-        sneakerInventoryItem.rarity = _sneakersOwned.rarity;
-        sneakerInventoryItem.purchasePrice = _sneakersOwned.purchasePrice;
+        //If the player owns the shoe.
+        if (sneakersOwned.Any(x => x.name == sneaker.name))
+        {
+            //Store the player's specific current owning data of the shoe (e.g. how many the player has and such)
+            SneakersOwned sneakerStoredInstance = sneakersOwned[sneakersOwned.FindIndex(x => x.name == sneaker.name)];
+            
+            //If the sneaker amount you currently have, is atleast more than, or the same than the amount you're trying to remove.
+            if (sneakerStoredInstance.quantity >= sneaker.quantity)
+            {
+                sneakerStoredInstance.quantity -= sneaker.quantity;
+
+                //If the player will have 0 of the shoe left.
+                if (sneakerStoredInstance.quantity == 0)
+                {
+                    //Remove the shoe from the list.
+                    sneakersOwned.RemoveAt(sneakersOwned.FindIndex(x => x.name == sneaker.name));
+                }
+                //If the player still has some of the shoe left.
+                else if(sneakerStoredInstance.quantity > 0)
+                {
+                    //Overwrite the player's owned shoe data with the new lowered quantity.
+                    sneakersOwned[sneakersOwned.FindIndex(x => x.name == sneaker.name)] = sneakerStoredInstance;
+                    return true;
+                }
+            }
+            //If the player doesn't have enough of the shoe for this transaction.
+            else
+            {
+                return false;
+            }
+                    
+        }
+        //If the player doesn't own the shoe.
+        else
+            return false;
+
+        //This should never be hit.
+        return false;
+    }
+
+    private void CreateSneakerUIObject(SneakersOwned sneakerToLoad)
+    {
+        GameObject newSneaker = Instantiate(sneakerInventoryItemPrefab, gridLayout);
+        
+        SneakerInventoryItem sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
+
+        SneakerInformation sneakerFoundInData = gameManager.SneakerDatabase.Database.Find(x => string.Equals(x.Name, sneakerToLoad.name, StringComparison.CurrentCultureIgnoreCase));
+        
+        //Assign the data to store on the UI object.
+        sneakerInventoryItem.name = sneakerFoundInData.Name;
+        sneakerInventoryItem.quantity = sneakerToLoad.quantity;
+        sneakerInventoryItem.rarity = sneakerFoundInData.Rarity;
+        sneakerInventoryItem.purchasePrice = sneakerFoundInData.Value;
         sneakerInventoryItem.aiCanBuy = false;
-        sneakerInventoryItem.sneakerImage.sprite = sprites[rarityLevel];
+        sneakerInventoryItem.sneakerImage.sprite = sneakerFoundInData.Icon;
         sneakerInventoryItem.timestamp = DateTime.Now;
         sneakerInventoryItem.nameText.text = sneakerInventoryItem.name;
+        
         sneakers.Add(sneakerInventoryItem);
 
+        //Adds the sneaker to the Friends Trading inventory list.
         foreach (SneakerInventoryItem sneaker in sneakers)
         {
             SneakerInventoryItem _sneaker = Instantiate(sneaker, swapSneakersInventoryTransform);
@@ -133,15 +182,16 @@ public class InventoryManager : MonoBehaviour
 
             SneakersOwned _sneakers = new()
             {
-                name = sneaker.name,
+                name = sneakerFoundInData.Name,
                 quantity = sneaker.quantity,
-                purchasePrice = sneaker.purchasePrice,
-                rarity = sneaker.rarity
+                purchasePrice = sneakerFoundInData.Value,
+                rarity = sneakerFoundInData.Rarity
             };
 
             sneakersOwned.Add(_sneakers);
         }
-
+        
+        
         OnSneakerClick(sneakers[0]);
     }
 
@@ -168,6 +218,7 @@ public class InventoryManager : MonoBehaviour
         checkboxActive = !checkboxActive;
     }
     
+    #region Sorting Logic
     public void FilterBySearch()
     {
         foreach (Transform inventoryItem in gridLayout.transform)
@@ -304,6 +355,7 @@ public class InventoryManager : MonoBehaviour
 
         return sneakers;
     }
+    #endregion
 
     public void BuySneaker(SneakerInventoryItem sneakerInventoryItem)
     {
@@ -355,24 +407,5 @@ public class InventoryManager : MonoBehaviour
     {
         InitializeSneakers();
     }
-
-    public async void CommonSneakersButton()
-    {
-        sneakerCount = 50;
-        sneakerRarity = 1;
-        rarityLevel = 0;
-        //InitializeSneakers();
-       // await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
-        gameManager.aiManager.enabled = true;
-    }
-
-    public async void UncommonSneakersButton()
-    {
-        sneakerCount = 25;
-        sneakerRarity = 2;
-        rarityLevel = 1;
-       // InitializeSneakers();
-       // await gameManager.firebase.ChooseSneakerAsync(gameManager.firebase.userId, sneakersOwned[0]);
-        gameManager.aiManager.enabled = true;
-    }
+    
 }

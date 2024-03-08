@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 3687758037693789799}
   - component: {fileID: 3687758037693789797}
   - component: {fileID: 3687758037693789798}
+  - component: {fileID: 5939397688879952178}
   m_Layer: 5
   m_Name: MarketListingPrefab
   m_TagString: Untagged
@@ -161,6 +162,41 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5939397688879952178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3687758037693789800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d96eb9b08875d41438829dbbd630ce33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: 
+  CashPrice: 0
+  GemPrice: 0
+  Quantity: 0
+  Rarity: 0
+  Icon: {fileID: 0}
+  SellerName: 
+  ListingData:
+    description: 
+    key: 
+    listingPriceCash: 0
+    listingPriceGems: 0
+    quantity: 0
+    sellerId: 
+    sneakerId: 0
+  IconImage: {fileID: 3687758038068529815}
+  RarityPanel: {fileID: 3687758037499823278}
+  ItemNameText: {fileID: 3687758039163861545}
+  ListerNameText: {fileID: 3687758039294575762}
+  PriceText: {fileID: 3687758038053650799}
+  QuantityText: {fileID: 3687758039546949067}
+  RarityText: {fileID: 3687758038102612601}
+  BuyButton: {fileID: 3687758038491042177}
 --- !u!1 &3687758037705367155
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,14 +23,13 @@ public class GameManager : MonoBehaviour
     public InventoryManager inventoryManager;
     public CustomerQueue _CustomerQueue;
 
+    public SneakerDatabaseObject SneakerDatabase;
+
     [Header("Player Stats")]
     [SerializeField] private string userId;
     public PlayerStats playerStats;
     [SerializeField] private int xpIncreaseAmount;
     public int xpPerLevel;
-
-    [Header("Sneakers")]
-    public List<Sneaker> _sneakers;
 
     [Header("Leaderboards")]
     public GameObject leaderboardPanel;
@@ -62,21 +61,6 @@ public class GameManager : MonoBehaviour
             firebase = FindObjectOfType<FirebaseManager>();
 
         playerStats = JsonUtility.FromJson<PlayerStats>(PlayerPrefs.GetString("PLAYER_STATS"));
-
-        var data = Resources.Load<TextAsset>("data");
-        var splitDataset = data.text.Split('\n');
-
-        for (int i = 0; i < splitDataset.Length; i++)
-        {
-            string[] row = splitDataset[i].Split(',');
-            Sneaker sneaker = new()
-            {
-                name = row[0],
-                rarity = row[1].ToEnum<SneakerRarity>(),
-                imagePath = $"{row[2]}.png"
-            };
-            _sneakers.Add(sneaker);
-        }
     }
 
     public void Update()

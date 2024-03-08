@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 [CreateAssetMenu(fileName = "Sneaker Database", menuName = "New Sneaker Database", order = 1)]
 public class SneakerDatabaseObject : ScriptableObject
 {
-        public List<SneakerInformation> SneakerDatabase = new List<SneakerInformation>();
+        [FormerlySerializedAs("SneakerDatabase")]
+        public List<SneakerInformation> Database = new List<SneakerInformation>();
 }
 
 [Serializable]

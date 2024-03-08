@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,8 +16,9 @@ public struct MarketListing
         public int quantity;
         public string sellerId;
         public int sneakerId;
+        public DateTime timeStamp;
 
-        public MarketListing(string d, string k, int lc, int lg, int q, string s, int sid)
+        public MarketListing(string d, string k, int lc, int lg, int q, string s, int sid, DateTime timestamp)
         {
                 description = d;
                 key = k;
@@ -27,6 +27,7 @@ public struct MarketListing
                 quantity = q;
                 sellerId = s;
                 sneakerId = sid;
+                timeStamp = timestamp;
         }
 }
 
@@ -174,47 +175,38 @@ public class MarketManager :MonoBehaviour
         //Creates a single UI object representing a listing.
         private async void InstantiateMarketListing(MarketListing listing)
         {
-                Transform listingInstance = Instantiate(MarketListingPrefab, MarketContentRoot).transform;
+                MarketListingItem listingInstance = Instantiate(MarketListingPrefab, MarketContentRoot).GetComponent<MarketListingItem>();
 
                 //Find & store the data for the specific sneaker here, grab the data from the database.
-                Sneaker sneaker = _GameManager._sneakers[listing.sneakerId];
+                Sneaker sneaker = new Sneaker
+                {
+                        name = _GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
+                        imagePath = _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name,
+                        rarity = _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity,
+                };
 
-                //Grab the references to the UI elements in the newly instantiated panel.
-                Image listingImage = listingInstance.Find("Sneaker").GetComponent<Image>();
-                Image rarityPanel = listingInstance.Find("Rarity").GetComponent<Image>();
-                TMP_Text listingItemName = listingInstance.Find("ShoeName").GetComponent<TMP_Text>();
-                TMP_Text listingUserName = listingInstance.Find("Username").GetComponent<TMP_Text>();
-                TMP_Text listingPrice = listingInstance.Find("Price").GetChild(0).GetComponent<TMP_Text>();
-                TMP_Text listingQuantity = listingInstance.Find("Quantity").GetChild(0).GetComponent<TMP_Text>();
-                TMP_Text listingRarity = rarityPanel.transform.GetChild(0).GetComponent<TMP_Text>();
-                Button buyButton = listingInstance.Find("BuyButton").GetComponent<Button>();
+                listingInstance.UpdateUIComponents(
+                        this, 
+                        sneaker.name,
+                        listing.listingPriceCash,
+                        listing.listingPriceGems,
+                        listing.quantity,
+                        sneaker.rarity,
+                        Resources.Load<Sprite>($"Sneakers/{sneaker.imagePath}"),
+                        await _GameManager.firebase.GetUsernameFromUserIdAsync(listing.sellerId),
+                        RarityPanels[(int)sneaker.rarity-1],
+                        listing
+                        );
                 
-                //Assign all information to the UI elements.
-                listingImage.sprite = Resources.Load<Sprite>($"Sneakers/{sneaker.imagePath[..^5]}");
-                listingUserName.text = await _GameManager.firebase.GetUsernameFromUserIdAsync(listing.sellerId);
-                listingItemName.text = sneaker.name;
-                listingRarity.text = sneaker.rarity.ToString();
-                listingQuantity.text = listing.quantity.ToString();
-                rarityPanel.sprite = RarityPanels[(int)sneaker.rarity-1];
-                
-                buyButton.onClick.AddListener(() => PurchaseListing(listing));
                 
                 //Stores where the entry is on the list.
                 int physicalMarketListingEntryIndex = _Listings.FindIndex(x=> x.Data.Equals(listing));
                 //Update the data with the newly created gameobject.
                 _Listings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _Listings[physicalMarketListingEntryIndex].Data);
-                
-                if (listing.listingPriceCash > 0)
-                        listingPrice.text = "$" + listing.listingPriceCash;
-                else if (listing.listingPriceGems > 0)
-                { //Add signification that this is gems, maybe icon.
-                        listingPrice.text = listing.listingPriceGems.ToString();
-                        listingPrice.color = Color.magenta;
-                }
         }
         
         //Purchases the listing.
-        private async void PurchaseListing(MarketListing listing)
+        public async void PurchaseListing(MarketListing listing)
         {
                 int purchasePrice = 0;
                 string purchaseNotificatonString = "";
@@ -246,13 +238,18 @@ public class MarketManager :MonoBehaviour
                         
                 
                 //Store the shoe as a Sneaker type.
-                Sneaker sneaker = _GameManager._sneakers[listing.sneakerId];
+                Sneaker sneaker = new Sneaker
+                {
+                        name = _GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
+                        imagePath =  _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name,
+                        rarity = _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity
+                };
                 
                 //Remove the shoe from the listing.
                 await _GameManager.firebase.RemoveMarketListing(listing.key);
                 
                 //Inform the seller that their listing has been sold.
-                await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager._sneakers[listing.sneakerId].name} has sold for {purchaseNotificatonString}");
+                await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {purchaseNotificatonString}");
                 
                 _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, 100, sneaker.rarity));
                         
@@ -304,7 +301,7 @@ public class MarketManager :MonoBehaviour
                 Guid key = Guid.NewGuid();
                 
                 //Add the listing to the database.
-                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), _GameManager.firebase.userId, _GameManager._sneakers.FindIndex(x => x.name == _SelectedSneaker.name)));
+                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), _GameManager.firebase.userId, _GameManager.SneakerDatabase.Database.FindIndex(x => x.Name == _SelectedSneaker.name), DateTime.Now));
                 
                 //Remove the quantity from the player's possession.
                 SneakersOwned newData = _GameManager.inventoryManager.sneakersOwned[_GameManager.inventoryManager.sneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
@@ -381,7 +378,7 @@ public class MarketManager :MonoBehaviour
                         //Assign the data to the UI Components.
                         shoeName.text = _GameManager.inventoryManager.sneakersOwned[i].name;
                         shoeQuantity.text = _GameManager.inventoryManager.sneakersOwned[i].quantity.ToString();
-                        string imagePath = _GameManager._sneakers.Find(x => x.name == _GameManager.inventoryManager.sneakersOwned[i].name).imagePath[..^5];
+                        string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.sneakersOwned[i].name).Icon.name;
                         inventoryShoeInstance.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
                         
                         //Store index because this is in a loop, so it will not work otherwise.
@@ -422,10 +419,10 @@ public class MarketManager :MonoBehaviour
                         }
                         
                         //Assign the data to the UI components.
-                        shoeName.text = _GameManager._sneakers[_MyListings[i].Data.sneakerId].name;
+                        shoeName.text = _GameManager.SneakerDatabase.Database[_MyListings[i].Data.sneakerId].Name;
                         shoeQuantity.text = _MyListings[i].Data.quantity.ToString();
                  
-                        string imagePath = _GameManager._sneakers[_MyListings[i].Data.sneakerId].imagePath[..^5];
+                        string imagePath = _GameManager.SneakerDatabase.Database[_MyListings[i].Data.sneakerId].Icon.name;
                         inventoryShoeInstance.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
                         
                         //Store the index at which the data exists.
@@ -446,14 +443,169 @@ public class MarketManager :MonoBehaviour
                 foreach (PhysicalMarketListing listing in _Listings)
                 {
                         if (query == "") //If the query is empty, then turn them all on by setting the query to each name.
-                                query = _GameManager._sneakers[listing.Data.sneakerId].name;
+                                query = _GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name;
                         
-                        listing.UI.SetActive(_GameManager._sneakers[listing.Data.sneakerId].name.ToUpper().Contains(query.ToUpper()));
+                        listing.UI.SetActive(_GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name.ToUpper().Contains(query.ToUpper()));
                 }
         }
-
+        
 
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        public void FilterByRarity(TMP_Dropdown dropdown)
+        {
+                foreach (Transform marketItem in MarketContentRoot.transform)
+                {
+                        MarketListingItem sneaker = marketItem.GetComponent<MarketListingItem>();
+                        marketItem.gameObject.SetActive(dropdown.value == 0 || dropdown.value == (int)sneaker.Rarity);
+                }
+        }
+    
+        public void FilterByBrand(TMP_Dropdown dropdown)
+        {
+                foreach (Transform marketItem in MarketContentRoot.transform)
+                {
+                        MarketListingItem sneaker = marketItem.GetComponent<MarketListingItem>();
+                        marketItem.gameObject.SetActive(dropdown.value == 0 ||
+                                sneaker.Name.ToLower().Contains(dropdown.options[dropdown.value].text.ToLower()));
+                }
+        }
+        
+        public void SortByOption(TMP_Dropdown dropdown)
+        {
+                List<Transform> children = new List<Transform>();
+                for (int i = MarketContentRoot.transform.childCount - 1; i >= 0; i--)
+                {
+                        Transform child = MarketContentRoot.transform.GetChild(i);
+                        children.Add(child);
+                        child.parent = null;
+                }
+
+                List<Transform> sortedList = new List<Transform>();
+                switch (dropdown.value)
+                {
+                        case 0:
+                                sortedList = SortByTime(children, true);
+                                break;
+                        case 1:
+                                sortedList = SortByTime(children, false);
+                                break;
+                        case 2:
+                                sortedList = SortByName(children, true);
+                                break;
+                        case 3:
+                                sortedList = SortByName(children, false);
+                                break;
+                        case 4:
+                                sortedList = SortByRarity(children, true);
+                                break;
+                        case 5:
+                                sortedList = SortByRarity(children, false);
+                                break;
+                        case 6:
+                                sortedList = SortByPrice(children, true);
+                                break;
+                        case 7:
+                                sortedList = SortByPrice(children, false);
+                                break;
+                }
+        
+                foreach (var sneaker in sortedList)
+                {
+                        sneaker.parent = MarketContentRoot.transform;
+                }
+        }
+        
+        
+    private List<Transform> SortByTime(List<Transform> sneakers,bool newestFirst)
+    {
+        if (newestFirst)
+        {
+            sneakers.Sort((Transform t1, Transform t2) =>
+                DateTime.Compare(t1.GetComponent<MarketListingItem>().ListingData.timeStamp,
+                    t2.GetComponent<MarketListingItem>().ListingData.timeStamp));
+        }
+        else
+        {
+            sneakers.Sort((Transform t1, Transform t2) =>
+                DateTime.Compare(t2.GetComponent<MarketListingItem>().ListingData.timeStamp,
+                    t1.GetComponent<MarketListingItem>().ListingData.timeStamp));
+        }
+
+        return sneakers;
+    }
+    
+    private List<Transform> SortByName(List<Transform> sneakers,bool ascending)
+    {
+        if (ascending)
+        {
+            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t1.GetComponent<MarketListingItem>().Name, t2.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
+        }
+        else
+        {
+            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t2.GetComponent<MarketListingItem>().Name, t1.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
+        }
+
+        return sneakers;
+    }
+    
+    private List<Transform> SortByRarity(List<Transform> sneakers,bool ascending)
+    {
+        if (ascending)
+        {
+            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<MarketListingItem>().Rarity
+                .CompareTo(t2.GetComponent<MarketListingItem>().Rarity));
+        }
+        else
+        {
+            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<MarketListingItem>().Rarity
+                .CompareTo(t1.GetComponent<MarketListingItem>().Rarity));
+        }
+
+        return sneakers;
+    }
+    
+    private List<Transform> SortByPrice(List<Transform> sneakers,bool ascending)
+    {
+        if (ascending)
+        {
+            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<MarketListingItem>().CashPrice
+                .CompareTo(t2.GetComponent<MarketListingItem>().CashPrice));
+        }
+        else
+        {
+            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<MarketListingItem>().CashPrice
+                .CompareTo(t1.GetComponent<MarketListingItem>().CashPrice));
+        }
+
+        return sneakers;
+    }
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
     
 
@@ -475,7 +627,7 @@ public class MarketManager :MonoBehaviour
         private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
         {
                 //Give the shoe back to the lister.
-                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager._sneakers[listing.sneakerId].name, listing.quantity, 100, _GameManager._sneakers[listing.sneakerId].rarity));
+                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, 100, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
                 
                 //Disable the confirmation menu.
                 DeleteListingConfirmationMenu.SetActive(false);
@@ -501,7 +653,7 @@ public class MarketManager :MonoBehaviour
                 InventoryPanel.SetActive(false);
                 SelectedShoeIcon.gameObject.SetActive(true);
                 
-                string imagePath = _GameManager._sneakers.Find(x => x.name == sneaker.name).imagePath[..^5];
+                string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
                 
                 SelectedShoeIcon.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
                 _SelectedSneaker = sneaker;

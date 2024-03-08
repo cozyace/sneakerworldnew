@@ -20,16 +20,27 @@ public class SneakerCrate : MonoBehaviour
                 name = null
             };
         }
-
+    
+        //Makes a list of all available sneakers
         List<Sneaker> availableSneakers = new List<Sneaker>();
-        for (int i = 0; i < gameManager._sneakers.Count; i++)
+        for (int i = 0; i < gameManager.SneakerDatabase.Database.Count; i++)
         {
-            if (gameManager._sneakers[i].rarity == rarity)
+            //Find all the shoes with the matching rarity for this crate.
+            if (gameManager.SneakerDatabase.Database[i].Rarity == rarity)
             {
-                availableSneakers.Add(gameManager._sneakers[i]);
+                Sneaker sneaker = new Sneaker
+                {
+                    name = gameManager.SneakerDatabase.Database[i].Name,
+                    imagePath = gameManager.SneakerDatabase.Database[i].Icon.name,
+                    rarity = gameManager.SneakerDatabase.Database[i].Rarity
+                };
+                
+                //Add all of the sneakers to the list.
+                availableSneakers.Add(sneaker);
             }
         }
 
+        //Return a random shoe from the available shoes.
         return availableSneakers[Random.Range(0, availableSneakers.Count)];
 
     }
