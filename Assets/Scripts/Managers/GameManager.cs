@@ -357,7 +357,7 @@ public class GameManager : MonoBehaviour
         await firebase.RunCoroutine(firebase.LoadSceneAsync(0));
     }
 
-    private async void SaveToDatabase()
+    public async void SaveToDatabase()
     {
         print("SAVING DATA");
         if(!Notifications.Contains("Your listing of"))
@@ -382,7 +382,7 @@ public class GameManager : MonoBehaviour
         {
             await dbReference.Child($"users/{_userId}").UpdateChildrenAsync(data);
 
-            foreach (SneakersOwned sneaker in inventoryManager.sneakersOwned)
+            foreach (SneakersOwned sneaker in inventoryManager.SneakersOwned)
             {
                 var sneakerData = new Dictionary<string, object>
                 {

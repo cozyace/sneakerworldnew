@@ -209,7 +209,7 @@ public class MarketManager :MonoBehaviour
         public async void PurchaseListing(MarketListing listing)
         {
                 int purchasePrice = 0;
-                string purchaseNotificatonString = "";
+                string notificationString = "";
                 
                 print($"Your Cash - {_GameManager.GetCash()}");
                 print($"Listing Cost - {listing.listingPriceCash}");
@@ -224,12 +224,12 @@ public class MarketManager :MonoBehaviour
                 if (listing.listingPriceCash > 0)
                 {
                         purchasePrice = listing.listingPriceCash;
-                        purchaseNotificatonString = purchasePrice + " Cash";
+                        notificationString = purchasePrice + " Cash";
                 }
                 else if (listing.listingPriceGems > 0)
                 {
                         purchasePrice = listing.listingPriceGems;
-                        purchaseNotificatonString = purchasePrice + " Gems";
+                        notificationString = purchasePrice + " Gems";
                 }
                         
                 
@@ -252,27 +252,13 @@ public class MarketManager :MonoBehaviour
                 //Destroy & Refresh the listings.
                 GetListings(false);
                 
-                //Store a copy of the seller's current stats.
-               // PlayerStats modifiedSellerStats = await _GameManager.firebase.LoadDataAsync(listing.sellerId);
-                print(listing.sellerId);
+                //Update the seller's gold in the database.
                await _GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
+               await _GameManager.firebase.UpdateGemsAsync(listing.sellerId, listing.listingPriceGems);
                
-               
-                               
                //Inform the seller that their listing has been sold.
-               await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {purchaseNotificatonString}");
-                
-                //Check again what the currency type is, so that the right property can be adjusted.
-                //if (listing.listingPriceCash > 0)
-               //         modifiedSellerStats.cash += purchasePrice;
-               // else if (listing.listingPriceGems > 0)
-                //        modifiedSellerStats.gems += purchasePrice;
-                //
-                //Overwrite the seller's data with this new data.
-               // await _GameManager.firebase.SaveDataAsync(listing.sellerId, modifiedSellerStats);
-                
-                //need to verify that the other logged in user will actually recieve this money in real-time, or if they'll need to restart.
-                //Might have to put a LoadAsync into that Invoked function, so it updates atleast after a bit.
+               await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
+               
         }
         
         //All this does is remove the market listing data from the Firebase database.
@@ -301,10 +287,12 @@ public class MarketManager :MonoBehaviour
                 //Add the listing to the database.
                 await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), _GameManager.firebase.userId, _GameManager.SneakerDatabase.Database.FindIndex(x => x.Name == _SelectedSneaker.name), DateTime.Now));
                 
+                
+                SneakersOwned newData = _GameManager.inventoryManager.SneakersOwned[_GameManager.inventoryManager.SneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
+                newData.quantity = int.Parse(QuantityField.text);
+                
                 //Remove the quantity from the player's possession.
-                SneakersOwned newData = _GameManager.inventoryManager.sneakersOwned[_GameManager.inventoryManager.sneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
-                newData.quantity -= int.Parse(QuantityField.text);
-                _GameManager.inventoryManager.sneakersOwned[_GameManager.inventoryManager.sneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)] = newData;
+                _GameManager.inventoryManager.RemoveShoeFromCollection(newData);
                 
                 GetListings(false);
                 RefreshInventory();
@@ -319,7 +307,6 @@ public class MarketManager :MonoBehaviour
         //Deletes all existing inventory UI items, and then respawns them.
         private void RefreshInventory()
         {
-                print("Refreshed Inventory");
                 for (int i = 0; i < InventoryItemSlots.Length; i++)
                 {
                         if (InventoryItemSlots[i].transform.childCount == 0)
@@ -363,7 +350,7 @@ public class MarketManager :MonoBehaviour
         {
                 for (int i = 0; i < InventoryItemSlots.Length; i++)
                 {
-                        if (i == _GameManager.inventoryManager.sneakersOwned.Count)
+                        if (i == _GameManager.inventoryManager.SneakersOwned.Count)
                                 return;
                         
                         //Grab the UI Components.
@@ -372,14 +359,14 @@ public class MarketManager :MonoBehaviour
                         TMP_Text shoeQuantity = inventoryShoeInstance.transform.GetChild(1).GetComponent<TMP_Text>();
                         
                         //Assign the data to the UI Components.
-                        shoeName.text = _GameManager.inventoryManager.sneakersOwned[i].name;
-                        shoeQuantity.text = _GameManager.inventoryManager.sneakersOwned[i].quantity.ToString();
-                        string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.sneakersOwned[i].name).Icon.name;
+                        shoeName.text = _GameManager.inventoryManager.SneakersOwned[i].name;
+                        shoeQuantity.text = _GameManager.inventoryManager.SneakersOwned[i].quantity.ToString();
+                        string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.SneakersOwned[i].name).Icon.name;
                         inventoryShoeInstance.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
                         
                         //Store index because this is in a loop, so it will not work otherwise.
                         int i1 = i; 
-                        InventoryItemSlots[i].onClick.AddListener(()=> SelectItemToList(_GameManager.inventoryManager.sneakersOwned[i1]));
+                        InventoryItemSlots[i].onClick.AddListener(()=> SelectItemToList(_GameManager.inventoryManager.SneakersOwned[i1]));
                 }
         }
 

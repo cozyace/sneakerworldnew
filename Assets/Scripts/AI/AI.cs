@@ -97,6 +97,14 @@ public class AI : MonoBehaviour
             //If the AI has arrived at the counter to purchase a shoe.
             if (_CurrentWaypoint.CompareTag("mainDesk"))
             {
+                //If there's no shoes left to be sold.
+                if (!ChooseSneaker())
+                {
+                    _GameManager._CustomerQueue.CompleteActiveTransaction(this);
+                    _GameManager.aiManager.SatisfyAI(this);
+                    return;
+                }
+                    
                 
                 if (!_WaitingBar)
                 {
@@ -115,7 +123,7 @@ public class AI : MonoBehaviour
                 //Once the transaction is complete
                 _GameManager._CustomerQueue.CompleteActiveTransaction(this);
                 _GameManager.aiManager.SatisfyAI(this);
-                _WaitingBar.SetActive(false);
+                Destroy(_WaitingBar);
                 Animator.SetBool(Buy, true);
                 BuySneaker();
                
@@ -137,7 +145,7 @@ public class AI : MonoBehaviour
         CreateCashPopup(chosenSneaker.purchasePrice);
         
         //Remove the X amount of quantity from the sneaker the AI desired to purchase.
-        _GameManager.inventoryManager.BuySneaker(chosenSneaker);
+        _GameManager.inventoryManager.RemoveShoeFromCollection(new SneakersOwned(chosenSneaker.name, 1, chosenSneaker.purchasePrice, chosenSneaker.rarity));
         
         //Give the player the experience given per purchase.
         _GameManager.AddExperience(XpGainedPerPurchase);
@@ -163,7 +171,7 @@ public class AI : MonoBehaviour
     //Returns the shoe the customer would like to buy. (Randomized)
     private SneakerInventoryItem ChooseSneaker()
     {
-        List<SneakerInventoryItem> sneakersAvailable = _GameManager.inventoryManager.sneakers.Where(sneaker => sneaker.aiCanBuy).ToList();
+        List<SneakerInventoryItem> sneakersAvailable = _GameManager.inventoryManager.SneakerUIObjects.Where(sneaker => sneaker.CanAIBuy).ToList();
 
         foreach (SneakerInventoryItem sneaker in sneakersAvailable.Where(sneaker => sneaker.quantity == 0))
         {
@@ -190,7 +198,7 @@ public class AI : MonoBehaviour
     private void CreateItemPopup(SneakerInventoryItem sneakerInventoryItem)
     {
         GameObject popup = Instantiate(ItemPopupPrefab, PopupPosition.position, Quaternion.identity);
-        popup.GetComponent<ItemPopup>().SetPopup(PopupPosition, sneakerInventoryItem.sneakerImage.sprite);
+        popup.GetComponent<ItemPopup>().SetPopup(PopupPosition, sneakerInventoryItem.ItemIconImage.sprite);
     }
     
 

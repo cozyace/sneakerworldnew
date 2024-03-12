@@ -8,80 +8,69 @@ using UnityEngine.UI;
 
 public class SneakerInventoryItem : MonoBehaviour
 {
+    [Header("Item Data")]
     new public string name;
     public int purchasePrice;
     public int quantity;
     public SneakerRarity rarity;
-    public Image sneakerImage;
     public DateTime timestamp;
-    public Toggle toggle;
-    public bool listed;
-    public bool aiCanBuy;
-    public GameManager gameManager;
-    public bool isSwapItem;
+    
+    
+    private GameManager GameManager;
+    
+    public bool CanAIBuy;
+    public bool IsATradeItem;
+
 
     [Header("UI Elements")]
-    public TMP_Text nameText;
-    public GameObject commonTag;
-    public GameObject uncommonTag;
-    public GameObject rareTag;
-    public GameObject epicTag;
-    public GameObject legendaryTag;
+    public TMP_Text ItemNameText;
+    public TMP_Text ItemRarityText;
+    public Image ItemIconImage;
+    public Toggle AvailabilityToggle;
+    
+    public Image RarityPanel;
+    public Sprite[] RarityPanelSprites;
 
     private void Start()
     {
-        switch (rarity)
-        {
-            case SneakerRarity.Common:
-                commonTag.SetActive(true);
-                break;
-            case SneakerRarity.Uncommon:
-                uncommonTag.SetActive(true);
-                break;
-            case SneakerRarity.Rare:
-                rareTag.SetActive(true);
-                break;
-            case SneakerRarity.Epic:
-                epicTag.SetActive(true);
-                break;
-            case SneakerRarity.Legendary:
-                legendaryTag.SetActive(true);
-                break;
-            default:
-                break;
-        }
+        ItemRarityText.text = rarity.ToString();
+        RarityPanel.sprite = RarityPanelSprites[(int)rarity-1];
     }
 
     public void OnClick()
     {
-        if (gameManager == null)
-            gameManager = FindAnyObjectByType<GameManager>();
+        if (GameManager == null)
+            GameManager = FindAnyObjectByType<GameManager>();
 
-        if (isSwapItem) 
-            gameManager.inventoryManager.OnSneakerSwapClick(this);
+        if (IsATradeItem) 
+            GameManager.inventoryManager.OnSneakerSwapClick(this);
             
         else 
-            gameManager.inventoryManager.OnSneakerClick(this);
+            GameManager.inventoryManager.OnSneakerClick(this);
     }
 
     public void ToggleSneaker()
     {
+        if (GameManager == null)
+            GameManager = FindAnyObjectByType<GameManager>();
+        
         if (quantity <= 0) 
         {
-            if (toggle.isOn) toggle.isOn = false;
-            toggle.interactable = false;
+            if (AvailabilityToggle.isOn) AvailabilityToggle.isOn = false;
+            AvailabilityToggle.interactable = false;
             return;
         }
 
-        if (aiCanBuy) 
+        if (CanAIBuy)
         {
-            aiCanBuy = false;
-            toggle.isOn = false;
-        }  
-        else
+            GameManager.inventoryManager.EnabledItems.Remove(name);
+        }
+        else if (!CanAIBuy)
         {
-            aiCanBuy = true;
-            toggle.isOn = true;
-        } 
+            GameManager.inventoryManager.EnabledItems.Add(name);
+        }
+
+        CanAIBuy = !CanAIBuy;
+        AvailabilityToggle.isOn = !AvailabilityToggle.isOn;
     }
 }

@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text[] CashTexts;
     [SerializeField] private TMP_Text[] GemsTexts;
     [SerializeField] private Image[] XPFillBars;
+    [SerializeField] private TMP_Text[] XPLevelTexts;
 
     
     [Header("Panels")]
@@ -57,6 +58,7 @@ public class UIManager : MonoBehaviour
         levelText.text = $"{playerStats.level}";
             
         UpdateExperienceBars((float)playerStats.experience / (playerStats.level * gameManager.xpPerLevel));
+        UpdateExperienceTexts(playerStats.level);
         UpdateCashTexts(playerStats.cash);
         UpdateGemTexts(playerStats.gems);
 
@@ -67,6 +69,12 @@ public class UIManager : MonoBehaviour
     {
         foreach (Image fillBar in XPFillBars)
             fillBar.fillAmount = fillAmount;
+    }
+
+    private void UpdateExperienceTexts(float currentLevel)
+    {
+        foreach (TMP_Text levelText in XPLevelTexts)
+            levelText.text = currentLevel.ToString();
     }
 
     private void UpdateCashTexts(int value)

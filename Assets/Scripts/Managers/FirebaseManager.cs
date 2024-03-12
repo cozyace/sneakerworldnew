@@ -427,6 +427,13 @@ public class FirebaseManager : MonoBehaviour
         }
         return sneakers;
     }
+
+    public async Task RemoveSneakerFromUser(string userId, string sneakerName)
+    {
+        DatabaseReference sneakersRef = dbReference.Child($"users/{userId}/sneakers/{sneakerName}");
+        
+        await sneakersRef.RemoveValueAsync();
+    }
     
 
     //Gets all active market listings. (Not including the logged-in user's)
@@ -553,6 +560,23 @@ public class FirebaseManager : MonoBehaviour
             print(currentValue.GetRawJsonValue());
             //Set the value of cash in the specific user's data.
            await dbReference.Child($"users/{userID}/cash").SetValueAsync(int.Parse(currentValue.GetRawJsonValue()) + count);
+            
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+
+    }
+    
+    public async Task UpdateGemsAsync(string userID, int count)
+    {
+        try
+        {
+            var currentValue = await dbReference.Child($"users/{userID}/gems").GetValueAsync();
+            print(currentValue.GetRawJsonValue());
+            //Set the value of cash in the specific user's data.
+            await dbReference.Child($"users/{userID}/cash").SetValueAsync(int.Parse(currentValue.GetRawJsonValue()) + count);
             
         } 
         catch(FirebaseException e)

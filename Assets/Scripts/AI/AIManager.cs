@@ -39,7 +39,7 @@ public class AIManager : MonoBehaviour
     private bool ShouldSpawnAI()
     {
         //Checks if there's at-least 1 sneaker that's checked as available.
-        bool sneakersAvailable = GameManager.inventoryManager.sneakers.Any(sneaker => sneaker.aiCanBuy);
+        bool sneakersAvailable = GameManager.inventoryManager.SneakerUIObjects.Any(sneaker => sneaker.CanAIBuy);
         //May also have to do a check ^ here, for if the quantity is above 0, not sure if that's checked in other code.
 
         //Can define what the maximum AI count within the store will be, just replace the 4 with that value.
