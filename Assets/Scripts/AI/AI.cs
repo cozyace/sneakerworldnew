@@ -64,7 +64,7 @@ public class AI : MonoBehaviour
         _PopupParentObject = GameObject.FindGameObjectWithTag("popupTransform").GetComponent<RectTransform>();
     }
 
-    public void UpdateDestination(Transform waypoint) => _CurrentWaypoint = waypoint;
+
     private void Update()
     {
         bool isAIMoving = Vector2.Distance(transform.position, _CurrentWaypoint.position) > MoveSpeed * Time.deltaTime;
@@ -98,7 +98,7 @@ public class AI : MonoBehaviour
             if (_CurrentWaypoint.CompareTag("mainDesk"))
             {
                 //If there's no shoes left to be sold.
-                if (!ChooseSneaker())
+                if (!GetRandomAvailableSneaker())
                 {
                     _GameManager._CustomerQueue.CompleteActiveTransaction(this);
                     _GameManager.aiManager.SatisfyAI(this);
@@ -125,16 +125,16 @@ public class AI : MonoBehaviour
                 _GameManager.aiManager.SatisfyAI(this);
                 Destroy(_WaitingBar);
                 Animator.SetBool(Buy, true);
-                BuySneaker();
+                PurchaseSneaker();
                
             }
         }
     }
     
-    private void BuySneaker()
+    private void PurchaseSneaker()
     { 
         //Decide which shoe the customer would like.
-        SneakerInventoryItem chosenSneaker = ChooseSneaker();
+        SneakerInventoryItem chosenSneaker = GetRandomAvailableSneaker();
         
         //If there's no shoes available, return early.
         if (chosenSneaker == null)
@@ -150,7 +150,7 @@ public class AI : MonoBehaviour
         //Give the player the experience given per purchase.
         _GameManager.AddExperience(XpGainedPerPurchase);
         
-
+        
         //Move the below code to the GameManager
         if (_GameManager.playerStats.level == 10)
             _GameManager.inventoryManager.AddSneakerSlot();
@@ -169,7 +169,7 @@ public class AI : MonoBehaviour
     }
 
     //Returns the shoe the customer would like to buy. (Randomized)
-    private SneakerInventoryItem ChooseSneaker()
+    private SneakerInventoryItem GetRandomAvailableSneaker()
     {
         List<SneakerInventoryItem> sneakersAvailable = _GameManager.inventoryManager.SneakerUIObjects.Where(sneaker => sneaker.CanAIBuy).ToList();
 
@@ -192,7 +192,6 @@ public class AI : MonoBehaviour
         CashPopup popup = Instantiate(CashPopupPrefab, _PopupParentObject);
         popup.SetPopup(amount);
     }
-
     
     //Instantiates the UI popup for the item lost in the transaction.
     private void CreateItemPopup(SneakerInventoryItem sneakerInventoryItem)
@@ -202,9 +201,7 @@ public class AI : MonoBehaviour
     }
     
 
-    private void FlipSkeletonSprite()
-    {
-        Skeleton.transform.localScale = new Vector3(-Skeleton.transform.localScale.x, 0.1f, 1f);
-    }
+    public void UpdateDestination(Transform waypoint) => _CurrentWaypoint = waypoint;
+    private void FlipSkeletonSprite() => Skeleton.transform.localScale = new Vector3(-Skeleton.transform.localScale.x, 0.1f, 1f);
     
 }

@@ -6,42 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.7.0/firebase-app-unity-11.7.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.7.0/firebase-app-unity-11.7.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.7.0/firebase-auth-unity-11.7.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.7.0/firebase-auth-unity-11.7.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.7.0/firebase-database-unity-11.7.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.7.0/firebase-database-unity-11.7.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-installations-unity/11.7.0/firebase-installations-unity-11.7.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-installations-unity/11.7.0/firebase-installations-unity-11.7.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-analytics-unity/11.5.0/firebase-analytics-unity-11.5.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-analytics-unity/11.5.0/firebase-analytics-unity-11.5.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.6.0.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.6.0/firebase-app-unity-11.6.0.aar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.6.0/firebase-app-unity-11.6.0.aar.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.6.0/firebase-app-unity-11.6.0.pom" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-app-unity/11.6.0/firebase-app-unity-11.6.0.pom.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.6.0.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.6.0/firebase-auth-unity-11.6.0.aar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.6.0/firebase-auth-unity-11.6.0.aar.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.6.0/firebase-auth-unity-11.6.0.pom" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-auth-unity/11.6.0/firebase-auth-unity-11.6.0.pom.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-config-unity/11.6.0/firebase-config-unity-11.6.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-config-unity/11.6.0/firebase-config-unity-11.6.0.pom" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.6.0.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.6.0/firebase-database-unity-11.6.0.aar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.6.0/firebase-database-unity-11.6.0.aar.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.6.0/firebase-database-unity-11.6.0.pom" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/GeneratedLocalRepo/Firebase/m2repository/com/google/firebase/firebase-database-unity/11.6.0/firebase-database-unity-11.6.0.pom.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Android/mainTemplate.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/FriendListing.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/FriendListing.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Market/MarketListingPrefab.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Market/MarketListingPrefab.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/SneakerInventoryItem.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/SneakerInventoryItem.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/AIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/AIManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SelectedSneaker.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SelectedSneaker.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/AndroidResolverDependencies.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +112,7 @@
       <workItem from="1709833171109" duration="17768000" />
       <workItem from="1709928822709" duration="10871000" />
       <workItem from="1710096509783" duration="9772000" />
-      <workItem from="1710272388261" duration="933000" />
+      <workItem from="1710272388261" duration="1987000" />
     </task>
     <servers />
   </component>
