@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class MainNavigationSelection : MonoBehaviour
 {
-    //This script exists in MainUI -> UserNavigation_Window -> SelectedButtonCover
+    //This script exists in MainUI -> UserNavigation_Window -> SelectedButtonCover (GameObject)
     
     public Image SelectedWindowText;
     public Image SelectedWindowIcon;
