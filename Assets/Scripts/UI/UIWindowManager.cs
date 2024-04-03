@@ -15,11 +15,16 @@ public class UIWindowManager : MonoBehaviour
     public int ActiveIndex = -1;
     private int QueuedIndex = -1;
 
-
+    private MainNavigationSelection _MainNavigationSelection;
+    
+    
 
     private void Awake()
     {
+        _MainNavigationSelection = FindObjectOfType<MainNavigationSelection>();
+        
         ActiveIndex = -1;
+        QueuedIndex = -1;
     }
 
     public void CloseAllWindows()
@@ -29,6 +34,7 @@ public class UIWindowManager : MonoBehaviour
             
         StartCoroutine(CloseWindow(ActiveIndex));
     }
+
     
     public void OpenWindow(int index)
     {
@@ -60,7 +66,7 @@ public class UIWindowManager : MonoBehaviour
     }
 
 
-    private Animator GetAnimatorFromIndex(int index)
+    public Animator GetAnimatorFromIndex(int index)
     {
         return index switch
         {

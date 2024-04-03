@@ -6,30 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/InventoryController.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/InventoryController.controller.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/HideUI.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/HideUI.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/Inventory_FadeDown.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/Inventory_FadeDown.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/Inventory_FadeUp.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/Inventory_FadeUp.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/MainMenuLogo.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/MainMenuLogo.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/SelectionPop.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animations/UI/SelectionPop.anim" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/ShowUI.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/ShowUI.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIAnimator.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIAnimator.controller.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIHidden.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIHidden.anim.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIShown.anim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animations/UI/UIShown.anim.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Market/MarketListingPrefab.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Market/MarketListingPrefab.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/MainUI/MainNavigationSelection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/MainUI/MainNavigationSelection.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/UIWindowManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/UIWindowManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +119,7 @@
       <workItem from="1710096509783" duration="9772000" />
       <workItem from="1710272388261" duration="2615000" />
       <workItem from="1712086402026" duration="6629000" />
-      <workItem from="1712160194928" duration="4006000" />
+      <workItem from="1712160194928" duration="6217000" />
     </task>
     <servers />
   </component>
