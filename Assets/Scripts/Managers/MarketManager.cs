@@ -374,7 +374,7 @@ public class MarketManager :MonoBehaviour
         private void PopulateClientListings()
         {
                 //Set the count label of the player's listing to the correct amount.
-                ListingCountLabel.text = _MyListings.Count.ToString();
+               // ListingCountLabel.text = _MyListings.Count.ToString();
                 
                 for (int i = 0; i < YourListingSlots.Length; i++)
                 {
