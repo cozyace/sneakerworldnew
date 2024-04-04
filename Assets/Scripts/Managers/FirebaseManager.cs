@@ -403,13 +403,13 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<List<SneakersOwned>> GetSneakerAsync(string _userId)
     {
-        //Establishes a connection to the section of the database within the user data called 'sneakers'
-        var sneakersRef = dbReference.Child($"users/{_userId}/sneakers");
         //Creates a new list for storing the sneakers found.
-        List<SneakersOwned> sneakers = new();
-
+        List<SneakersOwned> sneakers = new List<SneakersOwned>();
+        
+        //Establishes a connection to the section of the database within the user data called 'sneakers'
         try
         {
+            DatabaseReference sneakersRef = dbReference.Child($"users/{_userId}/sneakers");
             //Grabs the values from the Database section, and stores them as children in this object.
             DataSnapshot snapshot = await sneakersRef.GetValueAsync();
 

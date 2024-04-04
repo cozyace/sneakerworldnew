@@ -16,28 +16,28 @@ MonoBehaviour:
   - Name: Jordan 4 Red Cement
     Description: 
     Value: 1
-    Icon: {fileID: 0}
-    Rarity: 0
+    Icon: {fileID: 21300000, guid: ef3634554acd80748b82e381b7cebfd0, type: 3}
+    Rarity: 2
   - Name: Jordan 4 Retro Taupe Haze
     Description: 
     Value: 0
-    Icon: {fileID: 0}
-    Rarity: 0
+    Icon: {fileID: 21300000, guid: 01e8feef88da15d4299160afbcfe4023, type: 3}
+    Rarity: 2
   - Name: Jordan 5 UNC
     Description: 
     Value: 0
-    Icon: {fileID: 0}
-    Rarity: 0
+    Icon: {fileID: 21300000, guid: 8597a2d2afd02f143bb247d48fd1fa5c, type: 3}
+    Rarity: 2
   - Name: Louis Vuitton Trainer
     Description: 
     Value: 0
-    Icon: {fileID: 0}
-    Rarity: 0
+    Icon: {fileID: 21300000, guid: cecda9a7a79d45d439a56fc606f959e8, type: 3}
+    Rarity: 2
   - Name: Sneaker World I Abyss
     Description: 
     Value: 0
-    Icon: {fileID: 0}
-    Rarity: 0
+    Icon: {fileID: 21300000, guid: 5a12e3d2b994efb45b86f733f9698bf3, type: 3}
+    Rarity: 2
   - Name: Sneaker World I Blood
     Description: 
     Value: 0

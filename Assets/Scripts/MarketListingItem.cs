@@ -19,17 +19,18 @@ public class MarketListingItem : MonoBehaviour
    [Header("UI Components")]
    public Image IconImage;
    public Image RarityPanel;
+   public Image CurrencyTypeIcon;
    public TMP_Text ItemNameText;
    public TMP_Text ListerNameText;
    public TMP_Text PriceText;
    public TMP_Text QuantityText;
    public TMP_Text RarityText;
    public Button BuyButton;
-
+   public Button RemoveButton;
 
    private MarketManager _MarketManager;
 
-   public void UpdateUIComponents(MarketManager manager, string itemName, int cash, int gem, int quantity, SneakerRarity rarity, Sprite icon, string sellerName, Sprite rarityPanelSprite, MarketListing listingData)
+   public void UpdateUIComponents(MarketManager manager, bool isPersonalListing, string itemName, int cash, int gem, int quantity, SneakerRarity rarity, Sprite icon, string sellerName, Sprite rarityPanelSprite, MarketListing listingData)
    {
       Name = itemName;
       CashPrice = cash;
@@ -47,15 +48,23 @@ public class MarketListingItem : MonoBehaviour
       RarityText.text = rarity.ToString();
       QuantityText.text = quantity.ToString();
       RarityPanel.sprite = rarityPanelSprite;
-      
+
       if (cash > 0)
+      {
          PriceText.text = "$" + cash;
+         CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Cash");
+      }
       else if (gem > 0)
       { //Add signification that this is gems, maybe icon.
          PriceText.text = gem.ToString();
          PriceText.color = Color.magenta;
+         CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Gem");
       }
+      
+      BuyButton.gameObject.SetActive(!isPersonalListing);
+      RemoveButton.gameObject.SetActive(isPersonalListing);
 
       BuyButton.onClick.AddListener(() => manager.PurchaseListing(ListingData));
+      RemoveButton.onClick.AddListener(() => manager.EnableDeleteConfirmationMenu(ListingData));
    }
 }

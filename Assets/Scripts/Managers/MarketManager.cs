@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -52,7 +53,9 @@ public class MarketManager :MonoBehaviour
         [Header("References/Assets")]
         public GameObject MarketListingPrefab;
         public GameObject InventoryItemPrefab;
-        [SerializeField] private Transform MarketContentRoot;
+        [SerializeField] private Transform PublicMarketListingsParent;
+        [SerializeField] private Transform OwnMarketListingsParent;
+        [SerializeField] private Transform PlayerInventoryParent;
         [SerializeField] private GameObject InventoryPanel;
         [SerializeField] private GameObject MyListingsPanel;
         [SerializeField] private GameObject CreateListingPanel;
@@ -71,7 +74,6 @@ public class MarketManager :MonoBehaviour
         
         //Slot References
         [SerializeField] private Button[] InventoryItemSlots;
-        [SerializeField] private GameObject[] YourListingSlots;
         
         //Asset Reference.
         public Sprite[] RarityPanels;
@@ -136,7 +138,7 @@ public class MarketManager :MonoBehaviour
                 if (!reloadPlayerListingsOnly)
                 {
                         //Delete all existing global market items.
-                        foreach (Transform t in MarketContentRoot) 
+                        foreach (Transform t in PublicMarketListingsParent) 
                                 Destroy(t.gameObject);
                 }
                 
@@ -179,18 +181,20 @@ public class MarketManager :MonoBehaviour
         //Creates a single UI object representing a listing.
         private async void InstantiateMarketListing(MarketListing listing)
         {
-                MarketListingItem listingInstance = Instantiate(MarketListingPrefab, MarketContentRoot).GetComponent<MarketListingItem>();
-
+                bool isPlayerListing = listing.sellerId == _GameManager.firebase.userId;
+                Transform listingParent = isPlayerListing ? OwnMarketListingsParent : PublicMarketListingsParent;
+                
+                MarketListingItem listingInstance = Instantiate(MarketListingPrefab, listingParent).GetComponent<MarketListingItem>();
+                
                 //Find & store the data for the specific sneaker here, grab the data from the database.
-                Sneaker sneaker = new Sneaker
-                {
-                        name = _GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
-                        imagePath = _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name,
-                        rarity = _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity,
-                };
-
+                Sneaker sneaker = new Sneaker(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
+                        _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity,
+                        _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon != null ? _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name : "");
+                
+                
                 listingInstance.UpdateUIComponents(
                         this, 
+                        isPlayerListing,
                         sneaker.name,
                         listing.listingPriceCash,
                         listing.listingPriceGems,
@@ -201,12 +205,22 @@ public class MarketManager :MonoBehaviour
                         RarityPanels[(int)sneaker.rarity-1],
                         listing
                         );
-                
-                
-                //Stores where the entry is on the list.
-                int physicalMarketListingEntryIndex = _Listings.FindIndex(x=> x.Data.Equals(listing));
-                //Update the data with the newly created gameobject.
-                _Listings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _Listings[physicalMarketListingEntryIndex].Data);
+
+                if (isPlayerListing)
+                {
+                        //Stores where the entry is on the list.
+                        int physicalMarketListingEntryIndex = _MyListings.FindIndex(x=> x.Data.Equals(listing));
+                        //Update the data with the newly created gameobject.
+                        _MyListings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _MyListings[physicalMarketListingEntryIndex].Data);
+                }
+                else if (isPlayerListing == false)
+                {
+                        //Stores where the entry is on the list.
+                        int physicalMarketListingEntryIndex = _Listings.FindIndex(x=> x.Data.Equals(listing));
+                        //Update the data with the newly created gameobject.
+                        _Listings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _Listings[physicalMarketListingEntryIndex].Data);
+                }
+
         }
         
         //Purchases the listing.
@@ -271,6 +285,19 @@ public class MarketManager :MonoBehaviour
                 await _GameManager.firebase.RemoveMarketListing(key);
         }
 
+        public async void Demo_ForceCreateNewListing()
+        {
+                //Generate a new GUID to act as the key for the listing. (Very very very very low probability that two of the same will exist at the same time ever)
+                Guid key = Guid.NewGuid();
+                
+                //Add the listing to the database.
+                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), 500, 0, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
+                
+                GetListings(false);
+                RefreshInventory();
+                ResetListingElements();
+        }
+        
         //Creates a new listing with the chosen item. (Called via UI button in game)
         public async void CreateNewListing()
         {
@@ -311,6 +338,7 @@ public class MarketManager :MonoBehaviour
         //Deletes all existing inventory UI items, and then respawns them.
         private void RefreshInventory()
         {
+                /*
                 for (int i = 0; i < InventoryItemSlots.Length; i++)
                 {
                         if (InventoryItemSlots[i].transform.childCount == 0)
@@ -321,6 +349,7 @@ public class MarketManager :MonoBehaviour
                                 Destroy(InventoryItemSlots[i].transform.GetChild(0).gameObject);
                         }
                 }
+                */
                 
                 PopulateMarketInventory();
         }
@@ -328,6 +357,18 @@ public class MarketManager :MonoBehaviour
         //Destroys all existing 'My Listings', enables/disables trash button, and spawns new 'My Listings'.
         private void RefreshPlayerListings()
         {
+                //Delete all existing global market items.
+                foreach (Transform t in OwnMarketListingsParent) 
+                        Destroy(t.gameObject);
+                
+                //Go through all of the global listing (not the player's) and instantiate them individually.
+                for (int listingIndex = 0; listingIndex < _MyListings.Count; listingIndex++)
+                {
+                        //Create the physical representation of another user's market listing.
+                                InstantiateMarketListing(_MyListings[listingIndex].Data);
+                }
+                
+                /*
                 foreach (GameObject t in YourListingSlots)
                 {
                         bool isListingPresent = t.transform.childCount > 1;
@@ -344,6 +385,7 @@ public class MarketManager :MonoBehaviour
                         
                         Destroy(t.transform.GetChild(1).gameObject);
                 }
+                */
                 
                 print("Refreshing Listings");
                 PopulateClientListings();
@@ -379,7 +421,7 @@ public class MarketManager :MonoBehaviour
         {
                 //Set the count label of the player's listing to the correct amount.
                // ListingCountLabel.text = _MyListings.Count.ToString();
-                
+                /*
                 for (int i = 0; i < YourListingSlots.Length; i++)
                 {
                         if (i == _MyListings.Count)
@@ -397,12 +439,12 @@ public class MarketManager :MonoBehaviour
                         if (_MyListings[i].Data.listingPriceCash > 0)
                         {
                                 shoeCost.text = _MyListings[i].Data.listingPriceCash.ToString();
-                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Currencies/Cash");
+                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Cash");
                         }
                         else if (_MyListings[i].Data.listingPriceCash > 0)
                         {
                                 shoeCost.text = _MyListings[i].Data.listingPriceGems.ToString();
-                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Currencies/Gem");  
+                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Gem");  
                         }
                         
                         //Assign the data to the UI components.
@@ -421,6 +463,7 @@ public class MarketManager :MonoBehaviour
                         int storedIndex = i;
                         deleteButton.onClick.AddListener(()=> EnableDeleteConfirmationMenu(_MyListings[storedIndex].Data));
                 }
+                */
         }
         
 
@@ -454,7 +497,7 @@ public class MarketManager :MonoBehaviour
         
         public void FilterByRarity(TMP_Dropdown dropdown)
         {
-                foreach (Transform marketItem in MarketContentRoot.transform)
+                foreach (Transform marketItem in PublicMarketListingsParent.transform)
                 {
                         MarketListingItem sneaker = marketItem.GetComponent<MarketListingItem>();
                         marketItem.gameObject.SetActive(dropdown.value == 0 || dropdown.value == (int)sneaker.Rarity);
@@ -463,7 +506,7 @@ public class MarketManager :MonoBehaviour
     
         public void FilterByBrand(TMP_Dropdown dropdown)
         {
-                foreach (Transform marketItem in MarketContentRoot.transform)
+                foreach (Transform marketItem in PublicMarketListingsParent.transform)
                 {
                         MarketListingItem sneaker = marketItem.GetComponent<MarketListingItem>();
                         marketItem.gameObject.SetActive(dropdown.value == 0 ||
@@ -474,9 +517,9 @@ public class MarketManager :MonoBehaviour
         public void SortByOption(TMP_Dropdown dropdown)
         {
                 List<Transform> children = new List<Transform>();
-                for (int i = MarketContentRoot.transform.childCount - 1; i >= 0; i--)
+                for (int i = PublicMarketListingsParent.transform.childCount - 1; i >= 0; i--)
                 {
-                        Transform child = MarketContentRoot.transform.GetChild(i);
+                        Transform child = PublicMarketListingsParent.transform.GetChild(i);
                         children.Add(child);
                         child.parent = null;
                 }
@@ -512,7 +555,7 @@ public class MarketManager :MonoBehaviour
         
                 foreach (var sneaker in sortedList)
                 {
-                        sneaker.parent = MarketContentRoot.transform;
+                        sneaker.parent = PublicMarketListingsParent.transform;
                 }
         }
         
@@ -521,7 +564,7 @@ public class MarketManager :MonoBehaviour
     {
         if (newestFirst)
         {
-            sneakers.Sort((Transform t1, Transform t2) =>
+            sneakers.Sort((t1, t2) =>
                 DateTime.Compare(t1.GetComponent<MarketListingItem>().ListingData.timeStamp,
                     t2.GetComponent<MarketListingItem>().ListingData.timeStamp));
         }
@@ -539,7 +582,7 @@ public class MarketManager :MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t1.GetComponent<MarketListingItem>().Name, t2.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
+            sneakers.Sort((t1, t2) => string.Compare(t1.GetComponent<MarketListingItem>().Name, t2.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
         }
         else
         {
@@ -596,7 +639,7 @@ public class MarketManager :MonoBehaviour
         
     
 
-        private void EnableDeleteConfirmationMenu(MarketListing listing)
+        public void EnableDeleteConfirmationMenu(MarketListing listing)
         {
                 //Enable the confirmation UI element.
                 DeleteListingConfirmationMenu.SetActive(true);
