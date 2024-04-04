@@ -5,8 +5,115 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/ActiveMarketButton.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/ActiveMarketButton.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/AddFriendButtonText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/AddFriendButtonText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/BlackLine.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/BlackLine.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Buy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Buy.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/BuyButtonMarket.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/BuyButtonMarket.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Cancel.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Cancel.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/FeaturedLabel.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/FeaturedLabel.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/FilterButton.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/FilterButton.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Inventory.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Inventory.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/LockedStoreSlotCoverPanel.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/LockedStoreSlotCoverPanel.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/MarketBlueBack.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/MarketBlueBack.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/MarketHeadeerText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/MarketHeadeerText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/NewText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/NewText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Orange_Button.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Orange_Button.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/OwnText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/OwnText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/ProfilePhoto.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/ProfilePhoto.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/PublicText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/PublicText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingBackgroundBottomHalf.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingBackgroundBottomHalf.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingHeaderText.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingHeaderText.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingTopFiftyPlayers.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingTopFiftyPlayers.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingUpperBAckground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RankingUpperBAckground.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 2 copy 2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 2 copy 2.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 2 copy 3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 2 copy 3.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 5 copy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 5 copy.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rectangle 5.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RefreshButton.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RefreshButton.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RemoveButtonMarket.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/RemoveButtonMarket.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 3 copy 5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 3 copy 5.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 3 copy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 3 copy.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 2.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 6-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 6-1.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy 6.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Rounded Rectangle 6 copy.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/SearchBar.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/SearchBar.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/SelectedStoreButton.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/SelectedStoreButton.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Store.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Store.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreClockArm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreClockArm.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreFeaturedDecor.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreFeaturedDecor.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreItemSlot.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreItemSlot.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreLargerSlot.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreLargerSlot.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreLargerSlotShadow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreLargerSlotShadow.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreSlotShadow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreSlotShadow.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreWindowLabel.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StoreWindowLabel.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StraightLineHorizontalStore.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StraightLineHorizontalStore.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StraightLineStore.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/StraightLineStore.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Trade.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/Trade.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/You have 3 sneakers.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/You have 3 sneakers.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/FriendListing.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/FriendListing.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Leaderboard Item.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Leaderboard Item.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Leaderboard.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Leaderboard.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/MarketManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/StoreManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/StoreManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/UIWindowManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/UIWindowManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UserItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UserItem.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +126,9 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/AI/CustomerQueue.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/MarketListingItem.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/MainUI/FriendsUIManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/MainUI/MainNavigationSelection.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/UIWindowManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/MainUI/RankingUIManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3c2a6e7a1f204285a9928f6b0ab21f161be00/4a/245ff8bf/FirebaseAuth.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4014a86cbefb4944b2b6c9211c8fd2fc159a00/ef/bc5753fc/Scene.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/42a64fd733d9417da1ea3a757ad9a96d81d600/82/4c0e067c/GUID.cs" root0="SKIP_HIGHLIGHTING" />
@@ -117,6 +225,7 @@
       <workItem from="1710272388261" duration="2615000" />
       <workItem from="1712086402026" duration="6629000" />
       <workItem from="1712160194928" duration="6973000" />
+      <workItem from="1712250500529" duration="6967000" />
     </task>
     <servers />
   </component>

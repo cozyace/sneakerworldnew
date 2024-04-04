@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public UpgradesManager upgradesManager;
     public InventoryManager inventoryManager;
     public CustomerQueue _CustomerQueue;
+    public FriendsUIManager _FriendsUIManager;
 
     public SneakerDatabaseObject SneakerDatabase;
 
@@ -30,28 +31,8 @@ public class GameManager : MonoBehaviour
     public PlayerStats playerStats;
     [SerializeField] private int xpIncreaseAmount;
     public int xpPerLevel;
+    
 
-    [Header("Leaderboards")]
-    public GameObject leaderboardPanel;
-    public RectTransform listingTransform;
-    public Leaderboard leaderboardListing;
-
-    [Header("Friends")]
-    public List<string> searchedUsers;
-    public List<string> _friends;
-    public List<string> _friendRequests;
-    public List<string> _friendRequestsSent;
-    public TMPro.TextMeshProUGUI logSearchUsernamesText;
-    public UserItem friendListing;
-    public UserItem addFriendListing;
-    public RectTransform friendListingTransform;
-    public RectTransform addFriendListingTransform;
-    public string _friendUsernameSelected;
-    private List<string> instantiatedFriendNames = new();
-    private List<UserItem> instantiatedFriendListings = new();
-    private List<string> instantiatedFriendRequestsNames = new();
-    private List<GameObject> instantiatedFriendRequestsListings = new();
-    public GameObject tradePanel;
 
     public string Notifications;
 
@@ -91,22 +72,12 @@ public class GameManager : MonoBehaviour
     {
         uiManager.UpdateUI(playerStats);
         userId = firebase.auth.CurrentUser.UserId;
-        await LeaderboardRankings();
-        _friends = await firebase.UpdateFriendsAsync();
-        _friendRequests = await firebase.UpdateFriendRequestsAsync();
-        _friendRequestsSent = await firebase.UpdateFriendRequestsSentAsync();
-        SetupDatabaseListeners();
+
         playerStats = await firebase.LoadDataAsync(firebase.userId);
         InvokeRepeating(nameof(SaveToDatabase), 0f, 5f);
     }
 
-    private void SetupDatabaseListeners()
-    {
-        var snapshot = firebase.dbReference.Child($"users/{userId}/friends");
-        snapshot.ChildAdded += ListenForFriendRequests;
-        snapshot.ChildRemoved += ListenForFriendRequests;
-        snapshot.ChildChanged += ListenForFriends;
-    }
+
 
     public void UpdateUserData(PlayerStats data)
     {
@@ -167,185 +138,7 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateUI(playerStats);
     }
 
-    public async Task LeaderboardRankings()
-    {
-        var rankings = await firebase.CalculateLeaderboardRankingsAsync();
-
-        foreach (var rank in rankings)
-        {
-            Leaderboard _leaderboardListing = Instantiate(leaderboardListing, listingTransform);
-            _leaderboardListing.playerName.text = rank.Key;
-            _leaderboardListing.cash.text = rank.Value.ToString();
-        }
-
-        leaderboardPanel.SetActive(true);
-    }
-
-    public async void LeaderboardButton()
-    {
-        await LeaderboardRankings();
-    }
-
-    public async Task UpdateFriendRequests()
-    {
-        _friendRequests.Clear();
-        _friendRequestsSent.Clear();
-        _friendRequests = await firebase.UpdateFriendRequestsAsync();
-        _friendRequestsSent = await firebase.UpdateFriendRequestsSentAsync();
-    }
-
-    public async Task UpdateFriends()
-    {
-        _friends.Clear();
-        _friends = await firebase.UpdateFriendsAsync();
-    }
-
-    public async void ListenForFriendRequests(object sender, ChildChangedEventArgs args)
-    {
-        ClearUI();
-        await UpdateFriendRequests();
-        await ListFriends();
-    }
-
-    public async void ListenForFriends(object sender, ChildChangedEventArgs args)
-    {
-        ClearUI();
-        await UpdateFriends();
-        await ListFriends();
-    }
-
-    public async void OnSearchUsers(string _username)
-    {
-        try
-        {
-            logSearchUsernamesText.gameObject.SetActive(false);
-            foreach (GameObject child in instantiatedFriendRequestsListings)
-                DestroyImmediate(child);
-
-            instantiatedFriendRequestsNames.Clear();
-            searchedUsers.Clear();
-            searchedUsers = await firebase.SearchUsersAsync(_username);
-
-            foreach (string friend in _friends)
-            {
-                string username = await firebase.GetUsernameFromUserIdAsync(friend);
-
-                if (searchedUsers.Contains(username))
-                    searchedUsers.Remove(username);
-            }
-
-            foreach (string friendRequest in _friendRequests)
-            {
-                string username = await firebase.GetUsernameFromUserIdAsync(friendRequest);
-
-                if (searchedUsers.Contains(username))
-                    searchedUsers.Remove(username);
-            }
-
-            if (searchedUsers.Count == 0)
-            {
-                logSearchUsernamesText.gameObject.SetActive(true);
-                logSearchUsernamesText.text = "No matching users found!";
-                return;
-            }
-
-            foreach (string user in searchedUsers)
-            {
-                if (!instantiatedFriendRequestsNames.Contains(user))
-                {
-                    instantiatedFriendRequestsNames.Add(user);
-                    UserItem userItem = Instantiate(addFriendListing, addFriendListingTransform);
-                    userItem.usernameText.text = user;
-
-                    if (_friendRequestsSent.Contains(await firebase.GetUserIdFromUsernameAsync(user)))
-                        UpdateAddFriendUI(userItem);
-
-                    instantiatedFriendRequestsListings.Add(userItem.gameObject);
-                }
-            }
-        }
-        catch (FirebaseException e)
-        {
-            logSearchUsernamesText.gameObject.SetActive(true);
-            logSearchUsernamesText.text = e.Message;
-        }
-    }
-
-    public async Task ListFriends()
-    {
-        foreach (UserItem child in instantiatedFriendListings)
-            Destroy(child);
-
-        instantiatedFriendNames.Clear();
-
-        foreach (var friend in _friends)
-        {
-            string username = await firebase.GetUsernameFromUserIdAsync(friend);
-
-            if (!instantiatedFriendNames.Contains(username))
-            {
-                instantiatedFriendNames.Add(username);
-                UserItem userItem = Instantiate(friendListing, friendListingTransform);
-                userItem.usernameText.text = username;
-                UpdateFriendsUI(userItem);
-                instantiatedFriendListings.Add(userItem);
-            }
-        }
-
-        foreach (var friend in _friendRequests)
-        {
-            string username = await firebase.GetUsernameFromUserIdAsync(friend);
-
-            if (!instantiatedFriendNames.Contains(username))
-            {
-                instantiatedFriendNames.Add(username);
-                UserItem userItem = Instantiate(friendListing, friendListingTransform);
-                userItem.usernameText.text = username;
-                instantiatedFriendListings.Add(userItem);
-            }
-        }
-    }
-
-    public void UpdateAddFriendUI(UserItem item)
-    {
-        if (item.addFriendButton != null) item.addFriendButton.SetActive(false);
-        if (item.cancelFriendRequestButton != null) item.cancelFriendRequestButton.SetActive(true);
-    }
-
-    public void UpdateFriendsUI(UserItem item)
-    {
-        if (item.acceptFriendRequestButton != null) item.acceptFriendRequestButton.SetActive(false);
-        if (item.declineFriendRequestButton != null) item.declineFriendRequestButton.SetActive(false);
-        if (item.tradeButtton != null) item.tradeButtton.SetActive(true);
-    }
-
-    public void UpdateCancelRequestUI(UserItem item)
-    {
-        if (item.tradeButtton != null) item.tradeButtton.SetActive(false);
-        if (item.acceptFriendRequestButton != null) item.acceptFriendRequestButton.SetActive(false);
-        if (item.cancelFriendRequestButton != null) item.cancelFriendRequestButton.SetActive(false);
-        if (item.declineFriendRequestButton != null) item.declineFriendRequestButton.SetActive(false);
-        if (item.addFriendButton != null) item.addFriendButton.SetActive(true);
-    }
-
-    public void CloseLeaderboard()
-    {
-        foreach (Transform child in listingTransform)
-        {
-            Destroy(child.gameObject);
-        }
-
-        leaderboardPanel.SetActive(false);
-    }
-
-    private void ClearUI()
-    {
-        foreach (UserItem child in instantiatedFriendListings)
-            Destroy(child);
-
-        foreach (GameObject child in instantiatedFriendRequestsListings)
-            Destroy(child);
-    }
+   
 
     public async void SignOutButton()
     {

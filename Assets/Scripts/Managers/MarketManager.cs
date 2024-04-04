@@ -87,6 +87,10 @@ public class MarketManager :MonoBehaviour
         private float _RefreshTimer = 0.5f;
         private bool _IsMarketInitiallyRefreshed = false;
 
+        
+        
+        
+        
         private void Awake()
         {
                 _GameManager = GetComponent<GameManager>();

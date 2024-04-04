@@ -13,32 +13,29 @@ public class UIWindowManager : MonoBehaviour
     [Space(10)]
     [Header("Window Activity")]
     public int ActiveIndex = -1;
-    private int QueuedIndex = -1;
-
-    private MainNavigationSelection _MainNavigationSelection;
+    private int _QueuedIndex = -1;
+    
     
     
 
     private void Awake()
     {
-        _MainNavigationSelection = FindObjectOfType<MainNavigationSelection>();
-        
-        ActiveIndex = -1;
-        QueuedIndex = -1;
+       // ActiveIndex = -1;
+        _QueuedIndex = -1;
     }
 
     public void CloseAllWindows()
     {
         if (ActiveIndex == -1)
             return;
-            
+        
         StartCoroutine(CloseWindow(ActiveIndex));
     }
 
     
     public void OpenWindow(int index)
     {
-        QueuedIndex = index;
+        _QueuedIndex = index;
         
         //Check if a previous window is open; if so-- close it and wait for the animation to finish.
         CloseAllWindows();
@@ -51,7 +48,7 @@ public class UIWindowManager : MonoBehaviour
         selectedAnimator.gameObject.SetActive(true);
         ActiveIndex = index;
         selectedAnimator!.Play("OpenWindow");
-        QueuedIndex = -1;
+        _QueuedIndex = -1;
     }
 
     private IEnumerator CloseWindow(int index)
@@ -61,8 +58,8 @@ public class UIWindowManager : MonoBehaviour
         GetAnimatorFromIndex(index).gameObject.SetActive(false);
         ActiveIndex = -1;
         
-        if(QueuedIndex != -1)
-            OpenWindow(QueuedIndex);
+        if(_QueuedIndex != -1)
+            OpenWindow(_QueuedIndex);
     }
 
 
