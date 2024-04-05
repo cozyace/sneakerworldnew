@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Database;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -28,10 +29,10 @@ public struct UserData
 public class FriendsUIManager : MonoBehaviour
 {
     [SerializeField] private UserItem FriendListingPrefab;
-    [SerializeField] private UserItem FriendRequestPrefab;
 
-    [SerializeField] private Transform FriendListingParent;
-    [SerializeField] private Transform FriendRequestListingParent;
+    [SerializeField] private Transform FriendListingParent; //The parent of the player's current friends.
+    [SerializeField] private Transform FriendRequestListingParent; //The parent of the incoming friend requests section of the 'Friends' menu.
+    [SerializeField] private Transform AddFriendListingParent; //The parent of the 'Add Friends' menu children.
 
     private FirebaseManager _Firebase;
     private GameManager _GameManager;
@@ -67,7 +68,7 @@ public class FriendsUIManager : MonoBehaviour
         SetupDatabaseListeners();
     }
     
-    
+    // !!!!!!!! USE THIS FOR THE PLAYER MARKET INVENTORY UPDATING, SO IT DOESN'T REFRESH EVERY X AMOUNT OF SECONDS, AND INSTEAD WILL ONLY UPDATE WHEN NEEDED.
     private void SetupDatabaseListeners()
     {
         var snapshot = _Firebase.dbReference.Child($"users/{_Firebase.userId}/friends");
@@ -108,18 +109,22 @@ public class FriendsUIManager : MonoBehaviour
         await ListFriends();
     }
 
-    public async void OnSearchUsers(string _username)
+    public async void OnSearchUsers(string searchedUsername)
     {
         try
         {
             SearchFriendsErrorText.gameObject.SetActive(false);
+            
             foreach (UserItem child in _InstantiatedFriendRequestListings)
                 DestroyImmediate(child.gameObject);
+            
+            _InstantiatedFriendRequestListings.Clear();
 
             _InstantiatedFriendRequestsNames.Clear();
             SearchedUsers.Clear();
-            SearchedUsers = await _Firebase.SearchUsersAsync(_username);
+            SearchedUsers = await _Firebase.SearchUsersAsync(searchedUsername);
 
+            //Removes people already on your friends list
             foreach (string friend in Friends)
             {
                 string username = await _Firebase.GetUsernameFromUserIdAsync(friend);
@@ -128,6 +133,7 @@ public class FriendsUIManager : MonoBehaviour
                     SearchedUsers.Remove(username);
             }
 
+            //Removes people with incoming friend requests towards you.
             foreach (string friendRequest in FriendRequests)
             {
                 string username = await _Firebase.GetUsernameFromUserIdAsync(friendRequest);
@@ -148,9 +154,13 @@ public class FriendsUIManager : MonoBehaviour
                 if (!_InstantiatedFriendRequestsNames.Contains(user))
                 {
                     _InstantiatedFriendRequestsNames.Add(user);
-                    UserItem userItem = Instantiate(FriendRequestPrefab, FriendRequestListingParent);
-                    userItem.UsernameText.text = user;
+                    UserItem userItem = Instantiate(FriendListingPrefab, AddFriendListingParent);
+                    
+                    //FIX THIS BY PUTTING REAL VALUES OF USER.
+                    userItem.SetData(new UserData(user, 150, 5, null, true));
 
+                    SetInitialFindFriendUI(userItem);
+                    
                     if (FriendRequestsSent.Contains(await _Firebase.GetUserIdFromUsernameAsync(user)))
                         UpdateAddFriendUI(userItem);
 
@@ -180,8 +190,8 @@ public class FriendsUIManager : MonoBehaviour
             {
                 _InstantiatedFriendsNames.Add(username);
                 UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
-                userItem.UsernameText.text = username;
-                UpdateFriendsUI(userItem);
+                userItem.SetData(new UserData(username, 150, 5, null, true));
+                SetInitialActiveFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }
         }
@@ -193,36 +203,51 @@ public class FriendsUIManager : MonoBehaviour
             if (!_InstantiatedFriendsNames.Contains(username))
             {
                 _InstantiatedFriendsNames.Add(username);
-                UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
-                userItem.UsernameText.text = username;
+                UserItem userItem = Instantiate(FriendListingPrefab, FriendRequestListingParent);
+                userItem.SetData(new UserData(username, 150, 5, null, true));
+                SetInitialIncomingRequestFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }
         }
     }
+ 
 
+    
+    //When a active friend listing is created.
+    public void SetInitialActiveFriendUI(UserItem item)
+    {
+        item.TradeRequestButton.SetActive(true);
+        item.RemoveFriendButton.SetActive(true);
+    }
+    //When an incoming request is created.
+    public void SetInitialIncomingRequestFriendUI(UserItem item)
+    {
+        item.AcceptRequestButton.SetActive(true);
+        item.DenyRequestButton.SetActive(true);
+    }
+    
+    //When you click on the 'Add' button. (In a 'Add Friends' search)
     public void UpdateAddFriendUI(UserItem item)
     {
-        if (item.addFriendButton != null) item.addFriendButton.SetActive(false);
-        if (item.cancelFriendRequestButton != null) item.cancelFriendRequestButton.SetActive(true);
+        item.CancelButton.SetActive(true);
+        item.AddButton.SetActive(false);
     }
-
-    public void UpdateFriendsUI(UserItem item)
+    
+    //When a friend search query is displayed
+    public void SetInitialFindFriendUI(UserItem item)
     {
-        if (item.acceptFriendRequestButton != null) item.acceptFriendRequestButton.SetActive(false);
-        if (item.declineFriendRequestButton != null) item.declineFriendRequestButton.SetActive(false);
-        if (item.tradeButtton != null) item.tradeButtton.SetActive(true);
+        item.AddButton.SetActive(true);
     }
 
+    //When you press the 'Cancel' friend request button.
     public void UpdateCancelRequestUI(UserItem item)
     {
-        if (item.tradeButtton != null) item.tradeButtton.SetActive(false);
-        if (item.acceptFriendRequestButton != null) item.acceptFriendRequestButton.SetActive(false);
-        if (item.cancelFriendRequestButton != null) item.cancelFriendRequestButton.SetActive(false);
-        if (item.declineFriendRequestButton != null) item.declineFriendRequestButton.SetActive(false);
-        if (item.addFriendButton != null) item.addFriendButton.SetActive(true);
+        item.AddButton.SetActive(true);
+        item.CancelButton.SetActive(true);
     }
-
-  
+    
+    
+    
 
     private void ClearUI()
     {
@@ -233,43 +258,7 @@ public class FriendsUIManager : MonoBehaviour
             Destroy(child.gameObject);
     }
     
-    //This will instantiate a single friend request listing prefab.
-    public void InstantiateFriendRequestPrefab(UserData userData)
-    {
-        UserItem requestListing = Instantiate(FriendRequestPrefab, FriendRequestListingParent);
-        requestListing.SetData(userData);
-    }
 
-    //This will instantiate a single friend listing prefab.
-    public void InstantiateFriendPrefab(UserData userData)
-    {
-        UserItem friendListing = Instantiate(FriendListingPrefab, FriendListingParent);
-        friendListing.SetData(userData);
-    }
-
-    //This will accept an incoming friend request
-    public void AcceptFriendRequest()
-    {
-        
-    }
-
-    //This will decline an incoming friend request.
-    public void DeclineFriendRequest()
-    {
-        
-    }
-
-    //This will initiate a trade request to the selected friend.
-    public void InitiateTradeRequest()
-    {
-        
-    }
-
-    //This method will remove a friend that's currently on your friends list.
-    public void RemoveExistingFriend()
-    {
-        
-    }
     
     
 }

@@ -13,13 +13,18 @@ public class UserItem : MonoBehaviour
     
     public GameManager GameManager;
     public FirebaseManager FirebaseManager;
-    
-    public GameObject addFriendButton, cancelFriendRequestButton, acceptFriendRequestButton, declineFriendRequestButton, tradeButtton;
 
+    //INCOMING REQUESTS menu.
     public GameObject AcceptRequestButton; //The button to accept an incoming request.
     public GameObject DenyRequestButton; //The button to deny an incoming request.
+    
+    //ACTIVE FRIENDS menu.
     public GameObject TradeRequestButton; //The button to request a trade with an existing friend.
     public GameObject RemoveFriendButton; //The button to remove an existing friend from your friends list.
+    
+    //ADD FRIEND menu.
+    public GameObject AddButton;
+    public GameObject CancelButton; //The button that allows you to cancel a friend request
     
     private void Start() 
     {
@@ -49,12 +54,15 @@ public class UserItem : MonoBehaviour
         await FirebaseManager.CancelRequestAsync(FirebaseManager.auth.CurrentUser.UserId, UsernameText.text);
         GameManager._FriendsUIManager.UpdateCancelRequestUI(this);
     }
+    
 
     public async void AcceptFriendRequest()
     {
         GameManager._FriendsUIManager.FriendsUsernameSelected = UsernameText.text;
         await FirebaseManager.AcceptRequestAsync(FirebaseManager.auth.CurrentUser.UserId, UsernameText.text);
-        GameManager._FriendsUIManager.UpdateFriendsUI(this);
+        
+        // DELETE THIS ITEM, RELOAD THE FRIENDS SO THAT THE NEW FRIEND APPEARS IN THE LIST.
+        //GameManager._FriendsUIManager.(this);
     }
 
     public async void DeclineFriendRequest()
@@ -62,6 +70,7 @@ public class UserItem : MonoBehaviour
         GameManager._FriendsUIManager.FriendsUsernameSelected = UsernameText.text;
         await FirebaseManager.DeclineRequestAsync(FirebaseManager.auth.CurrentUser.UserId, UsernameText.text);
     }
+    
 
     public void TradeButton()
     {
