@@ -1296,7 +1296,19 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5192652823005710256}
+        m_TargetAssemblyTypeName: SneakerInventoryItem, Assembly-CSharp
+        m_MethodName: ToggleSneaker
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
 --- !u!1 &6964757357192958024
 GameObject:
@@ -1343,7 +1355,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 223, y: -229.5}
-  m_SizeDelta: {x: 995, y: 222}
+  m_SizeDelta: {x: 987, y: 214}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6964757357192958037
 CanvasRenderer:
@@ -1373,7 +1385,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7590f08173232f9458667b2e5b4dd229, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3666669868d8a994d84e46ec93a85114, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1426,31 +1438,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6964757357192958026}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5192652823005710256}
-        m_TargetAssemblyTypeName: SneakerInventoryItem, Assembly-CSharp
-        m_MethodName: OnClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 5192652823005710256}
-        m_TargetAssemblyTypeName: SneakerInventoryItem, Assembly-CSharp
-        m_MethodName: ToggleSneaker
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5192652823005710256
 MonoBehaviour:
   m_ObjectHideFlags: 0

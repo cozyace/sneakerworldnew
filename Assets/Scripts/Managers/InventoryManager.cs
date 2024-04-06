@@ -46,6 +46,8 @@ public class InventoryManager : MonoBehaviour
     [Header("Runtime Data")]
     public List<SneakerInventoryItem> SneakerUIObjects; //All existing UI objects in the main inventory.
     public List<SneakerInventoryItem> TradeSneakerUIObjects;    //All existing UI objects in the trade inventory.
+
+    private Image LastClickedInventoryItem; //The last clicked 'selected' inventory item.
     
     public List<SneakersOwned> SneakersOwned;  //Every sneaker the player owns (has in their inventory), refreshed each time the UI items are spawned.
 
@@ -181,6 +183,8 @@ public class InventoryManager : MonoBehaviour
             SneakerInventoryItem sneakerInventoryItem = newSneaker.GetComponent<SneakerInventoryItem>();
             SneakerInformation sneakerFoundInData = GameManager.SneakerDatabase.Database.Find(x => string.Equals(x.Name, sneakerLoad.name, StringComparison.CurrentCultureIgnoreCase));
 
+            sneakerInventoryItem.GetComponent<Button>().onClick.AddListener(()=>ViewSneakerDetails(sneakerInventoryItem));
+            
             //Assign the data to store on the UI object.
             sneakerInventoryItem.name = sneakerFoundInData.Name;
             sneakerInventoryItem.quantity = sneakerLoad.quantity;
@@ -214,7 +218,7 @@ public class InventoryManager : MonoBehaviour
             }
 
             //Makes the 'selected' shoe, the first one that gets spawned.
-            OnSneakerClick(SneakerUIObjects[0]);
+            //OnSneakerClick(SneakerUIObjects[0]);
         }
         
         //Reset the list of enabled items.
@@ -223,9 +227,34 @@ public class InventoryManager : MonoBehaviour
         EnabledItems = ItemsToAddBackToEnabled;
     }
 
-    public void OnSneakerClick(SneakerInventoryItem sneakerInventoryItem)
+    private void UpdateSelectedSneaker(int index)
     {
-        SelectedSneakerData.UpdateDetails(sneakerInventoryItem);
+        //If a panel is already highlighted.
+        if(LastClickedInventoryItem != null)
+            //Un-highlight it.
+            LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel");
+        
+        //Reassign the selected item.
+        LastClickedInventoryItem = SneakerUIObjects[index].GetComponent<Image>();
+        
+        LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanelSelected");
+    }
+    
+
+    public void ViewSneakerDetails(SneakerInventoryItem sneaker)
+    {
+        SelectedSneakerData.UpdateDetails(sneaker);
+
+        int indexOf = -1;
+
+        for (int i = 0; i < SneakerUIObjects.Count; i++)
+        {
+            if (SneakerUIObjects[i].gameObject == sneaker.gameObject)
+                indexOf = i;
+        }
+        
+        if(indexOf != -1)
+        UpdateSelectedSneaker(indexOf);
     }
 
     public void SelectFriendTradeSneaker(SneakerInventoryItem sneakerInventoryItem)
