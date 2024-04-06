@@ -151,21 +151,6 @@ public class AI : MonoBehaviour
         _GameManager.AddExperience(XpGainedPerPurchase);
         
         
-        //Move the below code to the GameManager
-        if (_GameManager.playerStats.level == 10)
-            _GameManager.inventoryManager.AddSneakerSlot();
-
-        if (_GameManager.playerStats.level == 25)
-            _GameManager.inventoryManager.AddSneakerSlot();
-
-        if (_GameManager.playerStats.level == 40)
-            _GameManager.inventoryManager.AddSneakerSlot();
-
-        if (_GameManager.playerStats.level == 75)
-            _GameManager.inventoryManager.AddSneakerSlot();
-
-        if (_GameManager.playerStats.level == 100)
-            _GameManager.inventoryManager.AddSneakerSlot();
     }
 
     //Returns the shoe the customer would like to buy. (Randomized)

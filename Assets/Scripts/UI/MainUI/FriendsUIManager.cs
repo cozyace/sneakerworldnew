@@ -49,9 +49,11 @@ public class FriendsUIManager : MonoBehaviour
     
     private List<string> _InstantiatedFriendsNames = new List<string>();
     private List<string> _InstantiatedFriendRequestsNames = new List<string>();
+    private List<string> _InstantiatedFriendSearchNames = new List<string>();
     
     private List<UserItem> _InstantiatedFriendListings = new List<UserItem>();
     private List<UserItem> _InstantiatedFriendRequestListings = new List<UserItem>();
+    private List<UserItem> _InstantiatedFriendSearchListings = new List<UserItem>();
     
     public string FriendsUsernameSelected;
 
@@ -111,16 +113,17 @@ public class FriendsUIManager : MonoBehaviour
 
     public async void OnSearchUsers(string searchedUsername)
     {
+        if (searchedUsername.Length <= 2)
+            return;
+        
         try
         {
             SearchFriendsErrorText.gameObject.SetActive(false);
             
-            foreach (UserItem child in _InstantiatedFriendRequestListings)
-                DestroyImmediate(child.gameObject);
-            
-            _InstantiatedFriendRequestListings.Clear();
+            foreach (UserItem child in _InstantiatedFriendSearchListings)
+                DestroyImmediate(child);
 
-            _InstantiatedFriendRequestsNames.Clear();
+            _InstantiatedFriendSearchNames.Clear();
             SearchedUsers.Clear();
             SearchedUsers = await _Firebase.SearchUsersAsync(searchedUsername);
 
@@ -151,9 +154,9 @@ public class FriendsUIManager : MonoBehaviour
 
             foreach (string user in SearchedUsers)
             {
-                if (!_InstantiatedFriendRequestsNames.Contains(user))
+                if (!_InstantiatedFriendSearchNames.Contains(user))
                 {
-                    _InstantiatedFriendRequestsNames.Add(user);
+                    _InstantiatedFriendSearchNames.Add(user);
                     UserItem userItem = Instantiate(FriendListingPrefab, AddFriendListingParent);
                     
                     //FIX THIS BY PUTTING REAL VALUES OF USER.
@@ -161,10 +164,11 @@ public class FriendsUIManager : MonoBehaviour
 
                     SetInitialFindFriendUI(userItem);
                     
+                    //If you've already sent this person a request, update the button to show the proper UI.
                     if (FriendRequestsSent.Contains(await _Firebase.GetUserIdFromUsernameAsync(user)))
                         UpdateAddFriendUI(userItem);
 
-                    _InstantiatedFriendRequestListings.Add(userItem);
+                    _InstantiatedFriendSearchListings.Add(userItem);
                 }
             }
         }
@@ -182,7 +186,7 @@ public class FriendsUIManager : MonoBehaviour
 
         _InstantiatedFriendsNames.Clear();
 
-        foreach (var friend in Friends)
+        foreach (string friend in Friends)
         {
             string username = await _Firebase.GetUsernameFromUserIdAsync(friend);
 
@@ -196,7 +200,7 @@ public class FriendsUIManager : MonoBehaviour
             }
         }
 
-        foreach (var friend in FriendRequests)
+        foreach (string friend in FriendRequests)
         {
             string username = await _Firebase.GetUsernameFromUserIdAsync(friend);
 
@@ -252,9 +256,12 @@ public class FriendsUIManager : MonoBehaviour
     private void ClearUI()
     {
         foreach (UserItem child in _InstantiatedFriendListings)
-            Destroy(child);
+            Destroy(child.gameObject);
 
         foreach (UserItem child in _InstantiatedFriendRequestListings)
+            Destroy(child.gameObject);
+        
+        foreach(UserItem child in _InstantiatedFriendSearchListings)
             Destroy(child.gameObject);
     }
     

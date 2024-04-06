@@ -228,12 +228,14 @@ public class InventoryManager : MonoBehaviour
         SelectedSneakerData.UpdateDetails(sneakerInventoryItem);
     }
 
-    public void OnSneakerSwapClick(SneakerInventoryItem sneakerInventoryItem)
+    public void SelectFriendTradeSneaker(SneakerInventoryItem sneakerInventoryItem)
     {
         TradeSelectedSneakerImage.sprite = sneakerInventoryItem.ItemIconImage.sprite;
         TradeInventoryPanel.SetActive(false);
     }
     
+
+
     
     #region Sorting Logic
     public void FilterBySearch()
@@ -374,11 +376,6 @@ public class InventoryManager : MonoBehaviour
     }
     #endregion
     
-
-    public void AddSneakerSlot()
-    {
-        print("Unfinished");
-        //InitializeSneakers();
-    }
+    
     
 }

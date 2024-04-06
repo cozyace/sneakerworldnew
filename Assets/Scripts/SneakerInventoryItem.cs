@@ -19,34 +19,57 @@ public class SneakerInventoryItem : MonoBehaviour
     private GameManager GameManager;
     
     public bool CanAIBuy;
-    public bool IsATradeItem;
+    public bool IsATradeItem; //Is it a friend trade inventory item.
+    public bool IsAMarketItem; //Is it a market inventory item.
 
 
     [Header("UI Elements")]
     public TMP_Text ItemNameText;
     public TMP_Text ItemRarityText;
+    public TMP_Text ItemQuantityText; //Only enabled during market/friend trade.
     public Image ItemIconImage;
     public Toggle AvailabilityToggle;
+    public GameObject MarketInventorySelectButton;
     
     public Image RarityPanel;
     public Sprite[] RarityPanelSprites;
 
     private void Start()
     {
+        //We're invoking this because it will cause an error if done exactly when it's created, as when it's used in the friends inv/market inv, it doesn't get data assigned automatically.
+        Invoke("UpdateRarity", 0.35f);
+    }
+
+    private void UpdateRarity()
+    {
+        if (IsATradeItem || IsAMarketItem)
+            return;
+        
         ItemRarityText.text = rarity.ToString();
         RarityPanel.sprite = RarityPanelSprites[(int)rarity-1];
     }
 
-    public void OnClick()
+    public void Initialize(bool isTrade, bool isMarket, string name)
     {
         if (GameManager == null)
             GameManager = FindAnyObjectByType<GameManager>();
 
-        if (IsATradeItem) 
-            GameManager.inventoryManager.OnSneakerSwapClick(this);
-            
-        else 
-            GameManager.inventoryManager.OnSneakerClick(this);
+        IsATradeItem = isTrade;
+        IsAMarketItem = isMarket;
+        this.name = name;
+
+        //Market Button should be disabled by default.
+        if (IsATradeItem)
+        {
+            MarketInventorySelectButton.SetActive(true);
+            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => GameManager.inventoryManager.SelectFriendTradeSneaker(this));
+        }
+        else if (IsAMarketItem)
+        {
+            MarketInventorySelectButton.SetActive(true);
+            print(GameManager.inventoryManager.SneakersOwned.Find(x => x.name == name).name);
+            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => GameManager._MarketManager.SelectItemToList(GameManager.inventoryManager.SneakersOwned.Find(x => x.name == name)));
+        }
     }
 
     public void ToggleSneaker()

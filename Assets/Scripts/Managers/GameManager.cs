@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
     public InventoryManager inventoryManager;
     public CustomerQueue _CustomerQueue;
     public FriendsUIManager _FriendsUIManager;
-
+    public MarketManager _MarketManager;
+    
     public SneakerDatabaseObject SneakerDatabase;
 
     [Header("Player Stats")]

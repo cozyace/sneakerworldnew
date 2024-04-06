@@ -52,12 +52,11 @@ public class MarketManager :MonoBehaviour
         
         [Header("References/Assets")]
         public GameObject MarketListingPrefab;
-        public GameObject InventoryItemPrefab;
+        public SneakerInventoryItem InventoryItemPrefab;
         [SerializeField] private Transform PublicMarketListingsParent;
         [SerializeField] private Transform OwnMarketListingsParent;
         [SerializeField] private Transform PlayerInventoryParent;
         [SerializeField] private GameObject InventoryPanel;
-        [SerializeField] private GameObject MyListingsPanel;
         [SerializeField] private GameObject CreateListingPanel;
         [SerializeField] private GameObject DeleteListingConfirmationMenu;
         
@@ -72,8 +71,6 @@ public class MarketManager :MonoBehaviour
         [SerializeField] private TMP_InputField QuantityField;
         [SerializeField] private TMP_InputField SearchMarketField;
         
-        //Slot References
-        [SerializeField] private Button[] InventoryItemSlots;
         
         //Asset Reference.
         public Sprite[] RarityPanels;
@@ -330,7 +327,6 @@ public class MarketManager :MonoBehaviour
                 ResetListingElements();
                 
                 CreateListingPanel.SetActive(false);
-                MyListingsPanel.SetActive(true);
         }
         
         
@@ -338,18 +334,13 @@ public class MarketManager :MonoBehaviour
         //Deletes all existing inventory UI items, and then respawns them.
         private void RefreshInventory()
         {
-                /*
-                for (int i = 0; i < InventoryItemSlots.Length; i++)
-                {
-                        if (InventoryItemSlots[i].transform.childCount == 0)
-                                continue;
+                List<GameObject> invItems = new List<GameObject>();
+                
+                for (int i = 0; i < PlayerInventoryParent.childCount; i++)
+                        invItems.Add(PlayerInventoryParent.GetChild(i).gameObject);
 
-                        for (int x = 0; x < InventoryItemSlots[i].transform.childCount; x++)
-                        {
-                                Destroy(InventoryItemSlots[i].transform.GetChild(0).gameObject);
-                        }
-                }
-                */
+                foreach (GameObject item in invItems)
+                        Destroy(item);
                 
                 PopulateMarketInventory();
         }
@@ -368,24 +359,6 @@ public class MarketManager :MonoBehaviour
                                 InstantiateMarketListing(_MyListings[listingIndex].Data);
                 }
                 
-                /*
-                foreach (GameObject t in YourListingSlots)
-                {
-                        bool isListingPresent = t.transform.childCount > 1;
-                        
-                        Button deleteButton = t.transform.GetChild(0).GetComponent<Button>();
-                        Image buttonImage = t.transform.GetChild(0).GetComponent<Image>();
-                        
-                        deleteButton.enabled = isListingPresent;
-                        buttonImage.enabled = isListingPresent;
-                        
-                        //If the only child is the trash can, skip this.
-                        if (!isListingPresent)
-                                continue;
-                        
-                        Destroy(t.transform.GetChild(1).gameObject);
-                }
-                */
                 
                 print("Refreshing Listings");
                 PopulateClientListings();
@@ -394,26 +367,40 @@ public class MarketManager :MonoBehaviour
         //Populates the inventory within the marketplace.
         private void PopulateMarketInventory()
         {
-                for (int i = 0; i < InventoryItemSlots.Length; i++)
+                for (int i = 0; i < _GameManager.inventoryManager.SneakersOwned.Count; i++)
                 {
-                        if (i == _GameManager.inventoryManager.SneakersOwned.Count)
-                                return;
-                        
                         //Grab the UI Components.
-                        Image inventoryShoeInstance = Instantiate(InventoryItemPrefab, InventoryItemSlots[i].transform).GetComponent<Image>();
-                        TMP_Text shoeName = inventoryShoeInstance.transform.GetChild(0).GetComponent<TMP_Text>();
-                        TMP_Text shoeQuantity = inventoryShoeInstance.transform.GetChild(1).GetComponent<TMP_Text>();
-                        
+                        SneakerInventoryItem inventoryShoeInstance = Instantiate(InventoryItemPrefab, PlayerInventoryParent);
+
+
+                        inventoryShoeInstance.ItemNameText.text = _GameManager.inventoryManager.SneakersOwned[i].name;
+                        inventoryShoeInstance.ItemRarityText.text = _GameManager.inventoryManager.SneakersOwned[i].rarity.ToString();
+                        inventoryShoeInstance.ItemQuantityText.text = "QTY:" + _GameManager.inventoryManager.SneakersOwned[i].quantity;
+                        inventoryShoeInstance.RarityPanel.sprite =  inventoryShoeInstance.RarityPanelSprites[(int)_GameManager.inventoryManager.SneakersOwned[i].rarity-1];
                         //Assign the data to the UI Components.
-                        shoeName.text = _GameManager.inventoryManager.SneakersOwned[i].name;
-                        shoeQuantity.text = _GameManager.inventoryManager.SneakersOwned[i].quantity.ToString();
+                        inventoryShoeInstance.Initialize(false, true, _GameManager.inventoryManager.SneakersOwned[i].name); //FInd the code where I attach the method directly via onclick.
                         string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.SneakersOwned[i].name).Icon.name;
-                        inventoryShoeInstance.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
+                        inventoryShoeInstance.ItemIconImage.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
+                        
                         
                         //Store index because this is in a loop, so it will not work otherwise.
                         int i1 = i; 
-                        InventoryItemSlots[i].onClick.AddListener(()=> SelectItemToList(_GameManager.inventoryManager.SneakersOwned[i1]));
+                       // InventoryItemSlots[i].onClick.AddListener(()=> SelectItemToList(_GameManager.inventoryManager.SneakersOwned[i1]));
                 }
+        }
+        
+        
+        //This method is attached to each of the UI elements instantiated in the inventory, and make you select the item when you click.
+        public void SelectItemToList(SneakersOwned sneaker)
+        {
+                InventoryPanel.SetActive(false);
+                SelectedShoeIcon.gameObject.SetActive(true);
+                
+                string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
+                print(imagePath);
+                SelectedShoeIcon.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
+                _SelectedSneaker = sneaker;
+                //Put sprite in the main box.
         }
 
         //Populates the 'My Listings' section.
@@ -677,18 +664,7 @@ public class MarketManager :MonoBehaviour
 
     
 
-        //This method is attached to each of the UI elements instantiated in the inventory, and make you select the item when you click.
-        private void SelectItemToList(SneakersOwned sneaker)
-        {
-                InventoryPanel.SetActive(false);
-                SelectedShoeIcon.gameObject.SetActive(true);
-                
-                string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
-                
-                SelectedShoeIcon.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
-                _SelectedSneaker = sneaker;
-                //Put sprite in the main box.
-        }
+  
 
         
 
