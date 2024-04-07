@@ -520,7 +520,7 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<string> GetUserNotifications(string userID)
     {
-        Dictionary<string, object> notificationData = new Dictionary<string, object>();
+       // Dictionary<string, object> notificationData = new Dictionary<string, object>();
 
         try
         {
@@ -535,7 +535,7 @@ public class FirebaseManager : MonoBehaviour
             return fixedNotification;
             //Use split instead, because all of the notifications will be the same line anyway.
 
-            notificationData = JsonUtility.FromJson<Dictionary<string, object>>(json);
+           // notificationData = JsonUtility.FromJson<Dictionary<string, object>>(json);
         } catch (FirebaseException e)
         {
             Debug.LogError(e.Message);

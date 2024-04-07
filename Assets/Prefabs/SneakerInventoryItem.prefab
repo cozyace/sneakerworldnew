@@ -364,8 +364,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 73.93353, y: -36}
-  m_SizeDelta: {x: 107.6498, y: 88.359}
+  m_AnchoredPosition: {x: -6, y: -33.16}
+  m_SizeDelta: {x: 107.6498, y: 82.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &499020852223230986
 CanvasRenderer:
@@ -427,7 +427,7 @@ MonoBehaviour:
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 43.49
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -498,8 +498,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -99.98631, y: 147.5}
-  m_SizeDelta: {x: 280.027, y: 75.031}
+  m_AnchoredPosition: {x: -66.353, y: 147.5}
+  m_SizeDelta: {x: 347.2937, y: 75.031}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &934211284161480799
 CanvasRenderer:
@@ -1309,7 +1309,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &6964757357192958024
 GameObject:
   m_ObjectHideFlags: 0

@@ -203,7 +203,7 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
-            print("Saving data...");
+            print("SAVING PLAYER PREFS.");
             StartCoroutine(SaveData());
         }
     }

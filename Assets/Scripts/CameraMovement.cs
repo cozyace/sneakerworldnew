@@ -4,17 +4,17 @@ public class CameraMovement : MonoBehaviour
 {
     public float zoomSpeed = 0.5f;  // Adjust the zoom speed
     public float minZoom = 1.0f;    // Minimum zoom level
-    public float maxZoom = 10.0f;   // Maximum zoom level 
+    public float maxZoom = 20.0f;   // Maximum zoom level 
 
-    private Camera camera;
+    private Camera _Camera;
     private float initialPinchDistance;
     private float initialOrthoSize;
 
     void Start()
     {
-        camera = Camera.main;
+        _Camera = Camera.main;
         initialPinchDistance = 0f;
-        initialOrthoSize = camera.orthographicSize;
+        initialOrthoSize = _Camera.orthographicSize;
     }
 
     void Update()
@@ -28,7 +28,7 @@ public class CameraMovement : MonoBehaviour
             if (initialPinchDistance == 0f)
             {
                 initialPinchDistance = pinchDistance;
-                initialOrthoSize = camera.orthographicSize;
+                initialOrthoSize = _Camera.orthographicSize;
             }
 
             // Calculate the zoom amount based on the change in pinch distance
@@ -41,13 +41,13 @@ public class CameraMovement : MonoBehaviour
             newOrthoSize = Mathf.Clamp(newOrthoSize, minZoom, maxZoom);
 
             // Apply the new orthographic size to the camera
-            camera.orthographicSize = newOrthoSize;
+            _Camera.orthographicSize = newOrthoSize;
         }
         else
         {
             // Reset initial values when not zooming
             initialPinchDistance = 0f;
-            initialOrthoSize = camera.orthographicSize;
+            initialOrthoSize = _Camera.orthographicSize;
         }
     }
 }

@@ -66,7 +66,7 @@ public class CameraController : MonoBehaviour
 
     void Zoom(float deltaZoom)
     {
-        _MainCamera.orthographicSize = Mathf.Clamp(_MainCamera.orthographicSize - deltaZoom * zoomSpeed, 1f, 10f);
+        _MainCamera.orthographicSize = Mathf.Clamp(_MainCamera.orthographicSize - deltaZoom * zoomSpeed, 5f, 15f);
     }
 
     void Move()

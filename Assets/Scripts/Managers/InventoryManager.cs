@@ -33,6 +33,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private TMP_InputField SearchInputField; //The search input field for querying item names.
     [SerializeField] private GameObject SneakerInventoryUIPrefab; //The prefab that is spawned for use as an inventory item.
     [SerializeField] private GameObject ChooseSneakerPanel; //The panel that allows you to choose a shoe when you don't have any. (start of game)
+    [SerializeField] private TMP_Text SneakerCountText;
     
     [Space(10)]
     [Header("Trade Inventory Editor Assets")]
@@ -72,6 +73,8 @@ public class InventoryManager : MonoBehaviour
             //Enable the AI controller.
             GameManager.aiManager.enabled = true;
         }
+
+        SneakerCountText.text = $"You have {loadedSneakers.Count} sneakers";
     }
 
     private IEnumerator BeginRefreshInventory()
@@ -84,6 +87,7 @@ public class InventoryManager : MonoBehaviour
     {
         //Get the list of all of the player's sneakers from the database under /players/userId/sneakers
         List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
+        SneakerCountText.text = $"You have {loadedSneakers.Count} sneakers";
         CreateSneakerUIObjects(loadedSneakers);
     }
 
