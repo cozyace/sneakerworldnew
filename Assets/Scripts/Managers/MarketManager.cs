@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Firebase.Database;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -88,6 +89,21 @@ public class MarketManager :MonoBehaviour
 
         
         
+        private void SetupDatabaseListeners()
+        {
+                DatabaseReference snapshot = _GameManager.firebase.dbReference.Child($"users/{_GameManager.firebase.userId}/listings");
+                snapshot.ChildAdded += ListenForNewListing;
+                snapshot.ChildRemoved += ListenForNewListing;
+        }
+        
+        //Called when a  child is added / removed from the listings
+        public void ListenForNewListing(object sender, ChildChangedEventArgs args)
+        {
+                GetListings(_IsMarketInitiallyRefreshed);
+                RefreshInventory();
+        }
+        
+
         
         
         private void Awake()
@@ -96,13 +112,20 @@ public class MarketManager :MonoBehaviour
                 SearchMarketField.onValueChanged.AddListener(delegate { SetMarketListingActiveByName(SearchMarketField.text); });
         }
 
+        private void Start()
+        {
+                SetupDatabaseListeners();
+                GetListings(false);
+                RefreshInventory();
+        }
+
         private void Update()
         {
                 _RefreshTimer -= Time.deltaTime;
                 if (_RefreshTimer <= 0)
                 {
-                        GetListings(_IsMarketInitiallyRefreshed);
-                        RefreshInventory();
+                       // GetListings(_IsMarketInitiallyRefreshed);
+                      //  RefreshInventory();
                     
                     if(!_IsMarketInitiallyRefreshed)
                         _IsMarketInitiallyRefreshed = true;
@@ -190,7 +213,7 @@ public class MarketManager :MonoBehaviour
                 
                 
                 listingInstance.UpdateUIComponents(
-                        this, 
+                        this,
                         isPlayerListing,
                         sneaker.name,
                         listing.listingPriceCash,
@@ -203,21 +226,21 @@ public class MarketManager :MonoBehaviour
                         listing
                         );
 
-                if (isPlayerListing)
+                List<PhysicalMarketListing> listingList = isPlayerListing ? _MyListings : _Listings;
+                
+                //Stores where the entry is on the list.
+                int physicalMarketListingEntryIndex = listingList.FindIndex(x=> x.Data.Equals(listing));
+                //Update the data with the newly created gameobject.
+                if (physicalMarketListingEntryIndex != -1)
                 {
-                        //Stores where the entry is on the list.
-                        int physicalMarketListingEntryIndex = _MyListings.FindIndex(x=> x.Data.Equals(listing));
-                        //Update the data with the newly created gameobject.
-                        _MyListings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _MyListings[physicalMarketListingEntryIndex].Data);
-                }
-                else if (isPlayerListing == false)
-                {
-                        //Stores where the entry is on the list.
-                        int physicalMarketListingEntryIndex = _Listings.FindIndex(x=> x.Data.Equals(listing));
-                        //Update the data with the newly created gameobject.
-                        _Listings[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, _Listings[physicalMarketListingEntryIndex].Data);
-                }
+                        if(listingList.Count == 0)
+                                print("MY LISTINGS EMPTY");
 
+                        listingList[physicalMarketListingEntryIndex] = new PhysicalMarketListing(listingInstance.gameObject, listingList[physicalMarketListingEntryIndex].Data);
+                }
+                else
+                        print("DATA WAS NOT FOUND IN LISTINGS");
+                
         }
         
         //Purchases the listing.
@@ -271,9 +294,10 @@ public class MarketManager :MonoBehaviour
                await _GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
                await _GameManager.firebase.UpdateGemsAsync(listing.sellerId, listing.listingPriceGems);
                
-               //Inform the seller that their listing has been sold.
+               //Inform the seller that their listing has been sold. (This is for saving data, to override the auto-saving, so it instead READS from the database)
                await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
                
+               await _GameManager.firebase.RemoveListingFromUser(_GameManager.firebase.userId, listing.key);
         }
         
         //All this does is remove the market listing data from the Firebase database.
@@ -314,7 +338,9 @@ public class MarketManager :MonoBehaviour
                 
                 //Add the listing to the database.
                 await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), _GameManager.firebase.userId, _GameManager.SneakerDatabase.Database.FindIndex(x => x.Name == _SelectedSneaker.name), DateTime.Now));
-                
+
+                //Name of the listing doesn't really matter, just needs to detect changes.
+                await _GameManager.firebase.AddListingDataToUser(_GameManager.firebase.userId, key.ToString());
                 
                 SneakersOwned newData = _GameManager.inventoryManager.SneakersOwned[_GameManager.inventoryManager.SneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
                 newData.quantity = int.Parse(QuantityField.text);
@@ -356,12 +382,10 @@ public class MarketManager :MonoBehaviour
                 for (int listingIndex = 0; listingIndex < _MyListings.Count; listingIndex++)
                 {
                         //Create the physical representation of another user's market listing.
-                                InstantiateMarketListing(_MyListings[listingIndex].Data);
+                        InstantiateMarketListing(_MyListings[listingIndex].Data);
                 }
                 
-                
-                print("Refreshing Listings");
-                PopulateClientListings();
+                print($"<size=14><color=green>MARKET</color> | Player listings refreshed. </size>");
         }
         
         //Populates the inventory within the marketplace.
@@ -402,56 +426,7 @@ public class MarketManager :MonoBehaviour
                 _SelectedSneaker = sneaker;
                 //Put sprite in the main box.
         }
-
-        //Populates the 'My Listings' section.
-        private void PopulateClientListings()
-        {
-                //Set the count label of the player's listing to the correct amount.
-               // ListingCountLabel.text = _MyListings.Count.ToString();
-                /*
-                for (int i = 0; i < YourListingSlots.Length; i++)
-                {
-                        if (i == _MyListings.Count)
-                                return;
-                        
-                        //Grab the UI Components.
-                        Image inventoryShoeInstance = Instantiate(InventoryItemPrefab, YourListingSlots[i].transform).GetComponent<Image>();
-                        TMP_Text shoeName = inventoryShoeInstance.transform.GetChild(0).GetComponent<TMP_Text>();
-                        TMP_Text shoeQuantity = inventoryShoeInstance.transform.GetChild(1).GetComponent<TMP_Text>();
-                        Button deleteButton = YourListingSlots[i].transform.GetChild(0).GetComponent<Button>();
-
-                        TMP_Text shoeCost = inventoryShoeInstance.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>();
-                        Image shoeCurrencyIcon = inventoryShoeInstance.transform.GetChild(2).GetChild(1).GetComponent<Image>();
-
-                        if (_MyListings[i].Data.listingPriceCash > 0)
-                        {
-                                shoeCost.text = _MyListings[i].Data.listingPriceCash.ToString();
-                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Cash");
-                        }
-                        else if (_MyListings[i].Data.listingPriceCash > 0)
-                        {
-                                shoeCost.text = _MyListings[i].Data.listingPriceGems.ToString();
-                                shoeCurrencyIcon.sprite = Resources.Load<Sprite>("Gem");  
-                        }
-                        
-                        //Assign the data to the UI components.
-                        shoeName.text = _GameManager.SneakerDatabase.Database[_MyListings[i].Data.sneakerId].Name;
-                        shoeQuantity.text = _MyListings[i].Data.quantity.ToString();
-                 
-                        string imagePath = _GameManager.SneakerDatabase.Database[_MyListings[i].Data.sneakerId].Icon.name;
-                        inventoryShoeInstance.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
-                        
-                        //Store the index at which the data exists.
-                        int myListingPhysicalDataIndex = _MyListings.FindIndex(x=> x.Data.Equals(_MyListings[i].Data));
-                        //Reassign the data with the newly created UI object.
-                        _MyListings[myListingPhysicalDataIndex] = new PhysicalMarketListing(inventoryShoeInstance.gameObject, _MyListings[myListingPhysicalDataIndex].Data);
-                        
-                        //Store index because this is in a loop, so it will not work otherwise.
-                        int storedIndex = i;
-                        deleteButton.onClick.AddListener(()=> EnableDeleteConfirmationMenu(_MyListings[storedIndex].Data));
-                }
-                */
-        }
+        
         
 
 

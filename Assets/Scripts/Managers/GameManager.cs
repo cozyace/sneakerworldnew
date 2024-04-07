@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour
 
     public async void SaveToDatabase()
     {
-        print("SAVING DATA");
+        print("<size=14><color=cyan>GAMEMANAGER</color> | Saving Data... </size>");
         if(!Notifications.Contains("Your listing of"))
             await SaveDataAsyc(firebase.userId);
         //playerStats = await firebase.LoadDataAsync(firebase.userId);

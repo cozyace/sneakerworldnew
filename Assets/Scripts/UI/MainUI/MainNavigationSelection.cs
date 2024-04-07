@@ -68,6 +68,7 @@ public class MainNavigationSelection : MonoBehaviour
             return;
         
         CloseAllWindows();
+        StartCoroutine(nameof(BeginCooldown));
     }
     
 

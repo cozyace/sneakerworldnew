@@ -67,7 +67,6 @@ public class SneakerInventoryItem : MonoBehaviour
         else if (IsAMarketItem)
         {
             MarketInventorySelectButton.SetActive(true);
-            print(GameManager.inventoryManager.SneakersOwned.Find(x => x.name == name).name);
             MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => GameManager._MarketManager.SelectItemToList(GameManager.inventoryManager.SneakersOwned.Find(x => x.name == name)));
         }
     }

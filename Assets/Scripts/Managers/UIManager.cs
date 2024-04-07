@@ -51,5 +51,6 @@ public class UIManager : MonoBehaviour
     public void ShowUpgrades()
     {
         UpgradesPanel.SetActive(true);
+        UpgradesPanel.transform.Find("RootPanel").GetComponent<Animator>().Play("Open");
     }
 }

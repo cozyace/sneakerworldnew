@@ -19,7 +19,7 @@ public class EmployeeManager : MonoBehaviour
     
     public void Start()
     {
-        SetActiveEmployeeCount(3);
+        SetActiveEmployeeCount(1);
     }
     
     //This will be called via the upgrade class, to change the amount of active employees, should only ever go up, not down.

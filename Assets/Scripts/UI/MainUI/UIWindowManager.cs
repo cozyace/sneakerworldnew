@@ -20,7 +20,7 @@ public class UIWindowManager : MonoBehaviour
 
     private void Awake()
     {
-       // ActiveIndex = -1;
+        ActiveIndex = -1;
         _QueuedIndex = -1;
     }
 

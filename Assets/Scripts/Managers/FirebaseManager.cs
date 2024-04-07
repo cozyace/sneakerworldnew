@@ -77,12 +77,12 @@ public class FirebaseManager : MonoBehaviour
             bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
             if (!signedIn && user != null)
             {
-                Debug.Log("Signed out " + user.UserId);
+                Debug.Log($"<size=14><color=red>FIREBASE</color> Signed out User ({user.UserId})</size>");
             }
             user = auth.CurrentUser;
             if (signedIn)
             {
-                Debug.Log("Signed in " + user.UserId);
+                Debug.Log($"<size=14><color=red>FIREBASE</color> Signed in User ({user.UserId})</size>");
             }
         }
     }
@@ -441,16 +441,20 @@ public class FirebaseManager : MonoBehaviour
     {
         List<MarketListing> marketListings = new List<MarketListing>();
         
+       
+        
         try
         {
             //Grabs the values from the Database section, and stores them as children in this object.
             DataSnapshot snapshot = await dbReference.Child("market").GetValueAsync();
 
+            print($"<size=14><color=red>FIREBASE</color> | Retrieved all marketplace listings. Found <size=16><color=green>{snapshot.Children.Count()}</color></size> results.</size>");
+            
             //Go through each of the children of the database snapshot, and add them to the list.
             foreach(DataSnapshot childSnapshot in snapshot.Children) 
             {
                 string json = childSnapshot.GetRawJsonValue();  
-                print(json);
+                //print(json);
                 MarketListing sneaker = JsonUtility.FromJson<MarketListing>(json);
                 marketListings.Add(sneaker);
             }
@@ -497,6 +501,21 @@ public class FirebaseManager : MonoBehaviour
             { { "notification", message } };
         
         await dbReference.Child($"users/{userID}/notifications/").UpdateChildrenAsync(notificationData);
+    }
+    
+    //Adds a player's personal listing to a list in their db data, so the market can detect changes in it in real-time, and refresh when necessary.
+    public async Task AddListingDataToUser(string userID, string listingID)
+    {
+        Dictionary<string, object> notificationData = new Dictionary<string, object>
+            { { "listing", listingID } };
+        
+        await dbReference.Child($"users/{userID}/listings/").UpdateChildrenAsync(notificationData);
+    }
+    
+    //Adds a player's personal listing to a list in their db data, so the market can detect changes in it in real-time, and refresh when necessary.
+    public async Task RemoveListingFromUser(string userID, string listingID)
+    {
+        await dbReference.Child($"users/{userID}/listings/{listingID}").RemoveValueAsync();
     }
 
     public async Task<string> GetUserNotifications(string userID)
