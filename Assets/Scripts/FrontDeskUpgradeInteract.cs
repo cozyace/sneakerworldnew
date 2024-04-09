@@ -6,7 +6,7 @@ public class FrontDeskUpgradeInteract : MonoBehaviour
 {
     private UIManager _UIManager;
 
-    private void Awake() => _UIManager = FindObjectOfType<UIManager>();
+    private void Awake() => _UIManager = FindFirstObjectByType<UIManager>();
 
     
     private void OnMouseUpAsButton()

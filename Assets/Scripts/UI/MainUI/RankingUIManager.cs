@@ -15,8 +15,8 @@ public class RankingUIManager : MonoBehaviour
 
     private void Awake()
     {
-        _Navigation = FindObjectOfType<MainNavigationSelection>();
-        _GameManager = FindObjectOfType<GameManager>();
+        _Navigation = FindFirstObjectByType<MainNavigationSelection>();
+        _GameManager = FindFirstObjectByType<GameManager>();
         _Firebase = _GameManager.firebase;
     }
 

@@ -757,8 +757,12 @@ public class FirebaseManager : MonoBehaviour
         {
             var userSnapshot = await dbReference.Child("users").Child(_userId).GetValueAsync();
 
-            if (!userSnapshot.Exists) return "";
-
+            if(userSnapshot.Child("username").Value == null)
+                print("USERNAME NULL ERORR ERORR");
+            
+            if (!userSnapshot.Exists || userSnapshot.Child("username").Value == null) return "";
+            
+            
             return userSnapshot.Child("username").Value.ToString();
         }
         catch (FirebaseException e)

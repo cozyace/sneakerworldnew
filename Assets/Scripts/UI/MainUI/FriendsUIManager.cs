@@ -60,7 +60,7 @@ public class FriendsUIManager : MonoBehaviour
     
     private async void Start()
     {
-        _GameManager = FindObjectOfType<GameManager>();
+        _GameManager = FindFirstObjectByType<GameManager>();
         _Firebase = _GameManager.firebase;
         
        
@@ -113,8 +113,7 @@ public class FriendsUIManager : MonoBehaviour
 
     public async void OnSearchUsers(string searchedUsername)
     {
-        if (searchedUsername.Length <= 2)
-            return;
+        ClearUI();
         
         try
         {
@@ -159,8 +158,8 @@ public class FriendsUIManager : MonoBehaviour
                     _InstantiatedFriendSearchNames.Add(user);
                     UserItem userItem = Instantiate(FriendListingPrefab, AddFriendListingParent);
                     
-                    //FIX THIS BY PUTTING REAL VALUES OF USER.
-                    userItem.SetData(new UserData(user, 150, 5, null, true));
+                    PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(await _Firebase.GetUserIdFromUsernameAsync(user));
+                    userItem.SetData(new UserData(user, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
 
                     SetInitialFindFriendUI(userItem);
                     
@@ -194,7 +193,9 @@ public class FriendsUIManager : MonoBehaviour
             {
                 _InstantiatedFriendsNames.Add(username);
                 UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
-                userItem.SetData(new UserData(username, 150, 5, null, true));
+
+                PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
+                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
                 SetInitialActiveFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }
@@ -208,7 +209,8 @@ public class FriendsUIManager : MonoBehaviour
             {
                 _InstantiatedFriendsNames.Add(username);
                 UserItem userItem = Instantiate(FriendListingPrefab, FriendRequestListingParent);
-                userItem.SetData(new UserData(username, 150, 5, null, true));
+                PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
+                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
                 SetInitialIncomingRequestFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }
@@ -256,13 +258,16 @@ public class FriendsUIManager : MonoBehaviour
     private void ClearUI()
     {
         foreach (UserItem child in _InstantiatedFriendListings)
-            Destroy(child.gameObject);
+            if(child != null)
+                Destroy(child.gameObject);
 
         foreach (UserItem child in _InstantiatedFriendRequestListings)
-            Destroy(child.gameObject);
+            if(child != null)
+                Destroy(child.gameObject);
         
         foreach(UserItem child in _InstantiatedFriendSearchListings)
-            Destroy(child.gameObject);
+            if(child != null)
+                Destroy(child.gameObject);
     }
     
 

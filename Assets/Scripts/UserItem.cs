@@ -28,7 +28,7 @@ public class UserItem : MonoBehaviour
     
     private void Start() 
     {
-        GameManager = FindObjectOfType<GameManager>();
+        GameManager = FindFirstObjectByType<GameManager>();
         FirebaseManager = GameManager.firebase;
     }
 

@@ -28,7 +28,7 @@ public class MainNavigationSelection : MonoBehaviour
     private void Awake()
     {
         _Animator = GetComponent<Animator>();
-        _UIWindowManager = FindObjectOfType<UIWindowManager>();
+        _UIWindowManager = FindFirstObjectByType<UIWindowManager>();
 
         CloseAllWindows();
     }

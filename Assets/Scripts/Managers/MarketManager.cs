@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Firebase.Database;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -82,10 +81,8 @@ public class MarketManager :MonoBehaviour
         public List<PhysicalMarketListing> _MyListings;
         //The sneaker that you have selected in the 'choose item' box.
         private SneakersOwned _SelectedSneaker; 
-        
-        //The base amount of time before the first refresh of the market.
-        private float _RefreshTimer = 0.5f;
-        private bool _IsMarketInitiallyRefreshed = false;
+
+
 
         
         
@@ -99,7 +96,7 @@ public class MarketManager :MonoBehaviour
         //Called when a  child is added / removed from the listings
         public void ListenForNewListing(object sender, ChildChangedEventArgs args)
         {
-                GetListings(_IsMarketInitiallyRefreshed);
+                GetListings(true);
                 RefreshInventory();
         }
         
@@ -117,21 +114,12 @@ public class MarketManager :MonoBehaviour
                 SetupDatabaseListeners();
                 GetListings(false);
                 RefreshInventory();
+                
+                Invoke("RefreshInventory", 1f);
         }
 
         private void Update()
         {
-                _RefreshTimer -= Time.deltaTime;
-                if (_RefreshTimer <= 0)
-                {
-                       // GetListings(_IsMarketInitiallyRefreshed);
-                      //  RefreshInventory();
-                    
-                    if(!_IsMarketInitiallyRefreshed)
-                        _IsMarketInitiallyRefreshed = true;
-                    
-                        _RefreshTimer = 2.5f;
-                }
 
                 if (_SelectedSneaker.name != "" && QuantityField.text != "")
                 {
@@ -312,7 +300,7 @@ public class MarketManager :MonoBehaviour
                 Guid key = Guid.NewGuid();
                 
                 //Add the listing to the database.
-                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), 500, 0, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
+                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), 0, 15, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
                 
                 GetListings(false);
                 RefreshInventory();
@@ -389,8 +377,9 @@ public class MarketManager :MonoBehaviour
         }
         
         //Populates the inventory within the marketplace.
-        private void PopulateMarketInventory()
+        public void PopulateMarketInventory()
         {
+                print("POPULATING");
                 for (int i = 0; i < _GameManager.inventoryManager.SneakersOwned.Count; i++)
                 {
                         //Grab the UI Components.
@@ -548,7 +537,7 @@ public class MarketManager :MonoBehaviour
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t2.GetComponent<MarketListingItem>().Name, t1.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
+            sneakers.Sort((t1, t2) => string.Compare(t2.GetComponent<MarketListingItem>().Name, t1.GetComponent<MarketListingItem>().Name, StringComparison.Ordinal));
         }
 
         return sneakers;
@@ -558,12 +547,12 @@ public class MarketManager :MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<MarketListingItem>().Rarity
+            sneakers.Sort((t1, t2) => t1.GetComponent<MarketListingItem>().Rarity
                 .CompareTo(t2.GetComponent<MarketListingItem>().Rarity));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<MarketListingItem>().Rarity
+            sneakers.Sort((t1, t2) => t2.GetComponent<MarketListingItem>().Rarity
                 .CompareTo(t1.GetComponent<MarketListingItem>().Rarity));
         }
 
@@ -574,12 +563,12 @@ public class MarketManager :MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<MarketListingItem>().CashPrice
+            sneakers.Sort((t1, t2) => t1.GetComponent<MarketListingItem>().CashPrice
                 .CompareTo(t2.GetComponent<MarketListingItem>().CashPrice));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<MarketListingItem>().CashPrice
+            sneakers.Sort((t1, t2) => t2.GetComponent<MarketListingItem>().CashPrice
                 .CompareTo(t1.GetComponent<MarketListingItem>().CashPrice));
         }
 

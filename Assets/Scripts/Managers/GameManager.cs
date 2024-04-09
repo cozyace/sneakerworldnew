@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         if (firebase == null)
-            firebase = FindObjectOfType<FirebaseManager>();
+            firebase = FindFirstObjectByType<FirebaseManager>();
 
         playerStats = JsonUtility.FromJson<PlayerStats>(PlayerPrefs.GetString("PLAYER_STATS"));
     }
@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour
 
     public async void SaveToDatabase()
     {
-        print("<size=14><color=cyan>GAMEMANAGER</color> | Saving Data... </size>");
+        print("<size=14><color=blue>GAMEMANAGER</color> | Saving Data... </size>");
         if(!Notifications.Contains("Your listing of"))
             await SaveDataAsyc(firebase.userId);
         //playerStats = await firebase.LoadDataAsync(firebase.userId);

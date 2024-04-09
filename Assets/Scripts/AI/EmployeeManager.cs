@@ -15,7 +15,7 @@ public class EmployeeManager : MonoBehaviour
     private CustomerQueue _CustomerQueue;
     
     
-    private void Awake() => _CustomerQueue = FindObjectOfType<CustomerQueue>();
+    private void Awake() => _CustomerQueue = FindFirstObjectByType<CustomerQueue>();
     
     public void Start()
     {
