@@ -33,6 +33,7 @@ android {
 }
 // Android Resolver Exclusions End
 android {
+    namespace 'com.example.namespace'
     compileSdkVersion **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'
 

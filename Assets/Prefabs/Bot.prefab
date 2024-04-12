@@ -59,10 +59,19 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
+  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
+  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
+  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
+  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
+  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
+  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
+  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -216,7 +225,7 @@ MonoBehaviour:
   XpGainedPerPurchase: 10
 --- !u!95 &7298173618722100009
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -230,6 +239,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -284,6 +294,8 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
