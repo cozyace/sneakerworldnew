@@ -6,6 +6,7 @@ using Firebase.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -587,12 +588,79 @@ public class FirebaseManager : MonoBehaviour
         }
 
     }
-    
+
+  
+    public async Task UpdateLastLoggedOut(string userID)
+    {
+        try
+        {
+            await dbReference.Child($"users/{userID}/lastloggedout").SetValueAsync(DateTime.Now.ToString(CultureInfo.InvariantCulture));
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+    }
+
+    public async Task<DateTime> GetLastLoggedOut(string userID)
+    {
+        try
+        {
+            DataSnapshot currentValue = await dbReference.Child($"users/{userID}/lastloggedout").GetValueAsync();
+
+            if (currentValue.GetRawJsonValue() == null)
+                return new DateTime();
+            
+            string trimmedValue = currentValue.GetRawJsonValue().Trim('"'); //Because grabbing firebase values comes with quotations.
+            DateTime time = DateTime.Parse(trimmedValue);
+            return time;
+
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+
+        return new DateTime();
+    }
+
+    public async Task<bool> GetIsOnline(string userID)
+    {
+        try
+        {
+            DataSnapshot currentValue = await dbReference.Child($"users/{userID}/isOnline").GetValueAsync();
+
+            if (currentValue.GetRawJsonValue() == null)
+                return false;
+            
+            string trimmedValue = currentValue.GetRawJsonValue().Trim('"'); //Because grabbing firebase values comes with quotations.
+            
+            return bool.Parse(trimmedValue);
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+        return false;
+    }
+
+    public async Task UpdateIsOnline(string userID, bool isOnline)
+    {
+        try
+        {
+            await dbReference.Child($"users/{userID}/isOnline").SetValueAsync(isOnline);
+        } 
+        catch(FirebaseException e)
+        {
+            Debug.Log(e.Message);
+        }
+    }
+
     public async Task UpdateGemsAsync(string userID, int count)
     {
         try
         {
-            var currentValue = await dbReference.Child($"users/{userID}/gems").GetValueAsync();
+            DataSnapshot currentValue = await dbReference.Child($"users/{userID}/gems").GetValueAsync();
             print(currentValue.GetRawJsonValue());
             //Set the value of cash in the specific user's data.
             await dbReference.Child($"users/{userID}/cash").SetValueAsync(int.Parse(currentValue.GetRawJsonValue()) + count);

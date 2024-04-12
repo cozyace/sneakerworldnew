@@ -14,15 +14,13 @@ public struct UserData
     public int Cash;
     public int Level;
     public Sprite Icon;
-    public bool IsOnline;
 
-    public UserData(string username, int cash, int level, Sprite icon, bool isOnline)
+    public UserData(string username, int cash, int level, Sprite icon)
     {
         Username = username;
         Cash = cash;
         Level = level;
         Icon = icon;
-        IsOnline = isOnline;
     }
 }
 
@@ -159,7 +157,7 @@ public class FriendsUIManager : MonoBehaviour
                     UserItem userItem = Instantiate(FriendListingPrefab, AddFriendListingParent);
                     
                     PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(await _Firebase.GetUserIdFromUsernameAsync(user));
-                    userItem.SetData(new UserData(user, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
+                    userItem.SetData(new UserData(user, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
 
                     SetInitialFindFriendUI(userItem);
                     
@@ -195,7 +193,7 @@ public class FriendsUIManager : MonoBehaviour
                 UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
 
                 PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
-                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
+                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
                 SetInitialActiveFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }
@@ -210,7 +208,7 @@ public class FriendsUIManager : MonoBehaviour
                 _InstantiatedFriendsNames.Add(username);
                 UserItem userItem = Instantiate(FriendListingPrefab, FriendRequestListingParent);
                 PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
-                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar"), true));
+                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
                 SetInitialIncomingRequestFriendUI(userItem);
                 _InstantiatedFriendListings.Add(userItem);
             }

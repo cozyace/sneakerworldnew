@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Firebase.Database;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -63,22 +64,20 @@ public class MarketManager :MonoBehaviour
         //Smaller-Importance UI References.
         [SerializeField] private Button CreateListingButton;
         [SerializeField] private Image SelectedShoeIcon;
-        [SerializeField] private TMP_Text ListingCountLabel;
-        [SerializeField] private GameObject InsufficientQuantityText;
+        [SerializeField] private TMP_Text ErrorText;
         [SerializeField] private GameObject CashIcon;
         [SerializeField] private GameObject GemIcon;
         [SerializeField] private TMP_InputField PriceField;
         [SerializeField] private TMP_InputField QuantityField;
-        [SerializeField] private TMP_InputField SearchMarketField;
         
         
         //Asset Reference.
         public Sprite[] RarityPanels;
         
         //All listings on the market.
-        public List<PhysicalMarketListing> _Listings;
+        public List<PhysicalMarketListing> Listings;
         //The listings loaded that were made by the logged-in user.
-        public List<PhysicalMarketListing> _MyListings;
+        public List<PhysicalMarketListing> MyListings;
         //The sneaker that you have selected in the 'choose item' box.
         private SneakersOwned _SelectedSneaker; 
 
@@ -86,6 +85,7 @@ public class MarketManager :MonoBehaviour
 
         
         
+        //This will listen for any changes in the data, and then update the UI accordingly.
         private void SetupDatabaseListeners()
         {
                 DatabaseReference snapshot = _GameManager.firebase.dbReference.Child($"users/{_GameManager.firebase.userId}/listings");
@@ -94,41 +94,31 @@ public class MarketManager :MonoBehaviour
         }
         
         //Called when a  child is added / removed from the listings
-        public void ListenForNewListing(object sender, ChildChangedEventArgs args)
+        private void ListenForNewListing(object sender, ChildChangedEventArgs args)
         {
+                //If a player's listing is changed, reset player listings.
                 GetListings(true);
+                //Refresh player's inventory.
                 RefreshInventory();
         }
-        
+
+
 
         
-        
-        private void Awake()
-        {
-                _GameManager = GetComponent<GameManager>();
-                SearchMarketField.onValueChanged.AddListener(delegate { SetMarketListingActiveByName(SearchMarketField.text); });
-        }
+        private void Awake() =>_GameManager = GetComponent<GameManager>();
 
         private void Start()
         {
                 SetupDatabaseListeners();
-                GetListings(false);
-                RefreshInventory();
-                
-                Invoke("RefreshInventory", 1f);
+                Invoke(nameof(RefreshInventory), 1f);
+                Invoke(nameof(RefreshButton), 1f);
         }
 
         private void Update()
         {
-
-                if (_SelectedSneaker.name != "" && QuantityField.text != "")
-                {
-                        InsufficientQuantityText.SetActive(int.Parse(QuantityField.text) > _SelectedSneaker.quantity);
-                }
-                else
-                        InsufficientQuantityText.SetActive(false);
-
-                CreateListingButton.interactable = _MyListings.Count < 8;
+                CreateListingButton.interactable = MyListings.Count < 8;
+                
+                ErrorText.text = CanListSelectedItem().Item2;
         }
 
 
@@ -150,10 +140,10 @@ public class MarketManager :MonoBehaviour
                                 Destroy(t.gameObject);
                 }
                 
-                _MyListings.Clear();
+                MyListings.Clear();
                 
                 if(!reloadPlayerListingsOnly)
-                        _Listings.Clear();
+                        Listings.Clear();
                 
                 //Store every listing in a temporary list.
                 List<MarketListing> allMarketListings = await _GameManager.firebase.GetMarketplaceListingsAsync();
@@ -165,21 +155,21 @@ public class MarketManager :MonoBehaviour
                         if (listing.sellerId != _GameManager.firebase.userId)
                         {
                                 if (!reloadPlayerListingsOnly)
-                                 _Listings.Add(new PhysicalMarketListing(null, listing));
+                                 Listings.Add(new PhysicalMarketListing(null, listing));
                         }
                         //If this is a listing made by the player.
                         else if (listing.sellerId == _GameManager.firebase.userId)
                         {
-                                _MyListings.Add(new PhysicalMarketListing(null, listing));
+                                MyListings.Add(new PhysicalMarketListing(null, listing));
                         }
                 }
 
                 //Go through all of the global listing (not the player's) and instantiate them individually.
-                for (int listingIndex = 0; listingIndex < _Listings.Count; listingIndex++)
+                for (int listingIndex = 0; listingIndex < Listings.Count; listingIndex++)
                 {
                         //Create the physical representation of another user's market listing.
                         if(!reloadPlayerListingsOnly)
-                                InstantiateMarketListing(_Listings[listingIndex].Data);
+                                InstantiateMarketListingUI(Listings[listingIndex].Data);
                 }
                 
                 //Refreshes the player's listings.
@@ -187,7 +177,7 @@ public class MarketManager :MonoBehaviour
         }
 
         //Creates a single UI object representing a listing.
-        private async void InstantiateMarketListing(MarketListing listing)
+        private async void InstantiateMarketListingUI(MarketListing listing)
         {
                 bool isPlayerListing = listing.sellerId == _GameManager.firebase.userId;
                 Transform listingParent = isPlayerListing ? OwnMarketListingsParent : PublicMarketListingsParent;
@@ -214,7 +204,7 @@ public class MarketManager :MonoBehaviour
                         listing
                         );
 
-                List<PhysicalMarketListing> listingList = isPlayerListing ? _MyListings : _Listings;
+                List<PhysicalMarketListing> listingList = isPlayerListing ? MyListings : Listings;
                 
                 //Stores where the entry is on the list.
                 int physicalMarketListingEntryIndex = listingList.FindIndex(x=> x.Data.Equals(listing));
@@ -237,8 +227,6 @@ public class MarketManager :MonoBehaviour
                 int purchasePrice = 0;
                 string notificationString = "";
                 
-                print($"Your Cash - {_GameManager.GetCash()}");
-                print($"Listing Cost - {listing.listingPriceCash}");
                 
                 if (_GameManager.GetGems() < listing.listingPriceGems || _GameManager.GetCash() < listing.listingPriceCash)
                 {
@@ -289,37 +277,30 @@ public class MarketManager :MonoBehaviour
         }
         
         //All this does is remove the market listing data from the Firebase database.
-        private async void RemoveListing(string key)
-        {
-                await _GameManager.firebase.RemoveMarketListing(key);
-        }
+        private async void RemoveListing(string key) => await _GameManager.firebase.RemoveMarketListing(key);
+
 
         public async void Demo_ForceCreateNewListing()
         {
-                //Generate a new GUID to act as the key for the listing. (Very very very very low probability that two of the same will exist at the same time ever)
-                Guid key = Guid.NewGuid();
-                
                 //Add the listing to the database.
-                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), 0, 15, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
+                await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", Guid.NewGuid().ToString(), 0, 15, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
                 
                 GetListings(false);
                 RefreshInventory();
-                ResetListingElements();
+                ResetCreateListingElements();
         }
         
         //Creates a new listing with the chosen item. (Called via UI button in game)
         public async void CreateNewListing()
         {
-                if (!CanListSelectedItem())
+                if (!CanListSelectedItem().Item1)
                         return;
 
                 int cashValue = 0;
                 int gemValue = 0;
 
-                if (CashIcon.activeSelf)
-                        cashValue = int.Parse(PriceField.text);
-                else if (GemIcon.activeSelf) 
-                        gemValue = int.Parse(PriceField.text);
+                if (CashIcon.activeSelf) cashValue = int.Parse(PriceField.text);
+                else if (GemIcon.activeSelf) gemValue = int.Parse(PriceField.text);
 
                 //Generate a new GUID to act as the key for the listing. (Very very very very low probability that two of the same will exist at the same time ever)
                 Guid key = Guid.NewGuid();
@@ -338,7 +319,7 @@ public class MarketManager :MonoBehaviour
                 
                 GetListings(false);
                 RefreshInventory();
-                ResetListingElements();
+                ResetCreateListingElements();
                 
                 CreateListingPanel.SetActive(false);
         }
@@ -367,38 +348,32 @@ public class MarketManager :MonoBehaviour
                         Destroy(t.gameObject);
                 
                 //Go through all of the global listing (not the player's) and instantiate them individually.
-                for (int listingIndex = 0; listingIndex < _MyListings.Count; listingIndex++)
+                for (int listingIndex = 0; listingIndex < MyListings.Count; listingIndex++)
                 {
                         //Create the physical representation of another user's market listing.
-                        InstantiateMarketListing(_MyListings[listingIndex].Data);
+                        InstantiateMarketListingUI(MyListings[listingIndex].Data);
                 }
                 
                 print($"<size=14><color=green>MARKET</color> | Player listings refreshed. </size>");
         }
         
         //Populates the inventory within the marketplace.
-        public void PopulateMarketInventory()
+        private void PopulateMarketInventory()
         {
-                print("POPULATING");
                 for (int i = 0; i < _GameManager.inventoryManager.SneakersOwned.Count; i++)
                 {
                         //Grab the UI Components.
                         SneakerInventoryItem inventoryShoeInstance = Instantiate(InventoryItemPrefab, PlayerInventoryParent);
-
-
+                        
                         inventoryShoeInstance.ItemNameText.text = _GameManager.inventoryManager.SneakersOwned[i].name;
                         inventoryShoeInstance.ItemRarityText.text = _GameManager.inventoryManager.SneakersOwned[i].rarity.ToString();
                         inventoryShoeInstance.ItemQuantityText.text = "QTY:" + _GameManager.inventoryManager.SneakersOwned[i].quantity;
                         inventoryShoeInstance.RarityPanel.sprite =  inventoryShoeInstance.RarityPanelSprites[(int)_GameManager.inventoryManager.SneakersOwned[i].rarity-1];
+                        
                         //Assign the data to the UI Components.
                         inventoryShoeInstance.Initialize(false, true, _GameManager.inventoryManager.SneakersOwned[i].name); //FInd the code where I attach the method directly via onclick.
                         string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.SneakersOwned[i].name).Icon.name;
                         inventoryShoeInstance.ItemIconImage.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
-                        
-                        
-                        //Store index because this is in a loop, so it will not work otherwise.
-                        int i1 = i; 
-                       // InventoryItemSlots[i].onClick.AddListener(()=> SelectItemToList(_GameManager.inventoryManager.SneakersOwned[i1]));
                 }
         }
         
@@ -410,7 +385,6 @@ public class MarketManager :MonoBehaviour
                 SelectedShoeIcon.gameObject.SetActive(true);
                 
                 string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
-                print(imagePath);
                 SelectedShoeIcon.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
                 _SelectedSneaker = sneaker;
                 //Put sprite in the main box.
@@ -418,10 +392,10 @@ public class MarketManager :MonoBehaviour
         
         
 
-
-        private void SetMarketListingActiveByName(string query)
+        //Attached to the Search box via Dynamic event.
+        public void SetMarketListingActiveByName(string query)
         {
-                foreach (PhysicalMarketListing listing in _Listings)
+                foreach (PhysicalMarketListing listing in Listings)
                 {
                         if (query == "") //If the query is empty, then turn them all on by setting the query to each name.
                                 query = _GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name;
@@ -430,22 +404,97 @@ public class MarketManager :MonoBehaviour
                 }
         }
         
+    
+
+        public void EnableDeleteConfirmationMenu(MarketListing listing)
+        {
+                //Enable the confirmation UI element.
+                DeleteListingConfirmationMenu.SetActive(true);
+                
+                //Get the confirmation button.
+                Button confirmButton = DeleteListingConfirmationMenu.transform.GetChild(0).GetChild(1).GetComponent<Button>();
+                
+                //Attach the hook to remove the specific listing.
+                confirmButton.onClick.RemoveAllListeners();
+                confirmButton.onClick.AddListener(()=> StartCoroutine(ConfirmRemoveListing(listing.key, listing)));
+        }
+
+       
+        //Removes listing, and returns the shoe to the seller.
+        private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
+        {
+                //Give the shoe back to the lister.
+                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
+                
+                //Disable the confirmation menu.
+                DeleteListingConfirmationMenu.SetActive(false);
+                
+                //Remove the listing from the Firebase Database.
+                RemoveListing(key);
+
+                //Wait a second.
+                yield return new WaitForSeconds(0.35f);
+                
+                //Refresh everything.
+                RefreshPlayerListings();
+                GetListings(true);
+                RefreshInventory();
+        }
+        
+    
+        //Finds if the listing already exists, and returns the index. (If it doesn't exist, returns -1)
+        private int GetMarketListingIndexByData(MarketListing listing, IReadOnlyList<PhysicalMarketListing> list)
+        {
+                for (int i = 0; i < list.Count; i++) 
+                {
+                        if (list[i].Data.Equals(listing))
+                        { 
+                                return i;
+                        }
+                }
+                //Do a check here, go through each of the existing listings in the list, and check if it still exists.
+                return -1;
+        }
+    
+        //Does the current entered listing meet all the requirements for posting. (RETURNS STATUS & ERROR LOG)
+        private (bool, string) CanListSelectedItem()
+        {
+                if (_SelectedSneaker.name == "")
+                        return (false, "Must select a shoe!");
+                
+                if (QuantityField.text == "")
+                        return (false, "Must enter a quantity!");
+
+                if (PriceField.text == "")
+                        return (false, "Must enter a price to create listing!");
+
+                if (_SelectedSneaker.quantity < int.Parse(QuantityField.text)) 
+                        return (false, "You don't have enough of this item!");
+                
+                return (true, "");
+        }
 
         
+        //Resets the UI data for the current listing.
+        private void ResetCreateListingElements()
+        {
+                _SelectedSneaker = new SneakersOwned();
+                SelectedShoeIcon.gameObject.SetActive(false);
+                SelectedShoeIcon.sprite = null;
+                QuantityField.text = "";
+                PriceField.text = "";
+        }
+        
+        public void SwapCurrencyType()
+        {
+                CashIcon.SetActive(!CashIcon.activeSelf);
+                GemIcon.SetActive(!GemIcon.activeSelf);
+        }
         
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+          
         public void FilterByRarity(TMP_Dropdown dropdown)
         {
                 foreach (Transform marketItem in PublicMarketListingsParent.transform)
@@ -581,122 +630,6 @@ public class MarketManager :MonoBehaviour
     
     
     
-    
-    
-    
-    
-    
-    
-        
-    
-
-        public void EnableDeleteConfirmationMenu(MarketListing listing)
-        {
-                //Enable the confirmation UI element.
-                DeleteListingConfirmationMenu.SetActive(true);
-                
-                //Get the confirmation button.
-                Button confirmButton = DeleteListingConfirmationMenu.transform.GetChild(0).GetChild(1).GetComponent<Button>();
-                
-                //Attach the hook to remove the specific listing.
-                confirmButton.onClick.RemoveAllListeners();
-                confirmButton.onClick.AddListener(()=> StartCoroutine(ConfirmRemoveListing(listing.key, listing)));
-        }
-
-       
-        //Removes listing, and returns the shoe to the seller.
-        private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
-        {
-                //Give the shoe back to the lister.
-                _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
-                
-                //Disable the confirmation menu.
-                DeleteListingConfirmationMenu.SetActive(false);
-                
-                //Remove the listing from the Firebase Database.
-                RemoveListing(key);
-
-                //Wait a second.
-                yield return new WaitForSeconds(0.35f);
-                
-                //Refresh everything.
-                RefreshPlayerListings();
-                GetListings(true);
-                RefreshInventory();
-        }
-        
-
-    
-
-  
-
-        
-
-        
-        
-    
-    
-    
-        //Finds if the listing already exists, and returns the index. (If it doesn't exist, returns -1)
-        private int GetMarketListingIndexByData(MarketListing listing, IReadOnlyList<PhysicalMarketListing> list)
-        {
-                for (int i = 0; i < list.Count; i++) 
-                {
-                        if (list[i].Data.Equals(listing))
-                        { 
-                                return i;
-                        }
-                }
-                //Do a check here, go through each of the existing listings in the list, and check if it still exists.
-                return -1;
-        }
-    
-        //Does the current entered listing meet all the requirements for posting.
-        private bool CanListSelectedItem()
-        {
-                if (_SelectedSneaker.name == "")
-                {
-                        print("Must select a shoe!");
-                        return false;
-                }
-                
-                if (QuantityField.text == "")
-                {
-                        print("Must enter a quantity!");
-                        return false;
-                }
-
-                if (PriceField.text == "")
-                {
-                        print("Must enter a price to create listing!");
-                        return false;
-                }
-
-                if (_SelectedSneaker.quantity < int.Parse(QuantityField.text)) 
-                {
-                        print("You don't have enough of this item!");
-                        return false;
-                }
-                
-                return true;
-        }
-
-        
-        //Resets the UI data for the current listing.
-        public void ResetListingElements()
-        {
-                _SelectedSneaker = new SneakersOwned();
-                SelectedShoeIcon.gameObject.SetActive(false);
-                SelectedShoeIcon.sprite = null;
-                QuantityField.text = "";
-                PriceField.text = "";
-        }
-        
-        public void SwapCurrencyType()
-        {
-                CashIcon.SetActive(!CashIcon.activeSelf);
-                GemIcon.SetActive(!GemIcon.activeSelf);
-        }
         
         
 }

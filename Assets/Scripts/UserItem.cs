@@ -25,8 +25,10 @@ public class UserItem : MonoBehaviour
     //ADD FRIEND menu.
     public GameObject AddButton;
     public GameObject CancelButton; //The button that allows you to cancel a friend request
+
+    private string _UserId; //The user this is representing's ID.
     
-    private void Start() 
+    private void Awake() 
     {
         GameManager = FindFirstObjectByType<GameManager>();
         FirebaseManager = GameManager.firebase;
@@ -38,7 +40,24 @@ public class UserItem : MonoBehaviour
         CashText.text = data.Cash.ToString();
         LevelText.text = data.Level.ToString();
         IconImage.sprite = data.Icon;
-        ActivityCircle.color = data.IsOnline ? Color.green : Color.gray;
+        InvokeRepeating(nameof(CheckIsOnline), 1f, 5f);
+    }
+
+    private async void CheckIsOnline()
+    {
+        if (!GameManager || !FirebaseManager)
+        {
+            GameManager = FindFirstObjectByType<GameManager>();
+            FirebaseManager = GameManager.firebase;
+        }
+        
+        if (_UserId == default && UsernameText.text != default)
+        {
+            _UserId = await GameManager.firebase.GetUserIdFromUsernameAsync(UsernameText.text);
+        }
+
+        bool isOnline = await GameManager.firebase.GetIsOnline(_UserId);
+        ActivityCircle.sprite = isOnline ? Resources.Load<Sprite>("OnlineCircle") : Resources.Load<Sprite>("OfflineCircle");
     }
 
     public async void AddFriendButton() 

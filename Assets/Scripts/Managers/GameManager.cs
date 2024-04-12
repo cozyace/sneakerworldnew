@@ -1,4 +1,5 @@
-﻿using Firebase;
+﻿using System;
+using Firebase;
 using Firebase.Database;
 using System.Collections;
 using System.Collections.Generic;
@@ -76,7 +77,20 @@ public class GameManager : MonoBehaviour
 
         playerStats = await firebase.LoadDataAsync(firebase.userId);
         InvokeRepeating(nameof(SaveToDatabase), 0f, 5f);
+
+        await firebase.UpdateIsOnline(firebase.userId, true);
+    
+        DateTime lastLoggedOutTime = await firebase.GetLastLoggedOut(firebase.userId);
+
+        if (lastLoggedOutTime == new DateTime())
+            print("This is your first time logging in!");
+        
+        TimeSpan timeGone = DateTime.Now - lastLoggedOutTime;
+        
+        print($"You were gone for {timeGone.TotalMinutes} minutes");
     }
+    
+    
 
 
 
@@ -199,12 +213,14 @@ public class GameManager : MonoBehaviour
     
     
 
-    private void OnApplicationQuit()
+    private async void OnApplicationQuit()
     {
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
-            print("SAVING PLAYER PREFS.");
+            print($"<size=14><color=blue>GAMEMANAGER</color> | SAVING PLAYER PREFS.</size>");
             StartCoroutine(SaveData());
+            await firebase.UpdateLastLoggedOut(firebase.userId);
+            await firebase.UpdateIsOnline(firebase.userId, false);
         }
     }
 
