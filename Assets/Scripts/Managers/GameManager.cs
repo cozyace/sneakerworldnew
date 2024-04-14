@@ -78,6 +78,12 @@ public class GameManager : MonoBehaviour
         playerStats = await firebase.LoadDataAsync(firebase.userId);
         InvokeRepeating(nameof(SaveToDatabase), 0f, 5f);
 
+        AFKEarningsCheck();
+    }
+
+    private async void AFKEarningsCheck()
+    {
+        //Set the player's data to say that they're logged in.
         await firebase.UpdateIsOnline(firebase.userId, true);
     
         DateTime lastLoggedOutTime = await firebase.GetLastLoggedOut(firebase.userId);
@@ -88,6 +94,8 @@ public class GameManager : MonoBehaviour
         TimeSpan timeGone = DateTime.Now - lastLoggedOutTime;
         
         print($"You were gone for {timeGone.TotalMinutes} minutes");
+        
+        FindFirstObjectByType<WelcomeBackWindowUI>().TriggerWelcomeWindow(timeGone.TotalMinutes);
     }
     
     

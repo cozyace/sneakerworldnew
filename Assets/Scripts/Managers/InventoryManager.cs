@@ -202,7 +202,7 @@ public class InventoryManager : MonoBehaviour
             //If this item was previously enabled for selling before it was refreshed.
             if (EnabledItems.Contains(sneakerInventoryItem.name))
             {
-                sneakerInventoryItem.ToggleSneaker(); //Re-enable it.
+                sneakerInventoryItem.ToggleSneakerCheckbox(true); //Re-enable it.
                 ItemsToAddBackToEnabled.Add(sneakerInventoryItem.name);
             }
 

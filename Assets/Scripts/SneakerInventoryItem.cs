@@ -71,28 +71,31 @@ public class SneakerInventoryItem : MonoBehaviour
         }
     }
 
-    public void ToggleSneaker()
+    public void Update()
+    {
+        if (quantity <= 0)
+        {
+            AvailabilityToggle.isOn = false;
+            AvailabilityToggle.interactable = false;
+            
+            if (GameManager.inventoryManager.EnabledItems.Contains(name))
+                GameManager.inventoryManager.EnabledItems.Remove(name);
+        }
+    }
+    
+    public void ToggleSneakerCheckbox(bool isActive)
     {
         if (GameManager == null)
             GameManager = FindAnyObjectByType<GameManager>();
         
         if (quantity <= 0) 
-        {
-            if (AvailabilityToggle.isOn) AvailabilityToggle.isOn = false;
-            AvailabilityToggle.interactable = false;
             return;
-        }
-
-        if (CanAIBuy)
-        {
+        
+        if (!isActive)
             GameManager.inventoryManager.EnabledItems.Remove(name);
-        }
-        else if (!CanAIBuy)
-        {
+        else if (isActive)
             GameManager.inventoryManager.EnabledItems.Add(name);
-        }
 
-        CanAIBuy = !CanAIBuy;
-        AvailabilityToggle.isOn = !AvailabilityToggle.isOn;
+        CanAIBuy = isActive;
     }
 }
