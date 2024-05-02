@@ -39,5 +39,7 @@ public class WelcomeBackWindowUI : MonoBehaviour
     {
         Gradient.SetActive(false);
         Window.SetActive(false);
+        
+        FindFirstObjectByType<MainNavigationSelection>().SelectButton(1);
     }
 }

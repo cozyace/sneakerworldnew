@@ -7,7 +7,13 @@
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/FrontDeskUpgradeInteract.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/FrontDeskUpgradeInteract.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/InventoryManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SelectedSneaker.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SelectedSneaker.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/MainUI/RankingUIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/MainUI/RankingUIManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/WelcomeBackWindowUI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/WelcomeBackWindowUI.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +132,11 @@
       <workItem from="1712619690677" duration="6524000" />
       <workItem from="1712762538133" duration="5137000" />
       <workItem from="1712944845583" duration="6011000" />
-      <workItem from="1713118090045" duration="9000" />
+      <workItem from="1713118093614" duration="4727000" />
+      <workItem from="1713564914384" duration="233000" />
+      <workItem from="1714519445879" duration="40000" />
+      <workItem from="1714596209928" duration="598000" />
+      <workItem from="1714679769134" duration="1704000" />
     </task>
     <servers />
   </component>

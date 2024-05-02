@@ -142,10 +142,10 @@ public class AI : MonoBehaviour
         
         //Create the Item & Cash UI popups.
         CreateItemPopup(chosenSneaker);
-        CreateCashPopup(chosenSneaker.purchasePrice);
+        CreateCashPopup(chosenSneaker.PurchasePrice);
         
         //Remove the X amount of quantity from the sneaker the AI desired to purchase.
-        _GameManager.inventoryManager.RemoveShoeFromCollection(new SneakersOwned(chosenSneaker.name, 1, chosenSneaker.purchasePrice, chosenSneaker.rarity));
+        _GameManager.inventoryManager.RemoveShoeFromCollection(new SneakersOwned(chosenSneaker.Name, 1, chosenSneaker.PurchasePrice, chosenSneaker.Rarity));
         
         //Give the player the experience given per purchase.
         _GameManager.AddExperience(XpGainedPerPurchase);
@@ -158,7 +158,7 @@ public class AI : MonoBehaviour
     {
         List<SneakerInventoryItem> sneakersAvailable = _GameManager.inventoryManager.SneakerUIObjects.Where(sneaker => sneaker.CanAIBuy).ToList();
 
-        foreach (SneakerInventoryItem sneaker in sneakersAvailable.Where(sneaker => sneaker.quantity == 0))
+        foreach (SneakerInventoryItem sneaker in sneakersAvailable.Where(sneaker => sneaker.Quantity == 0))
         {
             sneakersAvailable.Remove(sneaker);
         }

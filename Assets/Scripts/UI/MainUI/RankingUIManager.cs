@@ -24,7 +24,7 @@ public class RankingUIManager : MonoBehaviour
     {
         await CreateLeaderboardListings();
         //Opens the Ranking Window.
-        _Navigation.SelectButton(1);
+        
         
     }
     

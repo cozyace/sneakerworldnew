@@ -9,14 +9,13 @@ using UnityEngine.UI;
 public class SneakerInventoryItem : MonoBehaviour
 {
     [Header("Item Data")]
-    new public string name;
-    public int purchasePrice;
-    public int quantity;
-    public SneakerRarity rarity;
-    public DateTime timestamp;
+    public string Name;
+    public int PurchasePrice;
+    public int Quantity;
+    public SneakerRarity Rarity;
+    public DateTime TimeStamp;
     
-    
-    private GameManager GameManager;
+    private GameManager _GameManager;
     
     public bool CanAIBuy;
     public bool IsATradeItem; //Is it a friend trade inventory item.
@@ -45,56 +44,56 @@ public class SneakerInventoryItem : MonoBehaviour
         if (IsATradeItem || IsAMarketItem)
             return;
         
-        ItemRarityText.text = rarity.ToString();
-        RarityPanel.sprite = RarityPanelSprites[(int)rarity-1];
+        ItemRarityText.text = Rarity.ToString();
+        RarityPanel.sprite = RarityPanelSprites[(int)Rarity-1];
     }
 
-    public void Initialize(bool isTrade, bool isMarket, string name)
+    public void Initialize(bool isTrade, bool isMarket, string shoeName)
     {
-        if (GameManager == null)
-            GameManager = FindAnyObjectByType<GameManager>();
+        if (_GameManager == null)
+            _GameManager = FindAnyObjectByType<GameManager>();
 
         IsATradeItem = isTrade;
         IsAMarketItem = isMarket;
-        this.name = name;
+        this.Name = shoeName;
 
         //Market Button should be disabled by default.
         if (IsATradeItem)
         {
             MarketInventorySelectButton.SetActive(true);
-            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => GameManager.inventoryManager.SelectFriendTradeSneaker(this));
+            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => _GameManager.inventoryManager.SelectFriendTradeSneaker(this));
         }
         else if (IsAMarketItem)
         {
             MarketInventorySelectButton.SetActive(true);
-            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => GameManager._MarketManager.SelectItemToList(GameManager.inventoryManager.SneakersOwned.Find(x => x.name == name)));
+            MarketInventorySelectButton.GetComponent<Button>().onClick.AddListener(() => _GameManager._MarketManager.SelectItemToList(_GameManager.inventoryManager.SneakersOwned.Find(x => x.name == shoeName)));
         }
     }
 
     public void Update()
     {
-        if (quantity <= 0)
+        if (Quantity <= 0)
         {
             AvailabilityToggle.isOn = false;
             AvailabilityToggle.interactable = false;
             
-            if (GameManager.inventoryManager.EnabledItems.Contains(name))
-                GameManager.inventoryManager.EnabledItems.Remove(name);
+            if (_GameManager.inventoryManager.EnabledItems.Contains(Name))
+                _GameManager.inventoryManager.EnabledItems.Remove(Name);
         }
     }
     
     public void ToggleSneakerCheckbox(bool isActive)
     {
-        if (GameManager == null)
-            GameManager = FindAnyObjectByType<GameManager>();
+        if (_GameManager == null)
+            _GameManager = FindAnyObjectByType<GameManager>();
         
-        if (quantity <= 0) 
+        if (Quantity <= 0) 
             return;
         
         if (!isActive)
-            GameManager.inventoryManager.EnabledItems.Remove(name);
+            _GameManager.inventoryManager.EnabledItems.Remove(Name);
         else if (isActive)
-            GameManager.inventoryManager.EnabledItems.Add(name);
+            _GameManager.inventoryManager.EnabledItems.Add(Name);
 
         CanAIBuy = isActive;
     }

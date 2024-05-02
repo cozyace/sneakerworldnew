@@ -34,6 +34,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject SneakerInventoryUIPrefab; //The prefab that is spawned for use as an inventory item.
     [SerializeField] private GameObject ChooseSneakerPanel; //The panel that allows you to choose a shoe when you don't have any. (start of game)
     [SerializeField] private TMP_Text SneakerCountText;
+    [SerializeField] private GameObject SelectedSneakerDetailsPanel;
     
     [Space(10)]
     [Header("Trade Inventory Editor Assets")]
@@ -190,20 +191,20 @@ public class InventoryManager : MonoBehaviour
             sneakerInventoryItem.GetComponent<Button>().onClick.AddListener(()=>ViewSneakerDetails(sneakerInventoryItem));
             
             //Assign the data to store on the UI object.
-            sneakerInventoryItem.name = sneakerFoundInData.Name;
-            sneakerInventoryItem.quantity = sneakerLoad.quantity;
-            sneakerInventoryItem.rarity = sneakerFoundInData.Rarity;
-            sneakerInventoryItem.purchasePrice = sneakerFoundInData.Value;
+            sneakerInventoryItem.Name = sneakerFoundInData.Name;
+            sneakerInventoryItem.Quantity = sneakerLoad.quantity;
+            sneakerInventoryItem.Rarity = sneakerFoundInData.Rarity;
+            sneakerInventoryItem.PurchasePrice = sneakerFoundInData.Value;
             sneakerInventoryItem.CanAIBuy = false;
             sneakerInventoryItem.ItemIconImage.sprite = sneakerFoundInData.Icon;
-            sneakerInventoryItem.timestamp = DateTime.Now;
-            sneakerInventoryItem.ItemNameText.text = sneakerInventoryItem.name;
+            sneakerInventoryItem.TimeStamp = DateTime.Now;
+            sneakerInventoryItem.ItemNameText.text = sneakerInventoryItem.Name;
             
             //If this item was previously enabled for selling before it was refreshed.
-            if (EnabledItems.Contains(sneakerInventoryItem.name))
+            if (EnabledItems.Contains(sneakerInventoryItem.Name))
             {
                 sneakerInventoryItem.ToggleSneakerCheckbox(true); //Re-enable it.
-                ItemsToAddBackToEnabled.Add(sneakerInventoryItem.name);
+                ItemsToAddBackToEnabled.Add(sneakerInventoryItem.Name);
             }
 
             //Adds this UI instance to the list of objects.
@@ -233,16 +234,30 @@ public class InventoryManager : MonoBehaviour
 
     private void UpdateSelectedSneaker(int index)
     {
-        //If a panel is already highlighted.
-        if(LastClickedInventoryItem != null)
-            //Un-highlight it.
+        //Only ever gets set to -1 if you're clicking one that's already selected.
+        if (index == -1)
+        {
             LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel");
+            LastClickedInventoryItem = null;
+            SelectedSneakerDetailsPanel.SetActive(false);
+            return;
+        }
+
+        //If a panel is already highlighted.
+        if (LastClickedInventoryItem)
+        {
+            LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel"); //Un-highlight it.
+        }
+
+        SelectedSneakerDetailsPanel.SetActive(true);
         
         //Reassign the selected item.
         LastClickedInventoryItem = SneakerUIObjects[index].GetComponent<Image>();
         
         LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanelSelected");
     }
+    
+    
     
 
     public void ViewSneakerDetails(SneakerInventoryItem sneaker)
@@ -254,11 +269,22 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < SneakerUIObjects.Count; i++)
         {
             if (SneakerUIObjects[i].gameObject == sneaker.gameObject)
+            {
                 indexOf = i;
+            }
+            else
+                continue; 
+            
+            //If you're clicking the same one that was already selected.
+            if (LastClickedInventoryItem == SneakerUIObjects[indexOf].GetComponent<Image>())
+                indexOf = -1;
         }
         
+        //Make sure we were able to find the matching inventory item.
         if(indexOf != -1)
-        UpdateSelectedSneaker(indexOf);
+            UpdateSelectedSneaker(indexOf);
+        else
+            UpdateSelectedSneaker(-1);
     }
 
     public void SelectFriendTradeSneaker(SneakerInventoryItem sneakerInventoryItem)
@@ -276,7 +302,7 @@ public class InventoryManager : MonoBehaviour
         foreach (Transform inventoryItem in InventoryGridLayout.transform)
         {
             SneakerInventoryItem sneaker = inventoryItem.GetComponent<SneakerInventoryItem>();
-            inventoryItem.gameObject.SetActive(sneaker.name.ToLower().Contains(SearchInputField.text.ToLower()));
+            inventoryItem.gameObject.SetActive(sneaker.Name.ToLower().Contains(SearchInputField.text.ToLower()));
         }
     }
 
@@ -285,7 +311,7 @@ public class InventoryManager : MonoBehaviour
         foreach (Transform inventoryItem in InventoryGridLayout.transform)
         {
             SneakerInventoryItem sneaker = inventoryItem.GetComponent<SneakerInventoryItem>();
-            inventoryItem.gameObject.SetActive(dropdown.value == 0 || dropdown.value == (int)sneaker.rarity);
+            inventoryItem.gameObject.SetActive(dropdown.value == 0 || dropdown.value == (int)sneaker.Rarity);
         }
     }
     
@@ -295,7 +321,7 @@ public class InventoryManager : MonoBehaviour
         {
             SneakerInventoryItem sneaker = inventoryItem.GetComponent<SneakerInventoryItem>();
             inventoryItem.gameObject.SetActive(dropdown.value == 0 ||
-                                               sneaker.name.ToLower().Contains(dropdown.options[dropdown.value].text.ToLower()));
+                                               sneaker.Name.ToLower().Contains(dropdown.options[dropdown.value].text.ToLower()));
         }
     }
 
@@ -349,14 +375,14 @@ public class InventoryManager : MonoBehaviour
         if (newestFirst)
         {
             sneakers.Sort((Transform t1, Transform t2) =>
-                DateTime.Compare(t1.GetComponent<SneakerInventoryItem>().timestamp,
-                    t2.GetComponent<SneakerInventoryItem>().timestamp));
+                DateTime.Compare(t1.GetComponent<SneakerInventoryItem>().TimeStamp,
+                    t2.GetComponent<SneakerInventoryItem>().TimeStamp));
         }
         else
         {
             sneakers.Sort((Transform t1, Transform t2) =>
-                DateTime.Compare(t2.GetComponent<SneakerInventoryItem>().timestamp,
-                    t1.GetComponent<SneakerInventoryItem>().timestamp));
+                DateTime.Compare(t2.GetComponent<SneakerInventoryItem>().TimeStamp,
+                    t1.GetComponent<SneakerInventoryItem>().TimeStamp));
         }
 
         return sneakers;
@@ -366,11 +392,11 @@ public class InventoryManager : MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t1.GetComponent<SneakerInventoryItem>().name, t2.GetComponent<SneakerInventoryItem>().name, StringComparison.Ordinal));
+            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t1.GetComponent<SneakerInventoryItem>().Name, t2.GetComponent<SneakerInventoryItem>().Name, StringComparison.Ordinal));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t2.GetComponent<SneakerInventoryItem>().name, t1.GetComponent<SneakerInventoryItem>().name, StringComparison.Ordinal));
+            sneakers.Sort((Transform t1, Transform t2) => string.Compare(t2.GetComponent<SneakerInventoryItem>().Name, t1.GetComponent<SneakerInventoryItem>().Name, StringComparison.Ordinal));
         }
 
         return sneakers;
@@ -380,13 +406,13 @@ public class InventoryManager : MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().rarity
-                .CompareTo(t2.GetComponent<SneakerInventoryItem>().rarity));
+            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().Rarity
+                .CompareTo(t2.GetComponent<SneakerInventoryItem>().Rarity));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().rarity
-                .CompareTo(t1.GetComponent<SneakerInventoryItem>().rarity));
+            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().Rarity
+                .CompareTo(t1.GetComponent<SneakerInventoryItem>().Rarity));
         }
 
         return sneakers;
@@ -396,13 +422,13 @@ public class InventoryManager : MonoBehaviour
     {
         if (ascending)
         {
-            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().purchasePrice
-                .CompareTo(t2.GetComponent<SneakerInventoryItem>().purchasePrice));
+            sneakers.Sort((Transform t1, Transform t2) => t1.GetComponent<SneakerInventoryItem>().PurchasePrice
+                .CompareTo(t2.GetComponent<SneakerInventoryItem>().PurchasePrice));
         }
         else
         {
-            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().purchasePrice
-                .CompareTo(t1.GetComponent<SneakerInventoryItem>().purchasePrice));
+            sneakers.Sort((Transform t1, Transform t2) => t2.GetComponent<SneakerInventoryItem>().PurchasePrice
+                .CompareTo(t1.GetComponent<SneakerInventoryItem>().PurchasePrice));
         }
 
         return sneakers;

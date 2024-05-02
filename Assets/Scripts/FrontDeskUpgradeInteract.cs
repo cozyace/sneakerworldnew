@@ -4,10 +4,24 @@ using UnityEngine.Serialization;
 
 public class FrontDeskUpgradeInteract : MonoBehaviour
 {
-    private UIManager _UIManager;
+    private GameObject _DeskCanvas;
+    [SerializeField] private float TimeRemaining;
 
-    private void Awake() => _UIManager = FindFirstObjectByType<UIManager>();
+    private void Start() => _DeskCanvas = transform.GetChild(1).gameObject;
+    
+    
+    private void Update()
+    {
+        if (!_DeskCanvas)
+            return;
+        
+        if (TimeRemaining >= 0)
+        {
+            TimeRemaining -= Time.deltaTime;
+        }
 
+        _DeskCanvas.SetActive(TimeRemaining > 0);
+    }
     
     private void OnMouseUpAsButton()
     {
@@ -15,6 +29,11 @@ public class FrontDeskUpgradeInteract : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
-        _UIManager.ShowUpgrades();
+        TimeRemaining = 3f;
+    }
+
+    public void PurchaseUpgrade()
+    {
+        
     }
 }

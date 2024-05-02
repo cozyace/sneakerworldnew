@@ -29,11 +29,11 @@ public class SelectedSneaker : MonoBehaviour
     
     public void UpdateDetails(SneakerInventoryItem sneakerInventoryItem)
     {
-        _Name = sneakerInventoryItem.name;
-        _name.text = sneakerInventoryItem.name;
-        _price.text = $"${sneakerInventoryItem.purchasePrice}";
-        _quantity.text = $"{sneakerInventoryItem.quantity}";
-        _multiplier.text = (0.5f * (int)sneakerInventoryItem.rarity) + "x";
+        _Name = sneakerInventoryItem.Name;
+        _name.text = sneakerInventoryItem.Name;
+        _price.text = $"${sneakerInventoryItem.PurchasePrice}";
+        _quantity.text = $"{sneakerInventoryItem.Quantity}";
+        _multiplier.text = (0.5f * (int)sneakerInventoryItem.Rarity) + "x";
         // if (_rarity.text != null) _rarity.text = Enum.GetName(sneakerInventoryItem.rarity.GetType(), sneakerInventoryItem.rarity);
         sneakerImage.sprite = sneakerInventoryItem.ItemIconImage.sprite;
     }
