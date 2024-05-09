@@ -175,6 +175,12 @@ public class GameManager : MonoBehaviour
 
     public async void SaveToDatabase()
     {
+        if (firebase.userId is null or "")
+        {
+            print("Tried to save while no data present!");
+            return;
+        }
+        
         print("<size=14><color=blue>GAMEMANAGER</color> | Saving Data... </size>");
         if(!Notifications.Contains("Your listing of"))
             await SaveDataAsyc(firebase.userId);

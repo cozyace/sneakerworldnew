@@ -397,7 +397,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: x2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 466f8dc066a031e4c83e37e6e8b91f8f, type: 2}
   m_sharedMaterial: {fileID: 2520247454166942058, guid: 466f8dc066a031e4c83e37e6e8b91f8f, type: 2}
@@ -424,12 +424,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 50.8
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 43.49
+  m_fontSizeMax: 50.8
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1461,10 +1461,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e8dbf91195408442813a24de981af74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: 
-  purchasePrice: 0
-  quantity: 0
-  rarity: 0
+  Name: 
+  PurchasePrice: 0
+  Quantity: 0
+  Rarity: 0
   CanAIBuy: 0
   IsATradeItem: 0
   IsAMarketItem: 0

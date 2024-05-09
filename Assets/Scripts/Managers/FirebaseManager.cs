@@ -442,8 +442,6 @@ public class FirebaseManager : MonoBehaviour
     {
         List<MarketListing> marketListings = new List<MarketListing>();
         
-       
-        
         try
         {
             //Grabs the values from the Database section, and stores them as children in this object.

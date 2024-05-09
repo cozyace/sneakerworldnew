@@ -30,6 +30,22 @@ public class MarketListingItem : MonoBehaviour
 
    private MarketManager _MarketManager;
 
+
+   private void Start()
+   {
+      Invoke(nameof(DisableIfEmpty), 1.25f);
+   }
+
+   //Turns this instance off, if the data is missing.
+   private void DisableIfEmpty()
+   {
+      if (Name != "" || Icon != null)
+         return;
+      
+      gameObject.SetActive(false);
+      Debug.LogWarning("Disabled Market Listing (Was missing data!)");
+   }
+   
    public void UpdateUIComponents(MarketManager manager, bool isPersonalListing, string itemName, int cash, int gem, int quantity, SneakerRarity rarity, Sprite icon, string sellerName, Sprite rarityPanelSprite, MarketListing listingData)
    {
       Name = itemName;
@@ -52,12 +68,13 @@ public class MarketListingItem : MonoBehaviour
       if (cash > 0)
       {
          PriceText.text = "$" + cash;
+         PriceText.color = Color.green;
          CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Cash");
       }
       else if (gem > 0)
       { //Add signification that this is gems, maybe icon.
          PriceText.text = gem.ToString();
-         PriceText.color = Color.magenta;
+         PriceText.color = Color.cyan;
          CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Gem");
       }
       

@@ -55,7 +55,8 @@ public class SneakerInventoryItem : MonoBehaviour
 
         IsATradeItem = isTrade;
         IsAMarketItem = isMarket;
-        this.Name = shoeName;
+        Name = shoeName;
+        
 
         //Market Button should be disabled by default.
         if (IsATradeItem)

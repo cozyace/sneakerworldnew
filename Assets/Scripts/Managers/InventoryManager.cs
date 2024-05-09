@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -75,7 +76,36 @@ public class InventoryManager : MonoBehaviour
             GameManager.aiManager.enabled = true;
         }
 
-        SneakerCountText.text = $"You have {loadedSneakers.Count} sneakers";
+       UpdateTotalShoeCount();
+    }
+
+    public async Task<int> GetTotalShoeCountCumulative()
+    {
+        List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
+        
+        int count = 0;
+
+        for (int i = 0; i < loadedSneakers.Count; i++)
+        {
+            count += loadedSneakers[i].quantity;
+        }
+
+        return count;
+    }
+    
+    private async void UpdateTotalShoeCount()
+    {
+        //Get the list of all of the player's sneakers from the database under /players/userId/sneakers
+        List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
+        
+        int count = 0;
+
+        for (int i = 0; i < loadedSneakers.Count; i++)
+        {
+            count += loadedSneakers[i].quantity;
+        }
+
+        SneakerCountText.text = $"{count} / {50 + 5*(GameManager.firebase.playerStats.level-1) } sneakers";
     }
 
     private IEnumerator BeginRefreshInventory()
@@ -88,7 +118,7 @@ public class InventoryManager : MonoBehaviour
     {
         //Get the list of all of the player's sneakers from the database under /players/userId/sneakers
         List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
-        SneakerCountText.text = $"You have {loadedSneakers.Count} sneakers";
+        UpdateTotalShoeCount();
         CreateSneakerUIObjects(loadedSneakers);
     }
 
@@ -199,6 +229,7 @@ public class InventoryManager : MonoBehaviour
             sneakerInventoryItem.ItemIconImage.sprite = sneakerFoundInData.Icon;
             sneakerInventoryItem.TimeStamp = DateTime.Now;
             sneakerInventoryItem.ItemNameText.text = sneakerInventoryItem.Name;
+            sneakerInventoryItem.ItemQuantityText.text = $"x{sneakerLoad.quantity}";
             
             //If this item was previously enabled for selling before it was refreshed.
             if (EnabledItems.Contains(sneakerInventoryItem.Name))
