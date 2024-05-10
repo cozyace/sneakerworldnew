@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,6 +15,7 @@ public class MarketListingItem : MonoBehaviour
    public SneakerRarity Rarity;
    public Sprite Icon;
    public string SellerName;
+   public DateTime ExpiryDate;
    public MarketListing ListingData;
    
    [Header("UI Components")]
@@ -25,6 +27,7 @@ public class MarketListingItem : MonoBehaviour
    public TMP_Text PriceText;
    public TMP_Text QuantityText;
    public TMP_Text RarityText;
+   public TMP_Text ListingDurationText; //How much time is remaining on the listing.
    public Button BuyButton;
    public Button RemoveButton;
 
@@ -33,7 +36,8 @@ public class MarketListingItem : MonoBehaviour
 
    private void Start()
    {
-      Invoke(nameof(DisableIfEmpty), 1.25f);
+      Invoke(nameof(DisableIfEmpty), 0.65f);
+      
    }
 
    //Turns this instance off, if the data is missing.
@@ -45,9 +49,27 @@ public class MarketListingItem : MonoBehaviour
       gameObject.SetActive(false);
       Debug.LogWarning("Disabled Market Listing (Was missing data!)");
    }
-   
-   public void UpdateUIComponents(MarketManager manager, bool isPersonalListing, string itemName, int cash, int gem, int quantity, SneakerRarity rarity, Sprite icon, string sellerName, Sprite rarityPanelSprite, MarketListing listingData)
+
+   private async void UpdateExpiryTime()
    {
+      if (ExpiryDate == default)
+         return;
+      
+      TimeSpan remainingTime = ExpiryDate - DateTime.Now; //Might need to check server time instead of client datetime, to avoid device time manipulation.
+
+      if (remainingTime <= TimeSpan.Zero)
+      {
+         bool isExisting = await _MarketManager.GameManager.firebase.DoesMarketListingExist(ListingData.key);
+         print(isExisting);
+         Destroy(gameObject);
+      }
+      else
+         ListingDurationText.text = $"{(int)remainingTime.TotalHours:00}:{remainingTime.Minutes:00}:{remainingTime.Seconds:00}";
+   }
+   
+   public void UpdateUIComponents(MarketManager manager, bool isPersonalListing, string itemName, int cash, int gem, int quantity, DateTime expiryDate, SneakerRarity rarity, Sprite icon, string sellerName, Sprite rarityPanelSprite, MarketListing listingData)
+   {
+      _MarketManager = manager;
       Name = itemName;
       CashPrice = cash;
       GemPrice = gem;
@@ -55,6 +77,7 @@ public class MarketListingItem : MonoBehaviour
       Rarity = rarity;
       Icon = icon;
       SellerName = sellerName;
+      ExpiryDate = expiryDate;
 
       ListingData = listingData;
 
@@ -64,10 +87,12 @@ public class MarketListingItem : MonoBehaviour
       RarityText.text = rarity.ToString();
       QuantityText.text = quantity.ToString();
       RarityPanel.sprite = rarityPanelSprite;
-
+      
+      InvokeRepeating(nameof(UpdateExpiryTime), 0f, 1f);
+      
       if (cash > 0)
       {
-         PriceText.text = "$" + cash;
+         PriceText.text = cash.ToString();
          PriceText.color = Color.green;
          CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Cash");
       }

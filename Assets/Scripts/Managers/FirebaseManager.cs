@@ -466,6 +466,27 @@ public class FirebaseManager : MonoBehaviour
         return marketListings;
     }
 
+    public async Task<bool> DoesMarketListingExist(string key)
+    {
+        print("Checking if listing exists.");
+        MarketListing listing = new MarketListing();
+        
+        try
+        {
+            print("About to grab snapshot.");
+            //Grabs the values from the Database section, and stores them as children in this object.
+            DataSnapshot snapshot = await dbReference.Child($"market/{key}").GetValueAsync();
+            print("Grabbed snapshot");
+            listing = JsonUtility.FromJson<MarketListing>(snapshot.GetRawJsonValue());
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+
+        return listing.key != default && listing.key != "";
+    }
+
     public async Task RemoveMarketListing(string key)
     {
         try
@@ -545,7 +566,6 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task ClearNotifications(string userID)
         {
-                        
             //Clears all of the notifications.
             await dbReference.Child($"users/{userId}/notifications/").RemoveValueAsync();
         }

@@ -20,9 +20,10 @@ public struct MarketListing
     public int quantity;
     public string sellerId;
     public int sneakerId;
-    public DateTime timeStamp;
-
-    public MarketListing(string d, string k, int lc, int lg, int q, string s, int sid, DateTime timestamp)
+    public long postedDate; //When the listing was created (UNIX TIME)
+    public long expirationDate; // UNIX TIME
+    
+    public MarketListing(string d, string k, int lc, int lg, int q, string s, int sid, long timestamp, long expirationdate)
     {
         description = d;
         key = k;
@@ -31,7 +32,8 @@ public struct MarketListing
         quantity = q;
         sellerId = s;
         sneakerId = sid;
-        timeStamp = timestamp;
+        postedDate = timestamp;
+        expirationDate = expirationdate;
     }
 }
 
@@ -51,7 +53,7 @@ public struct PhysicalMarketListing
 
 public class MarketManager : MonoBehaviour
 {
-    private GameManager _GameManager;
+    public GameManager GameManager;
 
     [Header("References/Assets")]
     public GameObject MarketListingPrefab;
@@ -95,12 +97,12 @@ public class MarketManager : MonoBehaviour
 
 
 
-    private void Awake() => _GameManager = GetComponent<GameManager>();
+    private void Awake() => GameManager = GetComponent<GameManager>();
 
     private void Start()
     {
         //This will listen for any changes in the market data, and then update the UI accordingly.
-        DatabaseReference snapshot = _GameManager.firebase.dbReference.Child($"users/{_GameManager.firebase.userId}/listings");
+        DatabaseReference snapshot = GameManager.firebase.dbReference.Child($"users/{GameManager.firebase.userId}/listings");
         snapshot.ChildAdded += ListenForNewListing;
         snapshot.ChildRemoved += ListenForNewListing;
         
@@ -140,7 +142,7 @@ public class MarketManager : MonoBehaviour
 //This method was created with the intention of checking if there was an error spawning a listing, then automatically refreshing to fix. (Not currently used)
 private IEnumerator CheckIfNeedPublicReload()
 {
-    List<MarketListing> allMarketListings = _GameManager.firebase.GetMarketplaceListingsAsync().Result;
+    List<MarketListing> allMarketListings = GameManager.firebase.GetMarketplaceListingsAsync().Result;
     yield return new WaitForSeconds(0.8f);
 
     if (PublicMarketListingsParent.childCount == allMarketListings.Count)
@@ -171,12 +173,12 @@ private async void GetListings(bool reloadPlayerListingsOnly)
 
     //Store every listing in a temporary list.
 
-    List<MarketListing> marketListings = await _GameManager.firebase.GetMarketplaceListingsAsync();
+    List<MarketListing> marketListings = await GameManager.firebase.GetMarketplaceListingsAsync();
   
     //Insert the listing data into each slot of the dictionary
     foreach (MarketListing listing in marketListings)
     {
-        if(listing.sellerId == _GameManager.firebase.userId)
+        if(listing.sellerId == GameManager.firebase.userId)
             MyListings.Add(new PhysicalMarketListing(null, listing));
         else
         {
@@ -203,15 +205,15 @@ private async void GetListings(bool reloadPlayerListingsOnly)
 private async void InstantiateMarketListingUI(MarketListing listing)
 {
     print("INSTANTIATING LISTING - " + listing.key);
-    bool isPlayerListing = listing.sellerId == _GameManager.firebase.userId;
+    bool isPlayerListing = listing.sellerId == GameManager.firebase.userId;
     Transform listingParent = isPlayerListing ? OwnMarketListingsParent : PublicMarketListingsParent;
 
     MarketListingItem listingInstance = Instantiate(MarketListingPrefab, listingParent).GetComponent<MarketListingItem>();
 
     //Find & store the data for the specific sneaker here, grab the data from the database.
-    Sneaker sneaker = new Sneaker(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
-        _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity,
-        _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon != null ? _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name : "");
+    Sneaker sneaker = new Sneaker(GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
+        GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity,
+        GameManager.SneakerDatabase.Database[listing.sneakerId].Icon != null ? GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name : "");
 
     listingInstance.UpdateUIComponents(
         this,
@@ -220,9 +222,10 @@ private async void InstantiateMarketListingUI(MarketListing listing)
         listing.listingPriceCash,
         listing.listingPriceGems,
         listing.quantity,
+        DateTimeOffset.FromUnixTimeSeconds(listing.expirationDate).LocalDateTime, //REPLACE THIS
         sneaker.rarity,
         Resources.Load<Sprite>($"Sneakers/{sneaker.imagePath}"),
-        await _GameManager.firebase.GetUsernameFromUserIdAsync(listing.sellerId),
+        await GameManager.firebase.GetUsernameFromUserIdAsync(listing.sellerId),
         RarityPanels[(int)sneaker.rarity - 1],
         listing
     );
@@ -247,14 +250,14 @@ public async void PurchaseListing(MarketListing listing)
     string notificationString = "";
 
 
-    if (_GameManager.GetGems() < listing.listingPriceGems || _GameManager.GetCash() < listing.listingPriceCash)
+    if (GameManager.GetGems() < listing.listingPriceGems || GameManager.GetCash() < listing.listingPriceCash)
     {
         print("Insufficient Currency to Purchase!");
         return;
     }
 
     //If purchasing this shoe would put you over your quantity limit for your level.
-    if (_GameManager.inventoryManager.GetTotalShoeCountCumulative().Result + listing.quantity > 50 + 5 * (_GameManager.firebase.playerStats.level - 1))
+    if (GameManager.inventoryManager.GetTotalShoeCountCumulative().Result + listing.quantity > 50 + 5 * (GameManager.firebase.playerStats.level - 1))
     {
         print("Insufficient Inventory Space to Purchase!");
         return;
@@ -276,40 +279,40 @@ public async void PurchaseListing(MarketListing listing)
     //Store the shoe as a Sneaker type.
     Sneaker sneaker = new Sneaker
     {
-        name = _GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
-        imagePath = _GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name,
-        rarity = _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity
+        name = GameManager.SneakerDatabase.Database[listing.sneakerId].Name,
+        imagePath = GameManager.SneakerDatabase.Database[listing.sneakerId].Icon.name,
+        rarity = GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity
     };
 
     //Remove the shoe from the listing.
-    await _GameManager.firebase.RemoveMarketListing(listing.key);
+    await GameManager.firebase.RemoveMarketListing(listing.key);
 
-    _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Value, sneaker.rarity));
+    GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(sneaker.name, listing.quantity, GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Value, sneaker.rarity));
 
-    _GameManager.DeductCash(listing.listingPriceCash);
-    _GameManager.DeductGems(listing.listingPriceGems);
+    GameManager.DeductCash(listing.listingPriceCash);
+    GameManager.DeductGems(listing.listingPriceGems);
 
     //Destroy & Refresh the listings.
     GetListings(false);
 
     //Update the seller's gold in the database.
-    await _GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
-    await _GameManager.firebase.UpdateGemsAsync(listing.sellerId, listing.listingPriceGems);
+    await GameManager.firebase.UpdateGoldAsync(listing.sellerId, listing.listingPriceCash);
+    await GameManager.firebase.UpdateGemsAsync(listing.sellerId, listing.listingPriceGems);
 
     //Inform the seller that their listing has been sold. (This is for saving data, to override the auto-saving, so it instead READS from the database)
-    await _GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {_GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
+    await GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
 
-    await _GameManager.firebase.RemoveListingFromUser(_GameManager.firebase.userId, listing.key);
+    await GameManager.firebase.RemoveListingFromUser(GameManager.firebase.userId, listing.key);
 }
 
 //All this does is remove the market listing data from the Firebase database.
-private async void RemoveListing(string key) => await _GameManager.firebase.RemoveMarketListing(key);
+private async void RemoveListing(string key) => await GameManager.firebase.RemoveMarketListing(key);
 
 
 public async void Demo_ForceCreateNewListing()
 {
     //Add the listing to the database.
-    await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", Guid.NewGuid().ToString(), 0, 15, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, DateTime.Now));
+    await GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", Guid.NewGuid().ToString(), 0, 15, 5, "JZlewLe0kodO5feIDqFLlBP1TVj1", 1, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds(), new DateTimeOffset(new DateTime(2024,5,12)).ToUnixTimeSeconds()));
 
     GetListings(false);
     RefreshInventory();
@@ -333,28 +336,30 @@ public async void CreateNewListing()
     {
         cashValue = int.Parse(PriceField.text);
         //Calculates the cost of posting the listing, 1% for 24hr, 1.75% for 48hr, 2.25% for 72hr.
-        _GameManager.DeductCash(Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * percentage), 1, 10000)));
+        GameManager.DeductCash(Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * percentage), 1, 10000)));
     }
     else if (GemIcon.activeSelf)
     {
         gemValue = int.Parse(PriceField.text);
-        _GameManager.DeductGems(Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * percentage), 1, 10000)));
+        GameManager.DeductGems(Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * percentage), 1, 10000)));
     }
 
     //Generate a new GUID to act as the key for the listing. (Very very very very low probability that two of the same will exist at the same time ever)
     Guid key = Guid.NewGuid();
-
+    
+    DateTime expirationDate = DateTime.Now.AddHours(24*(TimeDropdown.value + 1)); 
+    
     //Add the listing to the database.
-    await _GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), _GameManager.firebase.userId, _GameManager.SneakerDatabase.Database.FindIndex(x => x.Name == _SelectedSneaker.name), DateTime.Now));
+    await GameManager.firebase.AddMarketListing(new MarketListing("Item Description...", key.ToString(), cashValue, gemValue, int.Parse(QuantityField.text), GameManager.firebase.userId, GameManager.SneakerDatabase.Database.FindIndex(x => x.Name == _SelectedSneaker.name), new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds(), new DateTimeOffset(expirationDate).ToUnixTimeSeconds()));
 
     //Name of the listing doesn't really matter, just needs to detect changes.
-    await _GameManager.firebase.AddListingDataToUser(_GameManager.firebase.userId, key.ToString());
+    await GameManager.firebase.AddListingDataToUser(GameManager.firebase.userId, key.ToString());
 
-    SneakersOwned newData = _GameManager.inventoryManager.SneakersOwned[_GameManager.inventoryManager.SneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
+    SneakersOwned newData = GameManager.inventoryManager.SneakersOwned[GameManager.inventoryManager.SneakersOwned.FindIndex(x => x.name == _SelectedSneaker.name)];
     newData.quantity = int.Parse(QuantityField.text);
 
     //Remove the quantity from the player's possession.
-    _GameManager.inventoryManager.RemoveShoeFromCollection(newData);
+    GameManager.inventoryManager.RemoveShoeFromCollection(newData);
 
     GetListings(false);
     RefreshInventory();
@@ -373,7 +378,7 @@ private (bool, string) CanListSelectedItem()
         return (false, "Must enter a quantity!");
 
     if (PriceField.text == "")
-        return (false, "Must enter a price to create listing!");
+        return (false, "Must enter a price!");
 
     if (_SelectedSneaker.quantity < int.Parse(QuantityField.text))
         return (false, "You don't have enough of this item!");
@@ -392,7 +397,7 @@ private (bool, string) CanListSelectedItem()
         ListingCostIcon.sprite = Resources.Load<Sprite>("Cash");
         ListingCostIcon.color = new Color(1, 1, 1, 1);
         
-        if (_GameManager.firebase.playerStats.cash < costValue)
+        if (GameManager.firebase.playerStats.cash < costValue)
         {
             return(false, "You don't have enough cash to post this!");
         }
@@ -413,7 +418,7 @@ private (bool, string) CanListSelectedItem()
         ListingCostIcon.sprite = Resources.Load<Sprite>("Gem");
         ListingCostIcon.color = new Color(1, 1, 1, 1);
         
-        if (_GameManager.firebase.playerStats.gems < costValue)
+        if (GameManager.firebase.playerStats.gems < costValue)
         {
             return(false, "You don't have enough gems to post this!");
         }
@@ -458,19 +463,19 @@ private void RefreshPlayerListings()
 //Populates the inventory within the marketplace.
 private void PopulateMarketInventory()
 {
-    for (int i = 0; i < _GameManager.inventoryManager.SneakersOwned.Count; i++)
+    for (int i = 0; i < GameManager.inventoryManager.SneakersOwned.Count; i++)
     {
         //Grab the UI Components.
         SneakerInventoryItem inventoryShoeInstance = Instantiate(InventoryItemPrefab, PlayerInventoryParent);
 
-        inventoryShoeInstance.ItemNameText.text = _GameManager.inventoryManager.SneakersOwned[i].name;
-        inventoryShoeInstance.ItemRarityText.text = _GameManager.inventoryManager.SneakersOwned[i].rarity.ToString();
-        inventoryShoeInstance.ItemQuantityText.text = "QTY:" + _GameManager.inventoryManager.SneakersOwned[i].quantity;
-        inventoryShoeInstance.RarityPanel.sprite = inventoryShoeInstance.RarityPanelSprites[(int)_GameManager.inventoryManager.SneakersOwned[i].rarity - 1];
+        inventoryShoeInstance.ItemNameText.text = GameManager.inventoryManager.SneakersOwned[i].name;
+        inventoryShoeInstance.ItemRarityText.text = GameManager.inventoryManager.SneakersOwned[i].rarity.ToString();
+        inventoryShoeInstance.ItemQuantityText.text = "QTY:" + GameManager.inventoryManager.SneakersOwned[i].quantity;
+        inventoryShoeInstance.RarityPanel.sprite = inventoryShoeInstance.RarityPanelSprites[(int)GameManager.inventoryManager.SneakersOwned[i].rarity - 1];
 
         //Assign the data to the UI Components.
-        inventoryShoeInstance.Initialize(false, true, _GameManager.inventoryManager.SneakersOwned[i].name);
-        string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.inventoryManager.SneakersOwned[i].name).Icon.name;
+        inventoryShoeInstance.Initialize(false, true, GameManager.inventoryManager.SneakersOwned[i].name);
+        string imagePath = GameManager.SneakerDatabase.Database.Find(x => x.Name == GameManager.inventoryManager.SneakersOwned[i].name).Icon.name;
         inventoryShoeInstance.ItemIconImage.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
     }
 }
@@ -482,7 +487,7 @@ public void SelectItemToList(SneakersOwned sneaker)
     InventoryPanel.SetActive(false);
     SelectedShoeIcon.gameObject.SetActive(true);
 
-    string imagePath = _GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
+    string imagePath = GameManager.SneakerDatabase.Database.Find(x => x.Name == sneaker.name).Icon.name;
     SelectedShoeIcon.sprite = Resources.Load<Sprite>($"Sneakers/{imagePath}");
     _SelectedSneaker = sneaker;
     //Put sprite in the main box.
@@ -496,9 +501,9 @@ public void SetMarketListingActiveByName(string query)
     foreach (PhysicalMarketListing listing in Listings)
     {
         if (query == "") //If the query is empty, then turn them all on by setting the query to each name.
-            query = _GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name;
+            query = GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name;
 
-        listing.UI.SetActive(_GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name.ToUpper().Contains(query.ToUpper()));
+        listing.UI.SetActive(GameManager.SneakerDatabase.Database[listing.Data.sneakerId].Name.ToUpper().Contains(query.ToUpper()));
     }
 }
 
@@ -522,7 +527,7 @@ public void EnableDeleteConfirmationMenu(MarketListing listing)
 private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
 {
     //Give the shoe back to the lister.
-    _GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(_GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, _GameManager.SneakerDatabase.Database.Find(x => x.Name == _GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, _GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
+    GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, GameManager.SneakerDatabase.Database.Find(x => x.Name == GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
 
     //Disable the confirmation menu.
     DeleteListingConfirmationMenu.SetActive(false);
@@ -650,14 +655,14 @@ private List<Transform> SortByTime(List<Transform> sneakers, bool newestFirst)
     if (newestFirst)
     {
         sneakers.Sort((t1, t2) =>
-            DateTime.Compare(t1.GetComponent<MarketListingItem>().ListingData.timeStamp,
-                t2.GetComponent<MarketListingItem>().ListingData.timeStamp));
+            DateTime.Compare(DateTimeOffset.FromUnixTimeSeconds(t1.GetComponent<MarketListingItem>().ListingData.postedDate).DateTime,
+                DateTimeOffset.FromUnixTimeSeconds(t2.GetComponent<MarketListingItem>().ListingData.postedDate).DateTime));
     }
     else
     {
         sneakers.Sort((Transform t1, Transform t2) =>
-            DateTime.Compare(t2.GetComponent<MarketListingItem>().ListingData.timeStamp,
-                t1.GetComponent<MarketListingItem>().ListingData.timeStamp));
+            DateTime.Compare(DateTimeOffset.FromUnixTimeSeconds(t2.GetComponent<MarketListingItem>().ListingData.postedDate).DateTime,
+                DateTimeOffset.FromUnixTimeSeconds(t1.GetComponent<MarketListingItem>().ListingData.postedDate).DateTime));
     }
 
     return sneakers;
