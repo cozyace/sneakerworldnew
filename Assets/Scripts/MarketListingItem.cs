@@ -59,8 +59,12 @@ public class MarketListingItem : MonoBehaviour
 
       if (remainingTime <= TimeSpan.Zero)
       {
-         bool isExisting = await _MarketManager.GameManager.firebase.DoesMarketListingExist(ListingData.key);
-         print(isExisting);
+         //Check if the listing still exists.
+         bool doesMarketListingExist = await _MarketManager.GameManager.firebase.DoesMarketListingExist(ListingData.key);
+
+         if (doesMarketListingExist)
+            await _MarketManager.GameManager.firebase.ExpireMarketListing(ListingData.key);
+        
          Destroy(gameObject);
       }
       else

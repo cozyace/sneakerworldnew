@@ -79,30 +79,25 @@ public class InventoryManager : MonoBehaviour
        UpdateTotalShoeCount();
     }
 
-    public async Task<int> GetTotalShoeCountCumulative()
+    public  int GetTotalShoeCountCumulative()
     {
-        List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
-        
         int count = 0;
-
-        for (int i = 0; i < loadedSneakers.Count; i++)
+        
+        for (int s = 0; s < SneakersOwned.Count; s++)
         {
-            count += loadedSneakers[i].quantity;
+            count += SneakersOwned[s].quantity;
         }
-
+        
         return count;
     }
     
-    private async void UpdateTotalShoeCount()
+    private void UpdateTotalShoeCount()
     {
-        //Get the list of all of the player's sneakers from the database under /players/userId/sneakers
-        List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
-        
         int count = 0;
-
-        for (int i = 0; i < loadedSneakers.Count; i++)
+        
+        for (int s = 0; s < SneakersOwned.Count; s++)
         {
-            count += loadedSneakers[i].quantity;
+            count += SneakersOwned[s].quantity;
         }
 
         SneakerCountText.text = $"{count} / {50 + 5*(GameManager.firebase.playerStats.level-1) } sneakers";
@@ -120,6 +115,12 @@ public class InventoryManager : MonoBehaviour
         List<SneakersOwned> loadedSneakers = await GameManager.firebase.GetSneakerAsync(GameManager.firebase.userId);
         UpdateTotalShoeCount();
         CreateSneakerUIObjects(loadedSneakers);
+    }
+
+    public bool WillShoeFitInInventory(int quantity)
+    {
+        //If adding this shoe would exceed your maximum capacity.
+        return GetTotalShoeCountCumulative() + quantity <= (50 + 5 * (GameManager.firebase.playerStats.level - 1));
     }
 
     public void AddShoesToCollection(SneakersOwned sneaker)

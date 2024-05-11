@@ -468,15 +468,16 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<bool> DoesMarketListingExist(string key)
     {
-        print("Checking if listing exists.");
         MarketListing listing = new MarketListing();
         
         try
         {
-            print("About to grab snapshot.");
             //Grabs the values from the Database section, and stores them as children in this object.
             DataSnapshot snapshot = await dbReference.Child($"market/{key}").GetValueAsync();
-            print("Grabbed snapshot");
+
+            if (!snapshot.Exists)
+                return false;
+            
             listing = JsonUtility.FromJson<MarketListing>(snapshot.GetRawJsonValue());
         }
         catch (FirebaseException e)
@@ -491,6 +492,32 @@ public class FirebaseManager : MonoBehaviour
     {
         try
         {
+            //Grabs the values from the Database section, and stores them as children in this object.
+            await dbReference.Child($"market/{key}").RemoveValueAsync();
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
+    public async Task ExpireMarketListing(string key)
+    {
+        try
+        {
+            DataSnapshot snapshot = await dbReference.Child($"market/{key}").GetValueAsync();
+            
+            string sellerId = snapshot.Child("sellerId").Value.ToString();
+            int sneakerId = Convert.ToInt32(snapshot.Child("sneakerId").Value);
+            int quantity = Convert.ToInt32(snapshot.Child("quantity").Value);
+            
+            print(sellerId);
+            print(sneakerId);
+            print(quantity);
+            
+            //Send the user a notification saying that their shit has expired, but give them their stuff back.
+            await AddNotificationToUser(sellerId, $"EXPIRED,{sneakerId},{quantity}");
+            
             //Grabs the values from the Database section, and stores them as children in this object.
             await dbReference.Child($"market/{key}").RemoveValueAsync();
         }
@@ -518,7 +545,7 @@ public class FirebaseManager : MonoBehaviour
     public async Task AddNotificationToUser(string userID, string message)
     {
         Dictionary<string, object> notificationData = new Dictionary<string, object>
-            { { "notification", message } };
+            { { UnityEngine.Random.Range(0,100000000).ToString(), message } };
         
         await dbReference.Child($"users/{userID}/notifications/").UpdateChildrenAsync(notificationData);
     }
@@ -538,30 +565,29 @@ public class FirebaseManager : MonoBehaviour
         await dbReference.Child($"users/{userID}/listings/{listingID}").RemoveValueAsync();
     }
 
-    public async Task<string> GetUserNotifications(string userID)
+    public async Task<string[]> GetUserNotifications(string userID)
     {
-       // Dictionary<string, object> notificationData = new Dictionary<string, object>();
-
         try
         {
-            var snapshot = await dbReference.Child($"users/{userId}/notifications/").GetValueAsync();
+            DataSnapshot snapshot = await dbReference.Child($"users/{userId}/notifications/").GetValueAsync();
+            string[] notifications = new string[snapshot.ChildrenCount];
+            
             string json = snapshot.GetRawJsonValue();
 
-            if (json == null || snapshot == null)
-                return "";
+            for (int i = 0; i < snapshot.ChildrenCount; i++)
+            {
+                notifications[i] = snapshot.Children.ToList()[i].Value.ToString();
+            }
+
+            if (json == null)
+                return Array.Empty<string>();
             
-            string fixedNotification = json.Substring(9, json.Length - 10);
-
-            return fixedNotification;
-            //Use split instead, because all of the notifications will be the same line anyway.
-
-           // notificationData = JsonUtility.FromJson<Dictionary<string, object>>(json);
+            return notifications;
         } catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
         }
-        return "";
-        // return notificationData;
+        return Array.Empty<string>();
     }
 
     public async Task ClearNotifications(string userID)

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Firebase.Database;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 
 [Serializable]
@@ -194,7 +192,7 @@ private async void GetListings(bool reloadPlayerListingsOnly)
         if (!reloadPlayerListingsOnly)
             InstantiateMarketListingUI(Listings[listingIndex].Data);
 
-     //   StartCoroutine(nameof(CheckIfNeedPublicReload));
+        //   StartCoroutine(nameof(CheckIfNeedPublicReload));
     }
 
     //Refreshes the player's listings.
@@ -249,7 +247,7 @@ public async void PurchaseListing(MarketListing listing)
     int purchasePrice = 0;
     string notificationString = "";
 
-
+    
     if (GameManager.GetGems() < listing.listingPriceGems || GameManager.GetCash() < listing.listingPriceCash)
     {
         print("Insufficient Currency to Purchase!");
@@ -257,7 +255,7 @@ public async void PurchaseListing(MarketListing listing)
     }
 
     //If purchasing this shoe would put you over your quantity limit for your level.
-    if (GameManager.inventoryManager.GetTotalShoeCountCumulative().Result + listing.quantity > 50 + 5 * (GameManager.firebase.playerStats.level - 1))
+    if (GameManager.inventoryManager.GetTotalShoeCountCumulative() + listing.quantity > 50 + 5 * (GameManager.firebase.playerStats.level - 1))
     {
         print("Insufficient Inventory Space to Purchase!");
         return;
@@ -300,7 +298,7 @@ public async void PurchaseListing(MarketListing listing)
     await GameManager.firebase.UpdateGemsAsync(listing.sellerId, listing.listingPriceGems);
 
     //Inform the seller that their listing has been sold. (This is for saving data, to override the auto-saving, so it instead READS from the database)
-    await GameManager.firebase.AddNotificationToUser(listing.sellerId, $"Your listing of {listing.quantity}x {GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
+    await GameManager.firebase.AddNotificationToUser(listing.sellerId, $"YOUR LISTING SOLD {listing.quantity}x {GameManager.SneakerDatabase.Database[listing.sneakerId].Name} has sold for {notificationString}");
 
     await GameManager.firebase.RemoveListingFromUser(GameManager.firebase.userId, listing.key);
 }
@@ -317,6 +315,11 @@ public async void Demo_ForceCreateNewListing()
     GetListings(false);
     RefreshInventory();
     ResetCreateListingElements();
+}
+
+public async void Demo_AddNotificationToUser()
+{
+    await GameManager.firebase.AddNotificationToUser(GameManager.firebase.userId, $"Test MSG {Random.Range(0,100000)}");
 }
 
 //Creates a new listing with the chosen item. (Called via UI button in game)
@@ -526,9 +529,16 @@ public void EnableDeleteConfirmationMenu(MarketListing listing)
 //Removes listing, and returns the shoe to the seller.
 private IEnumerator ConfirmRemoveListing(string key, MarketListing listing)
 {
+    if (!GameManager.inventoryManager.WillShoeFitInInventory(listing.quantity))
+    {
+        print("Can't remove listing, inventory will be full once you get the shoe(s) back ; implement UI that says this!!!");
+        DeleteListingConfirmationMenu.SetActive(false);
+        yield break;
+    }
+
     //Give the shoe back to the lister.
     GameManager.inventoryManager.AddShoesToCollection(new SneakersOwned(GameManager.SneakerDatabase.Database[listing.sneakerId].Name, listing.quantity, GameManager.SneakerDatabase.Database.Find(x => x.Name == GameManager.SneakerDatabase.Database[listing.sneakerId].Name).Value, GameManager.SneakerDatabase.Database[listing.sneakerId].Rarity));
-
+    
     //Disable the confirmation menu.
     DeleteListingConfirmationMenu.SetActive(false);
 

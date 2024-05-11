@@ -31,12 +31,12 @@ public class GameManager : MonoBehaviour
     [Header("Player Stats")]
     [SerializeField] private string userId;
     public PlayerStats playerStats;
-    [SerializeField] private int xpIncreaseAmount;
-    public int xpPerLevel;
+    [SerializeField] private int xpIncreaseAmount; //How much does the exp needed increase per level?
+    public int xpPerLevel; //How much EXP is needed to progress per leveL?
     
 
 
-    public string Notifications;
+    public string[] Notifications;
 
     private void Awake()
     {
@@ -52,21 +52,39 @@ public class GameManager : MonoBehaviour
     }
     
     //This is used to grab all notifications the player has in their account's database.
-    public async void UpdateNotifications()
+    private async void UpdateNotifications()
     {
         Notifications = await firebase.GetUserNotifications(firebase.userId);
-        if (Notifications.Contains("Your listing of"))
-        {
-            print("Listing Notification Found.");
-            print(Notifications);
-            PlayerStats newStats = await firebase.LoadDataAsync(firebase.userId);
-            print(newStats.cash);
-            playerStats = newStats;
-            
-            uiManager.UpdateUI(playerStats);
 
-            await firebase.ClearNotifications(firebase.userId);
+        foreach (string t in Notifications)
+        {
+            if (t.Contains("EXPIRED"))
+            {
+                print("EXPIRED Notification Found.");
+
+                //The expiration notifications use , to split the data for parsing. (Because with this one we need to actually grab the shoe ID, and quantity to give the player)
+                string[] splitNotification = t.Split(',');
+                
+                int shoeId = int.Parse(splitNotification[1]); 
+                int quantity = int.Parse(splitNotification[2]);
+
+                //This method will also save the data, and refresh the inventory.
+                inventoryManager.AddShoesToCollection(new SneakersOwned(SneakerDatabase.Database[shoeId].Name, quantity, SneakerDatabase.Database[shoeId].Value, SneakerDatabase.Database[shoeId].Rarity));
+                
+                print("Gave player expired shoe.");
+            }
+            //When your listing has been purchased by another user, update your cash/gems.
+            else if (t.Contains("SOLD"))
+            {
+                print("SOLD Notification Found.");
+                PlayerStats newStats = await firebase.LoadDataAsync(firebase.userId);
+                playerStats = newStats;
+                uiManager.UpdateUI(playerStats);
+            }
         }
+        
+        await firebase.ClearNotifications(firebase.userId);
+        //If your listing has expired, this will give you the shoes back.
         
     }
 
@@ -182,8 +200,20 @@ public class GameManager : MonoBehaviour
         }
         
         print("<size=14><color=blue>GAMEMANAGER</color> | Saving Data... </size>");
-        if(!Notifications.Contains("Your listing of"))
+
+        if (Notifications.Length == 0)
+        {
             await SaveDataAsyc(firebase.userId);
+            return;
+        }
+
+        for (int i = 0; i < Notifications.Length; i++)
+        {
+            if(i == Notifications.Length-1)
+                if(!Notifications[i].Contains("SOLD"))
+                    await SaveDataAsyc(firebase.userId);
+        }
+        
         //playerStats = await firebase.LoadDataAsync(firebase.userId);
     }
 
