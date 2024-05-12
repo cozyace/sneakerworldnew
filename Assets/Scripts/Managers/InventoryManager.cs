@@ -50,7 +50,7 @@ public class InventoryManager : MonoBehaviour
     public List<SneakerInventoryItem> SneakerUIObjects; //All existing UI objects in the main inventory.
     public List<SneakerInventoryItem> TradeSneakerUIObjects;    //All existing UI objects in the trade inventory.
 
-    private Image LastClickedInventoryItem; //The last clicked 'selected' inventory item.
+    private Image _LastClickedInventoryItem; //The last clicked 'selected' inventory item.
     
     public List<SneakersOwned> SneakersOwned;  //Every sneaker the player owns (has in their inventory), refreshed each time the UI items are spawned.
 
@@ -100,7 +100,7 @@ public class InventoryManager : MonoBehaviour
             count += SneakersOwned[s].quantity;
         }
 
-        SneakerCountText.text = $"{count} / {50 + 5*(GameManager.firebase.playerStats.level-1) } sneakers";
+        SneakerCountText.text = $"{count} / {50 + 5*(GameManager.playerStats.level-1) } sneakers";
     }
 
     private IEnumerator BeginRefreshInventory()
@@ -120,7 +120,7 @@ public class InventoryManager : MonoBehaviour
     public bool WillShoeFitInInventory(int quantity)
     {
         //If adding this shoe would exceed your maximum capacity.
-        return GetTotalShoeCountCumulative() + quantity <= (50 + 5 * (GameManager.firebase.playerStats.level - 1));
+        return GetTotalShoeCountCumulative() + quantity <= (50 + 5 * (GameManager.playerStats.level - 1));
     }
 
     public void AddShoesToCollection(SneakersOwned sneaker)
@@ -155,8 +155,11 @@ public class InventoryManager : MonoBehaviour
                 //If the player will have 0 of the shoe left.
                 if (sneakerStoredInstance.quantity == 0)
                 {
+                    print(SneakersOwned.Count);
+                    print(SelectedSneakerData.GetName());
+                    print(sneaker.name);
                     //If this is the last owned sneaker that's being deleted, or it's deleting the currently selected sneaker.
-                    if (SneakersOwned.Count - 1 == 0 || SelectedSneakerData.GetName().ToUpper() == sneaker.name.ToUpper())
+                    if (SelectedSneakerData.GetName() != null && (SneakersOwned.Count - 1 == 0 || SelectedSneakerData.GetName().ToUpper() == sneaker.name.ToUpper()))
                     {
                         //Reset the Selected Sneaker UI data.
                         SelectedSneakerData.ResetElements();
@@ -181,15 +184,20 @@ public class InventoryManager : MonoBehaviour
             //If the player doesn't have enough of the shoe for this transaction.
             else
             {
+                print("Not enough shoes for this transaction!");
                 return false;
             }
                     
         }
         //If the player doesn't own the shoe.
         else
+        {
+            print("Trying to remove shoe you don't own.");
             return false;
-
+        }
         //This should never be hit.
+        
+        print("This should never, ever happen ERROR");
         return false;
     }
 
@@ -269,24 +277,24 @@ public class InventoryManager : MonoBehaviour
         //Only ever gets set to -1 if you're clicking one that's already selected.
         if (index == -1)
         {
-            LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel");
-            LastClickedInventoryItem = null;
+            _LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel");
+            _LastClickedInventoryItem = null;
             SelectedSneakerDetailsPanel.SetActive(false);
             return;
         }
 
         //If a panel is already highlighted.
-        if (LastClickedInventoryItem)
+        if (_LastClickedInventoryItem)
         {
-            LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel"); //Un-highlight it.
+            _LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanel"); //Un-highlight it.
         }
 
         SelectedSneakerDetailsPanel.SetActive(true);
         
         //Reassign the selected item.
-        LastClickedInventoryItem = SneakerUIObjects[index].GetComponent<Image>();
+        _LastClickedInventoryItem = SneakerUIObjects[index].GetComponent<Image>();
         
-        LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanelSelected");
+        _LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanelSelected");
     }
     
     
@@ -308,7 +316,7 @@ public class InventoryManager : MonoBehaviour
                 continue; 
             
             //If you're clicking the same one that was already selected.
-            if (LastClickedInventoryItem == SneakerUIObjects[indexOf].GetComponent<Image>())
+            if (_LastClickedInventoryItem == SneakerUIObjects[indexOf].GetComponent<Image>())
                 indexOf = -1;
         }
         

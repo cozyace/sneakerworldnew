@@ -76,10 +76,20 @@ public class FriendsUIManager : MonoBehaviour
         snapshot.ChildRemoved += ListenForFriendRequests;
         snapshot.ChildChanged += ListenForFriends;
     }
-    
-   
 
 
+
+    public async Task RefreshFriends()
+    {
+        ClearUI();
+        Friends.Clear();
+        FriendRequests.Clear();
+        FriendRequestsSent.Clear();
+        Friends = await _Firebase.UpdateFriendsAsync();
+        FriendRequests = await _Firebase.UpdateFriendRequestsAsync();
+        FriendRequestsSent = await _Firebase.UpdateFriendRequestsSentAsync();
+        await ListFriends();
+    }
 
     public async Task UpdateFriendRequests()
     {
@@ -180,38 +190,43 @@ public class FriendsUIManager : MonoBehaviour
     {
         foreach (UserItem child in _InstantiatedFriendListings)
             Destroy(child);
+        
+        foreach(UserItem child in _InstantiatedFriendRequestListings)
+            Destroy(child);
 
         _InstantiatedFriendsNames.Clear();
 
         foreach (string friend in Friends)
         {
             string username = await _Firebase.GetUsernameFromUserIdAsync(friend);
+            
 
-            if (!_InstantiatedFriendsNames.Contains(username))
-            {
-                _InstantiatedFriendsNames.Add(username);
-                UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
-
-                PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
-                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
-                SetInitialActiveFriendUI(userItem);
-                _InstantiatedFriendListings.Add(userItem);
-            }
+            if (_InstantiatedFriendsNames.Contains(username))
+                continue;
+            
+            _InstantiatedFriendsNames.Add(username);
+            UserItem userItem = Instantiate(FriendListingPrefab, FriendListingParent);
+            print("Looped friend - " + username);    
+            
+            PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
+            userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
+            SetInitialActiveFriendUI(userItem);
+            _InstantiatedFriendListings.Add(userItem);
         }
 
         foreach (string friend in FriendRequests)
         {
             string username = await _Firebase.GetUsernameFromUserIdAsync(friend);
 
-            if (!_InstantiatedFriendsNames.Contains(username))
-            {
-                _InstantiatedFriendsNames.Add(username);
-                UserItem userItem = Instantiate(FriendListingPrefab, FriendRequestListingParent);
-                PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
-                userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
-                SetInitialIncomingRequestFriendUI(userItem);
-                _InstantiatedFriendListings.Add(userItem);
-            }
+            if (_InstantiatedFriendsNames.Contains(username))
+                continue;
+            
+            _InstantiatedFriendsNames.Add(username);
+            UserItem userItem = Instantiate(FriendListingPrefab, FriendRequestListingParent);
+            PlayerStats loadedPlayerData = await _Firebase.LoadDataAsync(friend);
+            userItem.SetData(new UserData(username, loadedPlayerData.cash, loadedPlayerData.level, Resources.Load<Sprite>("DefaultAvatar")));
+            SetInitialIncomingRequestFriendUI(userItem);
+            _InstantiatedFriendListings.Add(userItem);
         }
     }
  

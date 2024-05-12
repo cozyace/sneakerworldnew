@@ -1,22 +1,18 @@
-﻿using Authentication;
+﻿
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
-using Firebase.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static UnityEngine.UIElements.UxmlAttributeDescription;
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -91,7 +87,7 @@ public class FirebaseManager : MonoBehaviour
     public async Task LoginAsync()
     {
         loadingScreen.SetActive(true);
-
+        print("login async");
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
         string email = loginEmail.text;
         string password = loginPassword.text;
@@ -506,6 +502,9 @@ public class FirebaseManager : MonoBehaviour
         try
         {
             DataSnapshot snapshot = await dbReference.Child($"market/{key}").GetValueAsync();
+
+            if (!snapshot.Exists)
+                return;
             
             string sellerId = snapshot.Child("sellerId").Value.ToString();
             int sneakerId = Convert.ToInt32(snapshot.Child("sneakerId").Value);
@@ -602,6 +601,7 @@ public class FirebaseManager : MonoBehaviour
         logText.GetComponent<Animation>().Play();
     }
 
+    //Seems like this method is used only for the main menu, for the signup, and signout buttons. Saves mainmenu persistent data.
     public async Task SaveDataAsync(string _userId, PlayerStats _playerStats)
     {
         string json = JsonUtility.ToJson(_playerStats);
@@ -719,25 +719,28 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<PlayerStats> LoadDataAsync(string _userId)
     {
-        PlayerStats playerStats = new();
+        PlayerStats loadedPlayerStats = new PlayerStats();
 
         try
         {
-            var snapshot = await dbReference.Child($"users/{_userId}").GetValueAsync();
+            DataSnapshot snapshot = await dbReference.Child($"users/{_userId}").GetValueAsync();
             string json = snapshot.GetRawJsonValue();
-            playerStats = JsonUtility.FromJson<PlayerStats>(json);
+            loadedPlayerStats = JsonUtility.FromJson<PlayerStats>(json);
+
+            if (userId == _userId)
+                playerStats = loadedPlayerStats;
         }
         catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
         }
 
-        return playerStats;
+        return loadedPlayerStats;
     }
 
     IEnumerator LoadDataEnum(Action callback)
     {
-        var _stats = dbReference.Child("users").Child(userId).GetValueAsync();
+        Task<DataSnapshot> _stats = dbReference.Child("users").Child(userId).GetValueAsync();
         yield return new WaitUntil(predicate: () => _stats.IsCompleted);
 
         try
@@ -748,9 +751,8 @@ public class FirebaseManager : MonoBehaviour
                 print("Error fetching data. No data was found!");
                 yield break;
             }
-
-            string jsonData = snapshot.GetRawJsonValue();
-            if (jsonData == null)
+            
+            if (snapshot.GetRawJsonValue() == null)
             {
                 print("Error fetching data. No data was found!");
                 yield break;
@@ -759,7 +761,7 @@ public class FirebaseManager : MonoBehaviour
             print($"Loaded Stats for {user.DisplayName}");
             ShowLogMsg($"Loaded Data for {user.DisplayName}");
 
-            PlayerPrefs.SetString("PLAYER_STATS", jsonData);
+            //PlayerPrefs.SetString("PLAYER_STATS", jsonData);
             callback?.Invoke();
         }
         catch (FirebaseException e)
@@ -791,7 +793,7 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<Dictionary<string, int>> CalculateLeaderboardRankingsAsync()
     {
-        Dictionary<string, int> userCash = new();
+        Dictionary<string, int> userCash = new Dictionary<string, int>();
 
         try {
             DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
@@ -803,7 +805,7 @@ public class FirebaseManager : MonoBehaviour
                 userCash.TryAdd(username, cash);
             }
 
-            var rankedUsers = userCash
+            Dictionary<string, int> rankedUsers = userCash
                 .OrderByDescending(u => u.Value)
                 .ToDictionary(u => u.Key, u => u.Value);
 
@@ -818,7 +820,7 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<List<string>> SearchUsersAsync(string _username) 
     {
-        List<string> matchingUsers = new();
+        List<string> matchingUsers = new List<string>();
 
         try
         {
@@ -957,6 +959,24 @@ public class FirebaseManager : MonoBehaviour
             Debug.LogError(e.Message);
         }
     }
+    
+    public async Task RemoveFriendAsync(string _userId, string _recipientUsername)
+    {
+        try
+        {
+            string _recipientUserId = await GetUserIdFromUsernameAsync(_recipientUsername);
+            
+            await dbReference.Child($"users/{_userId}/friends/{_recipientUserId}").RemoveValueAsync();
+            await dbReference.Child($"users/{_recipientUserId}/friends/{_userId}").RemoveValueAsync();
+
+            Debug.Log($"Friend removed - {_recipientUsername}");
+        }
+        catch (FirebaseException e)
+        {
+            Debug.LogError(e.Message);
+        }
+    }
+
 
     public async Task<List<string>> UpdateFriendRequestsAsync()
     {
@@ -1008,7 +1028,7 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<List<string>> UpdateFriendsAsync()
     {
-        List<string> friends = new();
+        List<string> friends = new List<string>();
 
         try
         {
@@ -1047,7 +1067,6 @@ public class FirebaseManager : MonoBehaviour
 
     private bool ValidateSignupInput(string username, string email, string password, string confirmPassword)
     {
-
         if (string.IsNullOrEmpty(username))
         {
             return false;
@@ -1081,12 +1100,10 @@ public class FirebaseManager : MonoBehaviour
         return true;
     }
 
-    private bool IsValidEmail(string email)
-    {
-        return Regex.IsMatch(email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
-    }
+    private static bool IsValidEmail(string email) => Regex.IsMatch(email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
+    
 
-    private bool IsValidPassword(string password)
+    private static bool IsValidPassword(string password)
     {
         return password.Length >= 6;
         //     &&
@@ -1108,15 +1125,9 @@ public class FirebaseManager : MonoBehaviour
         tcs.SetResult(true);
     }
 
-    public async void OnLoginButtonClick()
-    {
-        await LoginAsync();
-    }
+    public async void OnLoginButtonClick() => await LoginAsync();
 
-    public async void OnSignupButtonClick()
-    {
-        await SignupAsync();
-    }
+    public async void OnSignupButtonClick() =>  await SignupAsync();
 
     public void ResetDataButton()
     {

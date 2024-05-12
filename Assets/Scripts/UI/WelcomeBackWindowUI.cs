@@ -23,6 +23,9 @@ public class WelcomeBackWindowUI : MonoBehaviour
 
     public void TriggerWelcomeWindow(double minutesGone)
     {
+        if (minutesGone < 15)
+            return;
+        
         Gradient.SetActive(true);
         Window.SetActive(true);
         _Animator.Play("Open");
@@ -33,6 +36,19 @@ public class WelcomeBackWindowUI : MonoBehaviour
             TimeGoneText.text = (minutesGone / 60).ToString("n1") + " HRS.";
         else
             TimeGoneText.text = (minutesGone).ToString("n0") + " MIN.";
+    }
+
+
+    private int CalculateMoneyEarned(int minutesGone)
+    {
+        SneakersOwned[] SneakersBeingSold; //The sneakers you've selected to sell.
+        int employeeCount = 1; //How many employees are active in the store.
+        float customersPerMinute = 3; //How many customers are entering on average per minute.
+        float transactionsPerMinute = 3f; //How many transactions an employee CAN get done per minute. 
+        
+        //Do a loop of however many transactions are possible, and pick a random shoe that's active each time.
+        
+        return 0;
     }
     
     public void CloseWelcomeWindow()

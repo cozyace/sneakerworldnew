@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
         userId = firebase.auth.CurrentUser.UserId;
 
         playerStats = await firebase.LoadDataAsync(firebase.userId);
-        InvokeRepeating(nameof(SaveToDatabase), 0f, 5f);
+        InvokeRepeating(nameof(SaveToDatabase), 1.5f, 5f);
 
         AFKEarningsCheck();
     }
@@ -229,6 +229,9 @@ public class GameManager : MonoBehaviour
             ["cash"] = playerStats.cash,
             ["gems"] = playerStats.gems,
         };
+        
+        
+        print($"<size=15>ACCOUNT DATA</size> \n USERNAME - {playerStats.username} \n LVL - {playerStats.level} \n EXP - {playerStats.experience} \n CASH - {playerStats.cash} \n GEMS - {playerStats.gems}");
 
         try
         {
@@ -262,15 +265,16 @@ public class GameManager : MonoBehaviour
         if (SceneManager.GetActiveScene().buildIndex == 1)
         {
             print($"<size=14><color=blue>GAMEMANAGER</color> | SAVING PLAYER PREFS.</size>");
-            StartCoroutine(SaveData());
+           // StartCoroutine(SaveData());
+           //SAVE HERE
             await firebase.UpdateLastLoggedOut(firebase.userId);
             await firebase.UpdateIsOnline(firebase.userId, false);
         }
     }
 
-    IEnumerator SaveData()
-    {
-        PlayerPrefs.SetString("PLAYER_STATS", JsonUtility.ToJson(playerStats));
-        yield return null;
-    }
+   // IEnumerator SaveData()
+ //   {
+    //    PlayerPrefs.SetString("PLAYER_STATS", JsonUtility.ToJson(playerStats));
+    //    yield return null;
+ //   }
 }

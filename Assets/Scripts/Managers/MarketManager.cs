@@ -74,6 +74,7 @@ public class MarketManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown TimeDropdown; //Time selection (24,48,72)
     [SerializeField] private TMP_Text ListingCost; //How much it'll cost the player to post the listing.
     [SerializeField] private Image ListingCostIcon;
+    [SerializeField] private Button RefreshCircleButton;
     
     //Asset Reference.
     public Sprite[] RarityPanels;
@@ -84,6 +85,10 @@ public class MarketManager : MonoBehaviour
     public List<PhysicalMarketListing> MyListings;
     //The sneaker that you have selected in the 'choose item' box.
     private SneakersOwned _SelectedSneaker;
+
+
+    private bool _IsReloading;
+    private float _ReloadTime;
 
 
 
@@ -121,16 +126,33 @@ public class MarketManager : MonoBehaviour
     {
         CreateListingButton.interactable = MyListings.Count < 8;
         ErrorText.text = CanListSelectedItem().Item2;
+        RefreshCircleButton.interactable = !_IsReloading;
+        
         if (PriceField.text == "" || QuantityField.text == "" || _SelectedSneaker.name == "")
         {
             ListingCost.text = "";
             ListingCostIcon.color = new Color(1, 1, 1, 0);
         }
+
+        if (_IsReloading)
+        {
+            _ReloadTime -= Time.deltaTime;
+            
+            if (_ReloadTime <= 0)
+                _IsReloading = false;
+        }
+        
+       
     }
 
 
     public void RefreshButton()
     {
+        if (_IsReloading)
+            return;
+
+        _IsReloading = true;
+        _ReloadTime = 1.5f;
         print("Refreshing");
         GetListings(false);
         RefreshInventory();
@@ -241,25 +263,33 @@ private async void InstantiateMarketListingUI(MarketListing listing)
 
 }
 
+private (bool canPurchase, string errorMsg) CanPurchaseListing(MarketListing listing)
+{
+    //Makes sure it exists, and hasn't expired.
+    bool doesListingExist = GameManager.firebase.DoesMarketListingExist(listing.key).Result && DateTimeOffset.UtcNow > DateTimeOffset.FromUnixTimeSeconds(listing.expirationDate);
+    bool hasSufficientCurrency = GameManager.GetGems() >= listing.listingPriceGems && GameManager.GetCash() >= listing.listingPriceCash;
+    bool hasInventorySpace = GameManager.inventoryManager.GetTotalShoeCountCumulative() + listing.quantity <= 50 + 5 * (GameManager.playerStats.level - 1);
+
+    if (doesListingExist && hasSufficientCurrency && hasInventorySpace)
+        return (true, default);
+
+    return (false, $"DoesExist - {doesListingExist} || HasCurrency - {hasSufficientCurrency} || HasInvSpace - {hasInventorySpace}");
+}
+
 //Purchases the listing.
 public async void PurchaseListing(MarketListing listing)
 {
     int purchasePrice = 0;
     string notificationString = "";
 
-    
-    if (GameManager.GetGems() < listing.listingPriceGems || GameManager.GetCash() < listing.listingPriceCash)
+    (bool canPurchase, string errorMsg) canPurchase = CanPurchaseListing(listing);
+
+    if (!canPurchase.canPurchase)
     {
-        print("Insufficient Currency to Purchase!");
+        Debug.LogError(canPurchase.errorMsg);
         return;
     }
 
-    //If purchasing this shoe would put you over your quantity limit for your level.
-    if (GameManager.inventoryManager.GetTotalShoeCountCumulative() + listing.quantity > 50 + 5 * (GameManager.firebase.playerStats.level - 1))
-    {
-        print("Insufficient Inventory Space to Purchase!");
-        return;
-    }
 
     //Check if cost requirements are met.
     if (listing.listingPriceCash > 0)
@@ -390,41 +420,33 @@ private (bool, string) CanListSelectedItem()
     if (PriceField.text != "" && CashIcon.activeSelf)
     {
         int cashValue = int.Parse(PriceField.text);
-        float percentage = 0.01f * (TimeDropdown.value + 1); //What percentage of the listing price is going to apply to the lister?
 
         //Calculates the cost of posting the listing, 1% for 24hr, 1.75% for 48hr, 2.25% for 72hr.
-        int costValue = Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * percentage), 1, 10000));
+        int costValue = Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(cashValue * (0.01f * (TimeDropdown.value + 1))), 1, 10000));
 
         ListingCost.text = costValue.ToString();
         ListingCost.color = Color.green;
         ListingCostIcon.sprite = Resources.Load<Sprite>("Cash");
         ListingCostIcon.color = new Color(1, 1, 1, 1);
         
-        if (GameManager.firebase.playerStats.cash < costValue)
-        {
-            return(false, "You don't have enough cash to post this!");
-        }
+        if (GameManager.playerStats.cash < costValue) return(false, "You don't have enough cash to post this!");
+        
     }
 
     //If you're selling with gems, and you've entered a price.
     if (PriceField.text != "" && GemIcon.activeSelf)
     {
         int gemValue = int.Parse(PriceField.text);
-        float percentage = 0.01f * (TimeDropdown.value + 1); //What percentage of the listing price is going to apply to the lister?
-        
-        
+
         //Calculates the cost of posting the listing, 1% for 24hr, 1.75% for 48hr, 2.25% for 72hr.
-        int costValue = Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(gemValue * percentage), 1, 10000));
+        int costValue = Mathf.RoundToInt(Mathf.Clamp(Mathf.Round(gemValue * (0.01f * (TimeDropdown.value + 1))), 1, 10000));
 
         ListingCost.text = costValue.ToString();
         ListingCost.color = Color.cyan;
         ListingCostIcon.sprite = Resources.Load<Sprite>("Gem");
         ListingCostIcon.color = new Color(1, 1, 1, 1);
         
-        if (GameManager.firebase.playerStats.gems < costValue)
-        {
-            return(false, "You don't have enough gems to post this!");
-        }
+        if (GameManager.playerStats.gems < costValue) return(false, "You don't have enough gems to post this!");
     }
     
     

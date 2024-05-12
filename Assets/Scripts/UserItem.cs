@@ -89,6 +89,12 @@ public class UserItem : MonoBehaviour
         GameManager._FriendsUIManager.FriendsUsernameSelected = UsernameText.text;
         await FirebaseManager.DeclineRequestAsync(FirebaseManager.auth.CurrentUser.UserId, UsernameText.text);
     }
+
+    public async void RemoveFriend()
+    {
+        await FirebaseManager.RemoveFriendAsync(FirebaseManager.auth.CurrentUser.UserId, UsernameText.text);
+        await GameManager._FriendsUIManager.RefreshFriends();
+    }
     
 
     public void TradeButton()

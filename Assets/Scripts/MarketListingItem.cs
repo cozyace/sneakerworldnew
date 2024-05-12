@@ -36,7 +36,7 @@ public class MarketListingItem : MonoBehaviour
 
    private void Start()
    {
-      Invoke(nameof(DisableIfEmpty), 0.65f);
+      Invoke(nameof(DisableIfEmpty), 0.15f);
       
    }
 
@@ -96,13 +96,13 @@ public class MarketListingItem : MonoBehaviour
       
       if (cash > 0)
       {
-         PriceText.text = cash.ToString();
+         PriceText.text = AbbreviateNumber(cash);
          PriceText.color = Color.green;
          CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Cash");
       }
       else if (gem > 0)
       { //Add signification that this is gems, maybe icon.
-         PriceText.text = gem.ToString();
+         PriceText.text = AbbreviateNumber(gem);
          PriceText.color = Color.cyan;
          CurrencyTypeIcon.sprite = Resources.Load<Sprite>("Gem");
       }
@@ -112,5 +112,28 @@ public class MarketListingItem : MonoBehaviour
 
       BuyButton.onClick.AddListener(() => manager.PurchaseListing(ListingData));
       RemoveButton.onClick.AddListener(() => manager.EnableDeleteConfirmationMenu(ListingData));
+   }
+   
+   
+   
+   
+   private static string AbbreviateNumber(int num)
+   {
+      if (num >= 1000000000) // Billions
+      {
+         return (num / 1000000000.0).ToString("0.#") + "b";
+      }
+      else if (num >= 1000000) // Millions
+      {
+         return (num / 1000000.0).ToString("0.#") + "m";
+      }
+      else if (num >= 1000) // Thousands
+      {
+         return (num / 1000.0).ToString("0.#") + "k";
+      }
+      else
+      {
+         return num.ToString();
+      }
    }
 }
