@@ -47,6 +47,16 @@ public class UpgradesManager : MonoBehaviour
         //FINISH REST OF DESCRIPTIONS HERE.
     }
 
+    public void UpdateMaximumValues()
+    {
+        EmployeesUpgrade.UpdateMaximumLevels();
+        CounterUpgrade.UpdateMaximumLevels();
+        AdvertisementUpgrade.UpdateMaximumLevels();
+        ImproveStoreUpgrade.UpdateMaximumLevels();
+        StorageUpgrade.UpdateMaximumLevels();
+        ShelvesUpgrade.UpdateMaximumLevels();
+    }
+
 
     public void UpgradeItem(UpgradePanel panel)
     {
@@ -71,12 +81,15 @@ public class UpgradesManager : MonoBehaviour
                 GameManager._StoreManager.AverageCustomerSpawnTime = Math.Max(0, GameManager._StoreManager.AverageCustomerTransactionTime  - 0.5f);
                 break;
             case "ImproveStore" :
+                GameManager._StoreManager.StoreLevel++;
                 break;
             case "Storage" :
                 GameManager._StoreManager.ExtraStorageInventorySpace += 15;
+                GameManager.inventoryManager.UpdateTotalShoeCount();
                 break;
             case "Shelves" :
                 GameManager._StoreManager.ShelvesCount++;
+                GameManager.inventoryManager.UpdateTotalShoeCount();
                 break;
         }
 

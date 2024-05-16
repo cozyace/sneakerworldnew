@@ -25,6 +25,9 @@ TagManager:
   - loginButton
   - registerButton
   - DONOTDESTROY
+  - SalePoint
+  - AwayFromCounterPoint
+  - ExitPoint
   layers:
   - Default
   - TransparentFX

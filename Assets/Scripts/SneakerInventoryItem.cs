@@ -90,7 +90,13 @@ public class SneakerInventoryItem : MonoBehaviour
 
         if (_GameManager.inventoryManager.EnabledItems.Count == _GameManager.inventoryManager.GetTotalShelfInventoryCount())
         {
-            if(isActive) AvailabilityToggle.isOn = false;
+       
+                AvailabilityToggle.isOn = false;
+                if(_GameManager.inventoryManager.EnabledItems.Contains(Name))
+                    _GameManager.inventoryManager.EnabledItems.Remove(Name);
+                CanAIBuy = false;
+                _GameManager.inventoryManager.UpdateTotalShoeCount();
+            
             return;
         }
         

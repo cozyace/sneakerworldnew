@@ -40,6 +40,8 @@ public class AIManager : MonoBehaviour
         }
     }
 
+    public void SetSpawnPosition(GameObject g) => SpawnPoint = g;
+    
     private bool ShouldSpawnAI()
     {
         //Checks if there's at-least 1 sneaker that's checked as available.

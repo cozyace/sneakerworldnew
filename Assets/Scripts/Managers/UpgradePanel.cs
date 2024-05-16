@@ -16,12 +16,33 @@ public class UpgradePanel : MonoBehaviour
     public int Level;
     public int Price;
     public int MaximumLevel;
+
+    private StoreManager _StoreManager;
     
     public void SetInitialValues(string startingDescription)
     {
         SetPrice(100);
         SetCurrentLevel(0);
         SetDescription(startingDescription);
+        
+        UpdateMaximumLevels();
+    }
+
+    public void UpdateMaximumLevels()
+    {
+        if (!_StoreManager)
+            _StoreManager = FindAnyObjectByType<StoreManager>();
+
+        MaximumLevel = transform.name switch
+        {
+            "DeskCount" => _StoreManager.ActiveStore.CounterSpawnPositions.Count,
+            "EmployeeSkill" => _StoreManager.ActiveStore.CounterSpawnPositions.Count,
+            "Advertisement" => 20,
+            "ImproveStore" => _StoreManager.StorePrefabs.Count,
+            "Storage" => 25,
+            "Shelves" => _StoreManager.ActiveStore.ShelfSpawnPositions.Count,
+            _ => MaximumLevel
+        };
     }
 
     public void BuyUpgrade()

@@ -52,7 +52,7 @@ public class AI : MonoBehaviour
        // SpriteRenderer.sprite = AvailableSprites[Random.Range(0, AvailableSprites.Length)];
         
         //Get the store exit waypoint.
-        _ExitStoreWaypoint = GameObject.FindGameObjectWithTag("exit").transform;
+        _ExitStoreWaypoint = FindAnyObjectByType<StoreManager>().ActiveStore.EnterExitWaypoint;
         
         //Grab the base waiting time from the GameManager.
         _BaseWaitingTime = _GameManager._StoreManager.AverageCustomerTransactionTime;
@@ -82,20 +82,20 @@ public class AI : MonoBehaviour
             Skeleton.AnimationName = "Idle";
             
             //If the AI has arrived at the exit location.
-            if (_CurrentWaypoint.CompareTag("exit") && Vector2.Distance(transform.position, _CurrentWaypoint.position) < MoveSpeed * Time.deltaTime)
+            if (_CurrentWaypoint.CompareTag("ExitPoint") && Vector2.Distance(transform.position, _CurrentWaypoint.position) < MoveSpeed * Time.deltaTime)
             {
                 _GameManager.aiManager.DeleteAI(this);
             }
             
             //Once the AI is done their purchase, they're sent to this waypoint, then when they reach it, they'll be sent to the exit.
-            if (_CurrentWaypoint.CompareTag("finishedPurchase"))
+            if (_CurrentWaypoint.CompareTag("AwayFromCounterPoint"))
             {
                 UpdateDestination(_ExitStoreWaypoint);
                 FlipSkeletonSprite();
             }
             
             //If the AI has arrived at the counter to purchase a shoe.
-            if (_CurrentWaypoint.CompareTag("mainDesk"))
+            if (_CurrentWaypoint.CompareTag("SalePoint"))
             {
                 //If there's no shoes left to be sold.
                 if (!GetRandomAvailableSneaker())
