@@ -55,7 +55,7 @@ public class AI : MonoBehaviour
         _ExitStoreWaypoint = GameObject.FindGameObjectWithTag("exit").transform;
         
         //Grab the base waiting time from the GameManager.
-        _BaseWaitingTime = _GameManager.upgradesManager.waitTime;
+        _BaseWaitingTime = _GameManager._StoreManager.AverageCustomerTransactionTime;
         
         //Set the current time to the base.
         _CurrentWaitingTime = _BaseWaitingTime;

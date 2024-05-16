@@ -87,8 +87,14 @@ public class SneakerInventoryItem : MonoBehaviour
     {
         if (_GameManager == null)
             _GameManager = FindAnyObjectByType<GameManager>();
+
+        if (_GameManager.inventoryManager.EnabledItems.Count == _GameManager.inventoryManager.GetTotalShelfInventoryCount())
+        {
+            if(isActive) AvailabilityToggle.isOn = false;
+            return;
+        }
         
-        if (Quantity <= 0) 
+        if (Quantity <= 0) //This shouldn't happen ever.
             return;
         
         if (!isActive)
@@ -97,5 +103,7 @@ public class SneakerInventoryItem : MonoBehaviour
             _GameManager.inventoryManager.EnabledItems.Add(Name);
 
         CanAIBuy = isActive;
+        
+        _GameManager.inventoryManager.UpdateTotalShoeCount();
     }
 }

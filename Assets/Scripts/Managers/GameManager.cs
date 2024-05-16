@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Firebase.Crashlytics;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour
     public CustomerQueue _CustomerQueue;
     public FriendsUIManager _FriendsUIManager;
     public MarketManager _MarketManager;
+    public StoreManager _StoreManager;
     
     public SneakerDatabaseObject SneakerDatabase;
 
@@ -90,12 +92,11 @@ public class GameManager : MonoBehaviour
 
     private async void Start()
     {
-        uiManager.UpdateUI(playerStats);
         userId = firebase.auth.CurrentUser.UserId;
-
         playerStats = await firebase.LoadDataAsync(firebase.userId);
+        uiManager.UpdateUI(playerStats);
         InvokeRepeating(nameof(SaveToDatabase), 1.5f, 5f);
-
+        
         AFKEarningsCheck();
     }
 
@@ -126,11 +127,6 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateUI(playerStats);
     }
 
-    private void AddExperience()
-    {
-        AddExperience(xpIncreaseAmount);
-    }
-
     public void AddExperience(int xp)
     {
         int xpTillNextLevel = (playerStats.level * xpPerLevel) - playerStats.experience;
@@ -151,15 +147,10 @@ public class GameManager : MonoBehaviour
         employeeManager.SetActiveEmployeeCount(employeeManager.ActiveEmployees.Count + 1);
     }
 
-    public int GetCash()
-    {
-        return playerStats.cash;
-    }
+    public int GetCash() =>  playerStats.cash;
 
-    public int GetGems()
-    {
-        return playerStats.gems;
-    }
+    public int GetGems() => playerStats.gems;
+
 
     public void AddCash(int cash)
     {
@@ -253,6 +244,7 @@ public class GameManager : MonoBehaviour
         catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
+            Crashlytics.LogException(e);
         }
     }
     

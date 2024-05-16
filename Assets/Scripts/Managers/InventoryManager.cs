@@ -35,6 +35,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject SneakerInventoryUIPrefab; //The prefab that is spawned for use as an inventory item.
     [SerializeField] private GameObject ChooseSneakerPanel; //The panel that allows you to choose a shoe when you don't have any. (start of game)
     [SerializeField] private TMP_Text SneakerCountText;
+    [SerializeField] private TMP_Text ActiveSneakerCountText; //The count of sneakers being actively sold.
     [SerializeField] private GameObject SelectedSneakerDetailsPanel;
     
     [Space(10)]
@@ -74,9 +75,8 @@ public class InventoryManager : MonoBehaviour
 
             //Enable the AI controller.
             GameManager.aiManager.enabled = true;
-        }
-
-       UpdateTotalShoeCount();
+        }   
+        Invoke(nameof(UpdateTotalShoeCount), 1f);
     }
 
     public  int GetTotalShoeCountCumulative()
@@ -91,7 +91,7 @@ public class InventoryManager : MonoBehaviour
         return count;
     }
     
-    private void UpdateTotalShoeCount()
+    public void UpdateTotalShoeCount()
     {
         int count = 0;
         
@@ -100,8 +100,13 @@ public class InventoryManager : MonoBehaviour
             count += SneakersOwned[s].quantity;
         }
 
-        SneakerCountText.text = $"{count} / {50 + 5*(GameManager.playerStats.level-1) } sneakers";
+        SneakerCountText.text = $"{count} / {GetTotalInventoryCount()} Sneakers";
+        ActiveSneakerCountText.text = $"{EnabledItems.Count} / {GetTotalShelfInventoryCount()} For Sale";
     }
+    
+    public int GetTotalInventoryCount() => 50 + 5 * (GameManager.playerStats.level - 1) + GameManager._StoreManager.ExtraStorageInventorySpace;
+    
+    public int GetTotalShelfInventoryCount() => GameManager._StoreManager.ShelvesCount;
 
     private IEnumerator BeginRefreshInventory()
     {
@@ -117,11 +122,8 @@ public class InventoryManager : MonoBehaviour
         CreateSneakerUIObjects(loadedSneakers);
     }
 
-    public bool WillShoeFitInInventory(int quantity)
-    {
-        //If adding this shoe would exceed your maximum capacity.
-        return GetTotalShoeCountCumulative() + quantity <= (50 + 5 * (GameManager.playerStats.level - 1));
-    }
+    public bool WillShoeFitInInventory(int quantity) => GetTotalShoeCountCumulative() + quantity <= GetTotalInventoryCount();
+
 
     public void AddShoesToCollection(SneakersOwned sneaker)
     {
@@ -201,10 +203,8 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    private async void RemoveShoeEntryFromDatabase(string shoeName)
-    {
-        await GameManager.firebase.RemoveSneakerFromUser(GameManager.firebase.userId, shoeName);
-    }
+    private async void RemoveShoeEntryFromDatabase(string shoeName) =>  await GameManager.firebase.RemoveSneakerFromUser(GameManager.firebase.userId, shoeName);
+
     
     
     private void CreateSneakerUIObjects(List<SneakersOwned> sneakersToLoad)
@@ -297,9 +297,6 @@ public class InventoryManager : MonoBehaviour
         _LastClickedInventoryItem.sprite = Resources.Load<Sprite>("ItemPanelSelected");
     }
     
-    
-    
-
     public void ViewSneakerDetails(SneakerInventoryItem sneaker)
     {
         SelectedSneakerData.UpdateDetails(sneaker);

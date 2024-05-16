@@ -20,11 +20,15 @@ public class AIManager : MonoBehaviour
 
     //AI that haven't received their transaction yet (i.e haven't bought anything)
     private List<AI> _UnsatisfiedAI = new List<AI>();
-    
 
-    
-    
-    
+
+
+
+    public void UpdateSpawnDelay(float min, float max)
+    {
+        MinSpawnDelay = min;
+        MaxSpawnDelay = max;
+    }
     
     private void Start() => SpawnDelay = Random.Range(MinSpawnDelay, MaxSpawnDelay);
         

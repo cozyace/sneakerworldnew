@@ -18,6 +18,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-common:21.0.0' // Assets/Firebase/Editor/AppDependencies.xml:13
     implementation 'com.google.firebase:firebase-config:22.0.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:13
     implementation 'com.google.firebase:firebase-config-unity:12.0.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:20
+    implementation 'com.google.firebase:firebase-crashlytics-ndk:19.0.0' // Assets/Firebase/Editor/CrashlyticsDependencies.xml:13
+    implementation 'com.google.firebase:firebase-crashlytics-unity:12.0.0' // Assets/Firebase/Editor/CrashlyticsDependencies.xml:20
     implementation 'com.google.firebase:firebase-database:21.0.0' // Assets/Firebase/Editor/DatabaseDependencies.xml:13
     implementation 'com.google.firebase:firebase-database-unity:12.0.0' // Assets/Firebase/Editor/DatabaseDependencies.xml:22
     implementation 'com.google.firebase:firebase-firestore:25.0.0' // Assets/Firebase/Editor/FirestoreDependencies.xml:13
@@ -46,6 +48,13 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            def unityProjectPath = $/file:///**DIR_UNITYPROJECT**/$.replace("", "/")
+            res.srcDirs += (unityProjectPath +  '/Assets/Plugins/Android/Firebase/res/values/google-services.xml')
+        }
     }
 
     defaultConfig {

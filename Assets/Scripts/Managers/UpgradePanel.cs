@@ -1,19 +1,22 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class UpgradePanel : MonoBehaviour
 {
     [Header("UI Components")]
-    [SerializeField] private TMP_Text levelText;
-    [SerializeField] private TMP_Text priceText;
-    [SerializeField] private TMP_Text description;
-    [SerializeField] public Button buyButton;
-
+    [SerializeField] private TMP_Text LevelText;
+    [SerializeField] private TMP_Text PriceText;
+    [SerializeField] private TMP_Text DescriptionText;
+    [SerializeField] public Button BuyButton;
+    
     [Header("Values")]
-    public int level;
-    public int price;
-
+    public int Level;
+    public int Price;
+    public int MaximumLevel;
+    
     public void SetInitialValues(string startingDescription)
     {
         SetPrice(100);
@@ -23,31 +26,32 @@ public class UpgradePanel : MonoBehaviour
 
     public void BuyUpgrade()
     {
-        level += 1;
-        levelText.text = $"Level {level}";
-        price = level * 200;
-        priceText.text = $"{price}";
+        Level += 1;
+        LevelText.text = $"Level {Level}";
+        Price = Level * 200;
+        PriceText.text = $"{Price}";
     }
 
     private void SetPrice(int value)
     {
-        priceText.text = $"{value}";
-        price = value;
+        PriceText.text = $"{value}";
+        Price = value;
     }
 
     private void SetCurrentLevel(int value)
     {
-        levelText.text = $"Level {value}";
-        level = value;
+        LevelText.text = $"Level {value}";
+        Level = value;
     }
 
     public void SetDescription(string value)
     {
-        description.text = value;
+        DescriptionText.text = value;
     }
 
     public void SetMaxedOut()
     {
-        priceText.text = "MAXED OUT";
+        PriceText.text = "MAXED OUT";
+        BuyButton.interactable = false;
     }
 }

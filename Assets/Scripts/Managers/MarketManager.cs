@@ -268,7 +268,7 @@ private (bool canPurchase, string errorMsg) CanPurchaseListing(MarketListing lis
     //Makes sure it exists, and hasn't expired.
     bool doesListingExist = GameManager.firebase.DoesMarketListingExist(listing.key).Result && DateTimeOffset.UtcNow > DateTimeOffset.FromUnixTimeSeconds(listing.expirationDate);
     bool hasSufficientCurrency = GameManager.GetGems() >= listing.listingPriceGems && GameManager.GetCash() >= listing.listingPriceCash;
-    bool hasInventorySpace = GameManager.inventoryManager.GetTotalShoeCountCumulative() + listing.quantity <= 50 + 5 * (GameManager.playerStats.level - 1);
+    bool hasInventorySpace = GameManager.inventoryManager.GetTotalShoeCountCumulative() + listing.quantity <= GameManager.inventoryManager.GetTotalInventoryCount();
 
     if (doesListingExist && hasSufficientCurrency && hasInventorySpace)
         return (true, default);

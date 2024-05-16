@@ -796,6 +796,21 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
+  - m_Index: 60
+    m_Metrics:
+      m_Width: 39.234375
+      m_Height: 63
+      m_HorizontalBearingX: 1.171875
+      m_HorizontalBearingY: 63
+      m_HorizontalAdvance: 41.578125
+    m_GlyphRect:
+      m_X: 600
+      m_Y: 338
+      m_Width: 40
+      m_Height: 63
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
   - m_Index: 61
     m_Metrics:
       m_Width: 39.78125
@@ -1231,21 +1246,6 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-  - m_Index: 60
-    m_Metrics:
-      m_Width: 39.234375
-      m_Height: 63
-      m_HorizontalBearingX: 1.171875
-      m_HorizontalBearingY: 63
-      m_HorizontalAdvance: 41.578125
-    m_GlyphRect:
-      m_X: 600
-      m_Y: 338
-      m_Width: 40
-      m_Height: 63
-    m_Scale: 1
-    m_AtlasIndex: 0
-    m_ClassDefinitionType: 0
   m_CharacterTable:
   - m_ElementType: 1
     m_Unicode: 32
@@ -1444,6 +1444,10 @@ MonoBehaviour:
     m_GlyphIndex: 59
     m_Scale: 1
   - m_ElementType: 1
+    m_Unicode: 88
+    m_GlyphIndex: 60
+    m_Scale: 1
+  - m_ElementType: 1
     m_Unicode: 89
     m_GlyphIndex: 61
     m_Scale: 1
@@ -1558,10 +1562,6 @@ MonoBehaviour:
   - m_ElementType: 1
     m_Unicode: 8230
     m_GlyphIndex: 356
-    m_Scale: 1
-  - m_ElementType: 1
-    m_Unicode: 88
-    m_GlyphIndex: 60
     m_Scale: 1
   m_AtlasTextures:
   - {fileID: 5401562953400436857}
@@ -6487,7 +6487,7 @@ Material:
     - _ColorMask: 15
     - _CullMode: 0
     - _Diffuse: 0.5
-    - _FaceDilate: 0.52
+    - _FaceDilate: 0.55
     - _FaceUVSpeedX: 0
     - _FaceUVSpeedY: 0
     - _GlowInner: 0.05
@@ -6498,15 +6498,15 @@ Material:
     - _LightAngle: 3.1416
     - _MaskSoftnessX: 0
     - _MaskSoftnessY: 0
-    - _OutlineSoftness: 0.994
+    - _OutlineSoftness: 1
     - _OutlineUVSpeedX: 0
     - _OutlineUVSpeedY: 0
-    - _OutlineWidth: 0.833
+    - _OutlineWidth: 0.897
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 0.35509962
-    - _ScaleRatioB: 0.26325002
-    - _ScaleRatioC: 0.26325002
+    - _ScaleRatioA: 0.3416208
+    - _ScaleRatioB: 0.23624997
+    - _ScaleRatioC: 0.14121337
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -6519,10 +6519,10 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 1024
     - _TextureWidth: 1024
-    - _UnderlayDilate: 0
-    - _UnderlayOffsetX: 0
-    - _UnderlayOffsetY: 0
-    - _UnderlaySoftness: 0
+    - _UnderlayDilate: 0.19
+    - _UnderlayOffsetX: 0.84
+    - _UnderlayOffsetY: -0.54
+    - _UnderlaySoftness: 0.643
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75
@@ -6537,7 +6537,7 @@ Material:
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+    - _UnderlayColor: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 0.5}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!28 &5401562953400436857

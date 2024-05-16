@@ -34,6 +34,7 @@ public class FirebaseManager : MonoBehaviour
 
     [Header("Game Manager")]
     public GameManager gameManager;
+    private CrashlyticsInit _Crashlytics;
 
     [Header("Extra")]
     public GameObject loginScreen;
@@ -46,6 +47,8 @@ public class FirebaseManager : MonoBehaviour
 
     private async void Start()
     {
+        _Crashlytics = GetComponent<CrashlyticsInit>();
+        
         await InitializeDefaultValues();
 
         if (SceneManager.GetActiveScene().buildIndex == 0 && PlayerPrefs.HasKey("EMAIL") && PlayerPrefs.HasKey("PASSWORD"))
@@ -65,6 +68,8 @@ public class FirebaseManager : MonoBehaviour
         await FirebaseApp.CheckAndFixDependenciesAsync();
 
         AuthStateChanged(this, null);
+        
+        _Crashlytics.InitializeCrashlytics();
     }
 
     private void AuthStateChanged(object sender, EventArgs eventArgs)
@@ -449,7 +454,6 @@ public class FirebaseManager : MonoBehaviour
             foreach(DataSnapshot childSnapshot in snapshot.Children) 
             {
                 string json = childSnapshot.GetRawJsonValue();  
-                //print(json);
                 MarketListing sneaker = JsonUtility.FromJson<MarketListing>(json);
                 marketListings.Add(sneaker);
             }
@@ -793,7 +797,10 @@ public class FirebaseManager : MonoBehaviour
 
     public async Task<Dictionary<string, int>> CalculateLeaderboardRankingsAsync()
     {
-        Dictionary<string, int> userCash = new Dictionary<string, int>();
+        //Stores usernames, and the metric that's being tracked for this event.
+        Dictionary<string, int> userTrackingData = new Dictionary<string, int>();
+        //Stores the name of the data field in Firebase that is being tracked.
+        string sortingDataFieldName = "cash";
 
         try {
             DataSnapshot userDocs = await dbReference.Child("users").GetValueAsync();
@@ -801,11 +808,11 @@ public class FirebaseManager : MonoBehaviour
             foreach (DataSnapshot childSnapshot in userDocs.Children)
             {
                 string username = childSnapshot.Child("username").Value.ToString();
-                int cash = Convert.ToInt32(childSnapshot.Child("cash").Value);
-                userCash.TryAdd(username, cash);
+                int sortingData = Convert.ToInt32(childSnapshot.Child(sortingDataFieldName).Value);
+                userTrackingData.TryAdd(username, sortingData);
             }
 
-            Dictionary<string, int> rankedUsers = userCash
+            Dictionary<string, int> rankedUsers = userTrackingData
                 .OrderByDescending(u => u.Value)
                 .ToDictionary(u => u.Key, u => u.Value);
 
@@ -814,7 +821,7 @@ public class FirebaseManager : MonoBehaviour
         catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
-            return userCash;
+            return userTrackingData;
         }
     }
 
