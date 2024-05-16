@@ -7,6 +7,7 @@ public class DecorationManager : MonoBehaviour
     private GameObject _Grid;
 
     public bool IsGridActive = false;
+    public bool IsDecorating = false;
     
     // Start is called before the first frame update
     void Start()

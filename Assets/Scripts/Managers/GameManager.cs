@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     public FriendsUIManager _FriendsUIManager;
     public MarketManager _MarketManager;
     public StoreManager _StoreManager;
+    public DecorationManager _DecorationManager;
     
     public SneakerDatabaseObject SneakerDatabase;
 

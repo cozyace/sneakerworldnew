@@ -78,16 +78,24 @@ public class StoreManager : MonoBehaviour
     [SerializeField] [Range(0,3)] private int _EmployeeCount;
     //How many shelves you have (increases amount of items to sell at once)
     [SerializeField] [Range(0,27)] private int _ShelfCount;
+    //The level your store is (decides the layout)
+    [SerializeField][Range(0, 1)] private int _StoreLevel;
     
-    
-    
+    [Header("Non-Property Values")]
     //The average time that it takes for a customer to come into the store, (+- 3 seconds)
     [Range(1,10)] public float AverageCustomerSpawnTime = 1f;
+    [Range(0,100)] public int ExtraStorageInventorySpace = 0;
+    [Range(0.5f,10)]public float AverageCustomerTransactionTime = 5f;
+
+    [Space(10)]
+    [Header("Store")]
+    public StorePrefab ActiveStore;
+
+    [Space(10)]
+    [Header("Store Prefabs")]
+    public List<StorePrefab> StorePrefabs = new List<StorePrefab>();
     private const float SpawnTimeDiscrepancy = 1.5f; //How much + or - the range of time can be, between customers.
-
-    public int ExtraStorageInventorySpace = 0;
-    public float AverageCustomerTransactionTime = 1f;
-
+    
 
     // Start is called before the first frame update
     private void Start()
@@ -99,11 +107,18 @@ public class StoreManager : MonoBehaviour
         _CustomerQueue = GameManager._CustomerQueue;
         _AIManager = GameManager.aiManager;
         
+        //MAKE SURE THE PLAYER'S DATA IS LOADED IN HERE, BEFORE ANY OF THIS.
+        
+        //Check user's data here, and assign proper values.
+        ActiveStore = Instantiate(StorePrefabs[_StoreLevel]);
+        
+        
         //Give the game a moment to load in the player's data.
-        Invoke(nameof(InitializeStoreManager), 0.1f);
+        Invoke(nameof(InitializeUpgrades), 0.1f);
     }
 
-    public void InitializeStoreManager()
+    //Loads in all the 'Upgrades' for the store.
+    public void InitializeUpgrades()
     {
         _EmployeeManager.SetActiveEmployeeCount(EmployeeCount);
         _EmployeeManager.SetActiveSaleCountersCount(CounterCount);
