@@ -41,11 +41,11 @@ GameObject:
   m_Component:
   - component: {fileID: 8627463419451529945}
   - component: {fileID: 4456459581417983706}
-  - component: {fileID: 7067887340474528671}
   - component: {fileID: 4099549269209282383}
+  - component: {fileID: 1296003948922506313}
   m_Layer: 0
   m_Name: CashCounter
-  m_TagString: deskTouch
+  m_TagString: GridBlocker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -109,7 +109,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 224218599
   m_SortingLayer: 3
-  m_SortingOrder: 1
+  m_SortingOrder: 9
   m_Sprite: {fileID: 21300000, guid: 936bc178db124094a8d62f9bf8a19e63, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -121,8 +121,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &7067887340474528671
-BoxCollider2D:
+--- !u!114 &4099549269209282383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6322200912053587575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf3a777a329dc53478fa6f006cdd396e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!60 &1296003948922506313
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -165,20 +177,18 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.98, y: 3.85}
-  m_EdgeRadius: 0
---- !u!114 &4099549269209282383
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6322200912053587575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf3a777a329dc53478fa6f006cdd396e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Points:
+    m_Paths:
+    - - {x: -1.0098019, y: 0.5305321}
+      - {x: -1.86719, y: -0.07367122}
+      - {x: -2.2033067, y: -0.34545493}
+      - {x: 1.0612903, y: -2.1184824}
+      - {x: 1.75, y: -1.6999999}
+      - {x: 2.06, y: -1.5}
+      - {x: 2.19, y: -1.41}
+      - {x: 2.297068, y: -1.3093975}
+      - {x: 0.11806464, y: -0.1372307}
+  m_UseDelaunayMesh: 0
 --- !u!1 &8665741084467350252
 GameObject:
   m_ObjectHideFlags: 0

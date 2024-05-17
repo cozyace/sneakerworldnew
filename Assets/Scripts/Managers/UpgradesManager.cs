@@ -8,7 +8,6 @@ public class UpgradesManager : MonoBehaviour
 {
   
     [Header("Employee Upgrades")]
-    [SerializeField] private UpgradePanel EmployeesUpgrade; //The amount of employees working.
     [SerializeField] private UpgradePanel CounterUpgrade; //The amount of sale counters.
     [SerializeField] private UpgradePanel AdvertisementUpgrade; 
     [SerializeField] private UpgradePanel ImproveStoreUpgrade;
@@ -27,10 +26,9 @@ public class UpgradesManager : MonoBehaviour
     
     private void SetInitialPanelValues()
     {
-        EmployeesUpgrade.SetInitialValues($"Waiting time ~ {GameManager._StoreManager.AverageCustomerTransactionTime}s");
         CounterUpgrade.SetInitialValues($"{GameManager._StoreManager.CounterCount} Counters");
         AdvertisementUpgrade.SetInitialValues($"{GameManager._StoreManager.AverageCustomerSpawnTime} Average Spawn Time");
-        ImproveStoreUpgrade.SetInitialValues($"Store Level - UNFINISHED");
+        ImproveStoreUpgrade.SetInitialValues($"Store Model - {GameManager._StoreManager.ActiveStore.StoreName}");
         StorageUpgrade.SetInitialValues($"{GameManager.inventoryManager.GetTotalInventoryCount()} Total Inventory");
         ShelvesUpgrade.SetInitialValues($"{GameManager.inventoryManager.GetTotalShelfInventoryCount()} Total Shelf Spaces");
         //FINISH REST OF DESCRIPTIONS HERE.
@@ -38,10 +36,9 @@ public class UpgradesManager : MonoBehaviour
     
     private void SetDescriptions()
     {
-        EmployeesUpgrade.SetDescription($"Waiting time ~ {GameManager._StoreManager.AverageCustomerTransactionTime}s");
         CounterUpgrade.SetDescription($"{GameManager._StoreManager.CounterCount} Counters");
         AdvertisementUpgrade.SetDescription($"{GameManager._StoreManager.AverageCustomerSpawnTime} Average Spawn Time");
-        ImproveStoreUpgrade.SetDescription($"Store Level - UNFINISHED");
+        ImproveStoreUpgrade.SetDescription($"Store Model - {GameManager._StoreManager.ActiveStore.StoreName}");
         StorageUpgrade.SetDescription($"{GameManager.inventoryManager.GetTotalInventoryCount()} Total Inventory");
         ShelvesUpgrade.SetDescription($"{GameManager.inventoryManager.GetTotalShelfInventoryCount()} Total Shelf Spaces");
         //FINISH REST OF DESCRIPTIONS HERE.
@@ -49,7 +46,6 @@ public class UpgradesManager : MonoBehaviour
 
     public void UpdateMaximumValues()
     {
-        EmployeesUpgrade.UpdateMaximumLevels();
         CounterUpgrade.UpdateMaximumLevels();
         AdvertisementUpgrade.UpdateMaximumLevels();
         ImproveStoreUpgrade.UpdateMaximumLevels();
@@ -70,12 +66,8 @@ public class UpgradesManager : MonoBehaviour
         {
             case "DeskCount" :
                 GameManager._StoreManager.CounterCount++;
-                
                 //This is a temporary measure, will add some sort of employee selection system.
                 GameManager.AddEmployee();
-                break;
-            case "EmployeeSkill" :
-                GameManager._StoreManager.AverageCustomerTransactionTime = Math.Max(0, GameManager._StoreManager.AverageCustomerTransactionTime  - 0.5f);
                 break;
             case "Advertisement":
                 GameManager._StoreManager.AverageCustomerSpawnTime = Math.Max(0, GameManager._StoreManager.AverageCustomerTransactionTime  - 0.5f);

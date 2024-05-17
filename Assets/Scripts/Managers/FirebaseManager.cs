@@ -70,6 +70,7 @@ public class FirebaseManager : MonoBehaviour
         AuthStateChanged(this, null);
         
         _Crashlytics.InitializeCrashlytics();
+        FirebaseApp.LogLevel = LogLevel.Debug;
     }
 
     private void AuthStateChanged(object sender, EventArgs eventArgs)

@@ -9,8 +9,8 @@ public class StoreManager : MonoBehaviour
     /* This class is responsible for handling all the managerial-related tasked in relation to the store.
      * It should be able to control, employees, decorations, customers, etc.
      */
-    
 
+    public bool IsLocalStore = true; //This will be used for checking if this store is the user's, or someone else's.
     [Header("Game Manager Ref")]
     [Space(5)]
     [SerializeField] private GameManager GameManager;
@@ -164,6 +164,8 @@ public class StoreManager : MonoBehaviour
         
         //Give the game a moment to load in the player's data.
         Invoke(nameof(InitializeUpgrades), 0.1f);
+        
+        Invoke(nameof(InitializeDecorations), 0.15f);
     }
 
     //Loads in all the 'Upgrades' for the store.
@@ -175,7 +177,11 @@ public class StoreManager : MonoBehaviour
         _AIManager.UpdateSpawnDelay(Math.Clamp(AverageCustomerSpawnTime - SpawnTimeDiscrepancy, 0.25f,100), Math.Clamp(AverageCustomerSpawnTime + SpawnTimeDiscrepancy, 3f,100));
     }
 
-    //Called when you upgrade your store level from Upgrade menu. 
+    //Loads all the player's placed decorations from the database, and puts them on the grid.
+    public void InitializeDecorations()
+    {
+        
+    }
 
 
 

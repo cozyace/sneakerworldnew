@@ -28,6 +28,8 @@ TagManager:
   - SalePoint
   - AwayFromCounterPoint
   - ExitPoint
+  - FloorMask
+  - GridBlocker
   layers:
   - Default
   - TransparentFX

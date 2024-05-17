@@ -18,10 +18,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text GemText;
     [SerializeField] private Image XPFillBar;
     [SerializeField] private TMP_Text XPLevelText;
-
     
-    [Header("Panels")]
-    [SerializeField] private GameObject UpgradesPanel;
+
+    [Header("Components")]
+    [SerializeField] private GameObject UpgradesButton;
+    [SerializeField] private GameObject DecorationButton;
 
     
     [Header("Game Mananager")]
@@ -46,11 +47,11 @@ public class UIManager : MonoBehaviour
         CashText.text = FormattedCash(playerStats.cash);
         GemText.text = $"{playerStats.gems}";
     }
-    
 
-    public void ShowUpgrades()
+    public void Update()
     {
-        UpgradesPanel.SetActive(true);
-        UpgradesPanel.transform.Find("RootPanel").GetComponent<Animator>().Play("Open");
+        UpgradesButton.SetActive(GameManager._StoreManager.IsLocalStore);
+        DecorationButton.SetActive(GameManager._StoreManager.IsLocalStore);
     }
+    
 }

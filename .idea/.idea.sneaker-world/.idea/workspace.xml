@@ -5,20 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d1117129-4cb1-4fb2-b2eb-a684648520db" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Decoration System/GridSystem.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Decoration System/GridSystem/GridTile.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Decoration System/GridSystem/GridTile.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.sneaker-world/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DecorationManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DecorationManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Fonts/JockeyOne-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/New Tile Palette.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Graphics/New Graphical Assets/New Tile Palette.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Employee.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Employee.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Shops/(Level1)Store.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Shops/(Level1)Store.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Upgrades/CashCounter.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Upgrades/CashCounter.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Main.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Main.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/AI.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/AIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/AIManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/CustomerQueue.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/CustomerQueue.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/EmployeeManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/EmployeeManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UpgradePanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UpgradePanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/FirebaseManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UIManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/UpgradesManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/UpgradesManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/SneakerInventoryItem.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/StoreManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/StoreManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/StoreManager.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/StoreManager.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/StorePrefab.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/StorePrefab.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,6 +35,10 @@
     <setting file="file://$PROJECT_DIR$/../600Doors/600Doors/600Doors/Assets/Scripts/GameScene/CharacterScreen/HoverItemController.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/AI/CustomerQueue.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/CrashlyticsInit.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Decoration System/DecorationItemUI.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Decoration System/DecorationObject.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Decoration System/GridSystem/GridTile.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Decoration System/SelectedDecorationUI.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/MarketListingItem.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/StorePrefab.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/MainUI/FriendsUIManager.cs" root0="FORCE_HIGHLIGHTING" />
@@ -153,7 +159,10 @@
       <workItem from="1715448038705" duration="10941000" />
       <workItem from="1715530494754" duration="11577000" />
       <workItem from="1715705678606" duration="3348000" />
-      <workItem from="1715791255769" duration="22800000" />
+      <workItem from="1715791255769" duration="31602000" />
+      <workItem from="1715909734596" duration="2099000" />
+      <workItem from="1715921804104" duration="505000" />
+      <workItem from="1715962671639" duration="11523000" />
     </task>
     <servers />
   </component>
