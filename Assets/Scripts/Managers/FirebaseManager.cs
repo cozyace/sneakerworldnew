@@ -146,6 +146,7 @@ public class FirebaseManager : MonoBehaviour
         if (!ValidateSignupInput(username, email, password, signupConfirmPassword))
         {
             ShowLogMsg("Invalid format! Check your username and password again.");
+            loadingScreen.SetActive(false);
             return;
         }
 

@@ -109,7 +109,10 @@ public class GameManager : MonoBehaviour
         DateTime lastLoggedOutTime = await firebase.GetLastLoggedOut(firebase.userId);
 
         if (lastLoggedOutTime == new DateTime())
+        {
             print("This is your first time logging in!");
+            return;
+        }
         
         TimeSpan timeGone = DateTime.Now - lastLoggedOutTime;
         
