@@ -4,7 +4,7 @@ using UnityEngine;
 
 // Import Firebase and Crashlytics
 using Firebase;
-using Firebase.Crashlytics;
+//using Firebase.Crashlytics;
 
 public class CrashlyticsInit : MonoBehaviour
 {
@@ -23,7 +23,7 @@ public class CrashlyticsInit : MonoBehaviour
 
                 // When this property is set to true, Crashlytics will report all
                 // uncaught exceptions as fatal events. This is the recommended behavior.
-                Crashlytics.ReportUncaughtExceptionsAsFatal = true;
+                //Crashlytics.ReportUncaughtExceptionsAsFatal = true;
                 print("Crashlytics Initialized");
                 // Set a flag here for indicating that your project is ready to use Firebase.
             }

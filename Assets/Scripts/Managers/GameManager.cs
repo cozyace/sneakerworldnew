@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Firebase.Crashlytics;
+//using Firebase.Crashlytics;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -248,7 +248,7 @@ public class GameManager : MonoBehaviour
         catch (FirebaseException e)
         {
             Debug.LogError(e.Message);
-            Crashlytics.LogException(e);
+            //Crashlytics.LogException(e);
         }
     }
     
