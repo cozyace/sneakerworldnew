@@ -1,6 +1,7 @@
 // System.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 // Unity.
 using UnityEngine;
@@ -9,6 +10,8 @@ using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
 // using Firebase.Crashlytics;
+// Json.
+using Newtonsoft.Json;
 
 namespace SneakerWorld {
 
@@ -25,16 +28,13 @@ namespace SneakerWorld {
 
         // The firebase user.
         private FirebaseUser currentUser;
-        public FirebaseManager user {
-            get { return currentUser; }
-            set { currentUser = value; } // just in case.
+        public static FirebaseUser CurrentUser {
+            get { return Instance.currentUser; }
+            set { Instance.currentUser = value; } // just in case.
         }
 
         // A reference to the database.
         public DatabaseReference databaseRoot;
-
-        // The users ID.
-        public string userId;
 
         // Runs once on instantiation.
         private async void Awake() {
@@ -50,6 +50,7 @@ namespace SneakerWorld {
         private async Task OnInstantiate() {
             // Set the singleton.
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
 
             // Clean the firebase dependencies to be ready to use.
@@ -101,12 +102,15 @@ namespace SneakerWorld {
         }
 
         // Sends an email asking the user to verify their account.
-        public static async void SendEmailVerification(FirebaseUser user) {
-            Instance.StartCoroutine(SendEmailForVerificationAsync());
+        public static void SendSignupEmailVerification(FirebaseUser user = null) {
+            if (user == null) {
+                user = CurrentUser;
+            }
+            Instance.StartCoroutine(Instance.IESendSignupEmailVerification(user));
         }
 
         // Asynchronously sends an email asking the user to verify their account.
-        IEnumerator SendEmailForVerificationAsync(FirebaseUser user) {
+        IEnumerator IESendSignupEmailVerification(FirebaseUser user) {
             if (user == null) {
                 yield return null;
             }
@@ -128,30 +132,64 @@ namespace SneakerWorld {
         }
 
         // Sets a generic value in the database.
-        public static async Task SetDatabaseValue<T>(string userID, string valueName, T value) {
+        public static async Task SetDatabaseValue<T>(string path, T value) {
             try {
-                await Instance.databaseRoot.Child($"users/{userID}/{valueName}").SetValueAsync(value);
+                if (IsValidType<T>()) {
+                    await Instance.databaseRoot.Child(path).SetValueAsync(value);
+                }
+                else {
+                    string json = ToJSON<T>(value);
+                    // Dictionary<string, object> dictionary = FromJSON<Dictionary<string, object>>(json); 
+                    await Instance.databaseRoot.Child(path).SetRawJsonValueAsync(json);
+                }
             } 
-            catch(FirebaseException exception) {
-                Debug.Log(exception.Message);
+            catch(Exception exception) {
+                Debug.LogError(exception.Message);
             }
         }
 
         // Get a generic value from the database.
-        public static async Task<T> GetDatabaseValue<T>(string userID, string valueName) {
+        public static async Task<T> GetDatabaseValue<T>(string path, bool createIfEmpty = false) {
             try {
-                DataSnapshot currentValue = await Instance.databaseRoot.Child($"users/{userID}/{valueName}").GetValueAsync();
+                DataSnapshot currentValue = await Instance.databaseRoot.Child(path).GetValueAsync();
                 if (currentValue.GetRawJsonValue() != null) {
                     string trimmedValue = currentValue.GetRawJsonValue().Trim('"');
-                    T result = TryConversion<T>(trimmedValue);
-                    return result;
+
+                    if (IsValidType<T>()) {
+                        return TryConversion<T>(trimmedValue);
+                    }
+                    else {
+                        return FromJSON<T>(trimmedValue);
+                    }
+                }
+                else {
+                    if (createIfEmpty) {
+                        await SetDatabaseValue<T>(path, default(T));
+                    }
+                    return default(T);
                 }
             }
-            catch(FirebaseException exception) {
-                Debug.Log(exception.Message);
+            catch(Exception exception) {
+                Debug.LogError(exception.Message);
             }
             return default(T);
         }
+        
+        public static bool IsValidType<T>() {
+            if (typeof(T) != typeof(string) && typeof(T) != typeof(int) && typeof(T) != typeof(bool)) {
+                return false;
+            }
+            return true;
+        }
+
+        public static string ToJSON<T>(T value) {
+            return JsonUtility.ToJson(value);
+        }
+
+        public static T FromJSON<T>(string value) {
+            return JsonUtility.FromJson<T>(value);
+        }
+
 
         // Helper method to safely convert values from the database. 
         public static T TryConversion<T>(string input) {
@@ -163,6 +201,41 @@ namespace SneakerWorld {
                 Debug.Log("Value was of invalid type.");
             }
             return result;
+        }
+
+        // Get all the keys at the given path.
+        public static async Task<List<string>> GetAllKeys(string path) {
+            List<string> listOfKeys = new List<string>();
+            DataSnapshot currentValue = await FirebaseManager.Instance.databaseRoot.Child(path).GetValueAsync();
+            foreach (DataSnapshot child in currentValue.Children) { 
+                listOfKeys.Add(child.Key);
+            }
+            return listOfKeys;
+        }
+
+        // Get all the keys at the given path.
+        public static async Task<Dictionary<string, T>> GetDictionaryAt<T>(string path) {
+            Dictionary<string, T> dict = new Dictionary<string, T>();
+
+            DataSnapshot currentValue = await FirebaseManager.Instance.databaseRoot.Child(path).GetValueAsync();
+
+            foreach (DataSnapshot child in currentValue.Children) { 
+                dict.Add(child.Key, DataSnapshotToT<T>(child));
+            }
+            return dict;
+        }
+
+        public static T DataSnapshotToT<T>(DataSnapshot snapshot) {
+            if (snapshot != null && snapshot.GetRawJsonValue() != null) {
+                string trimmedValue = snapshot.GetRawJsonValue().Trim('"');
+                if (IsValidType<T>()) {
+                    return TryConversion<T>(trimmedValue);
+                }
+                else {
+                    return FromJSON<T>(trimmedValue);
+                }
+            }
+            return default(T);
         }
 
     }

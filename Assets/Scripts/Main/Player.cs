@@ -14,53 +14,35 @@ namespace SneakerWorld.Main {
     /// </summary>
     public class Player : MonoBehaviour {
 
-        // The firebase user.
-        public FirebaseUser player => FirebaseManager.user;
+        // The components this script manages.
+        // public Store store;
+        public Inventory inventory;
+        public Wallet wallet;
+        // public Status status;
+        // private FriendList friends = null;
 
-        // The friends of this user.
-        [SerializeField]
-        private FriendList friends = null;
+        void Start() {
+            GameObject.FindFirstObjectByType<SneakerWorld.Auth.LoginHandler>().onLoginSuccessEvent.AddListener(Init);
+        }
 
-        // The inventory of this user.
-        [SerializeField]
-        private Inventory inventory = null;
+        async void Init(string message) {
+            await Initialize();
+        }
 
         // Initializes the user.
-        public async Task<bool> Initialize(AuthResult auth) {
+        public async Task<bool> Initialize() {
             try {
-                await SetOnlineStatus(true);
-                await friends.Initialize(this);
+                // await friends.Initialize(this);
+                // await store.Initialize(this);
+                // await status.Initialize(this);
                 await inventory.Initialize(this);
+                await wallet.Initialize(this);
                 return true;
             }
             catch (Exception exception) {
                 Debug.Log(exception.Message);
             }
             return false;
-        }
-
-        void UpdatePlayerProfile() {
-            UserProfile profile = new()
-            {
-                DisplayName = username
-            };
-
-            playerStats.username = username;
-            await result.User.UpdateUserProfileAsync(profile);
-            userId = result.User.UserId;
-        }
-
-        public void Deactivate() {
-            SetOnlineStatus(false);
-        }
-
-        public async Task SetLastLoggedOut() {
-            DateTime currentTime = DateTime.Now;
-            await FirebaseManager.SetDatabaseValue<DateTime>(playerId, "lastLoggedOut", currentTime);
-        }
-
-        public async Task SetOnlineStatus(bool isOnline) {
-            await FirebaseManager.SetDatabaseValue<bool>(playerId, "isOnline", isOnline);
         }
 
     }

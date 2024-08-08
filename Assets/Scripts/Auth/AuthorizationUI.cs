@@ -1,5 +1,10 @@
-﻿using UnityEngine;
+﻿// System.
+using System;
+// Unity.
+using UnityEngine;
 using UnityEngine.UI;
+// TMP.
+using TMPro;
 
 namespace SneakerWorld.Auth {
 
@@ -14,11 +19,11 @@ namespace SneakerWorld.Auth {
         public LoginHandler loginHandler;
 
         // The input field for the username.
-        [SeriliazeField]
+        [SerializeField]
         private TMP_InputField loginEmail;
 
         // The input field for the password.
-        [SeriliazeField]
+        [SerializeField]
         private TMP_InputField loginPassword;
 
         [Space(2), Header("Signup")]
@@ -27,23 +32,23 @@ namespace SneakerWorld.Auth {
         public SignupHandler signupHandler;
 
         // The input field for the username.
-        [SeriliazeField]
+        [SerializeField]
         private TMP_InputField signupEmail;
 
-        // The input field for the password.
-        [SeriliazeField]
+        // The SerializeField field for the password.
+        [SerializeField]
         private TMP_InputField signupUsername;
 
         // The input field for the password.
-        [SeriliazeField]
+        [SerializeField]
         private TMP_InputField signupPassword;
 
         // The input field for the password.
-        [SeriliazeField]
+        [SerializeField]
         private TMP_InputField signupConfirmPassword;
 
         // The screen overlay for loading.
-        public LoadingScreen loadingScreen;
+        // public Overlay loadingOverlay;
         
         // The textmesh to send messages to the player.
         public TextMeshProUGUI logText;
@@ -53,25 +58,25 @@ namespace SneakerWorld.Auth {
         private void Start() {
 
             // Hook up the login events.
-            loginHandler.onLoginStartEvent += OnAuthorizationProcessStart;
-            loginHandler.onLoginSuccessEvent += OnAuthorizationProcessSucceed;
-            loginHandler.onLoginFailedEvent += OnAuthorizationProcessFailed;
+            loginHandler.onLoginStartEvent.AddListener(OnAuthorizationProcessStart);
+            loginHandler.onLoginSuccessEvent.AddListener(OnAuthorizationProcessSucceed);
+            loginHandler.onLoginFailedEvent.AddListener(OnAuthorizationProcessFailed);
 
             // Hook up the signup events.
-            signupHandler.onSignupStartEvent += OnAuthorizationProcessStart;
-            signupHandler.onSignupSuccessEvent += OnAuthorizationProcessSucceed;
-            signupHandler.onSignupFailedEvent += OnAuthorizationProcessFailed;
+            signupHandler.onSignupStartEvent.AddListener(OnAuthorizationProcessStart);
+            signupHandler.onSignupSuccessEvent.AddListener(OnAuthorizationProcessSucceed);
+            signupHandler.onSignupFailedEvent.AddListener(OnAuthorizationProcessFailed);
 
         }
 
         // The UI Process whenever an authorization process starts. 
         public void OnAuthorizationProcessStart() {
-            loadingScreen.Enable();
+            // loadingOverlay.Enable();
         }
 
         // The UI Process whenever an authorization process succeeds. 
         public void OnAuthorizationProcessSucceed(string message) {
-            SendMessage(message);
+            CreatePopup(message);
 
             // Clear all the fields of text.
             loginEmail.text = "";
@@ -81,17 +86,17 @@ namespace SneakerWorld.Auth {
             signupPassword.text = "";
             signupConfirmPassword.text = "";
 
-            loadingScreen.Disable();
+            // loadingOverlay.Disable();
         }
 
         // The UI Process whenever an authorization process fails. 
         public void OnAuthorizationProcessFailed(string message = "Unknown") {
-            SendMessage(message);
-            loadingScreen.Disable();
+            CreatePopup(message);
+            // loadingOverlay.Disable();
         }
 
         // The UI Process to send a message to the user.
-        private void SendMessage(string message) {
+        private void CreatePopup(string message) {
             logText.text = message;
         }
 

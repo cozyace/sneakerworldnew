@@ -24,21 +24,21 @@ namespace SneakerWorld.Auth {
         public const string UNVERIFIED_EMAIL_MESSAGE = "User email not verified! Check your inbox.";
 
         // A message to send when the sign up is successful.
-        public const string SUCCESSFUL_LOGIN_MESSAGE = "Login successful!"
+        public const string SUCCESSFUL_LOGIN_MESSAGE = "Login successful!";
 
         // An event to trigger when the log in process has begun.
-        public UnityEvent onLoginStartEvent;
+        public UnityEvent onLoginStartEvent = new UnityEvent();
 
         // An event to trigger when the log in process succeeds.
-        public UnityEvent<string> onLoginSuccessEvent;
+        public UnityEvent<string> onLoginSuccessEvent = new UnityEvent<string>();
 
         // An event to trigger when the log in process fails.
-        public UnityEvent<string> onLoginFailedEvent;
+        public UnityEvent<string> onLoginFailedEvent = new UnityEvent<string>();
 
 
         // Process the logic for logging the player in.
         [Button("Attempt Login")]
-        public async Task LoginAsync(string email, string password) {
+        public async Task AttemptLogin(string email, string password) {
 
             // Start the login event.
             onLoginStartEvent.Invoke();
@@ -59,6 +59,7 @@ namespace SneakerWorld.Auth {
                 FirebaseManager.SetCurrentUser(result.User);
 
                 // Trigger a successful login event.
+                Debug.Log(SUCCESSFUL_LOGIN_MESSAGE);
                 onLoginSuccessEvent.Invoke(SUCCESSFUL_LOGIN_MESSAGE);
 
                 // await RunCoroutine(LoadDataEnum(() => StartCoroutine(LoadSceneAsync(1))));
@@ -66,7 +67,7 @@ namespace SneakerWorld.Auth {
             }
             catch (FirebaseException exception) {
                 // Trigger a failed login event.
-                Debug.LogError($"Login failed: {message}");
+                Debug.LogError($"Login failed: {exception.Message}");
                 onLoginFailedEvent.Invoke(exception.Message);
             }
 

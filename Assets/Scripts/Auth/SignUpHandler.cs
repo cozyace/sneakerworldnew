@@ -1,6 +1,7 @@
 ﻿// System.
 using System;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 // Unity.
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +16,7 @@ namespace SneakerWorld.Auth {
     /// <summary>
     /// Handles all the login logic.
     /// </summary>
-    public class LoginHandler : MonoBehaviour {
+    public class SignupHandler : MonoBehaviour {
 
         // A message to throw if the the password or email is not a valid string.
         public const string INVALID_INPUT_MESSAGE = "Invalid format! Check your username and password again.";
@@ -24,7 +25,7 @@ namespace SneakerWorld.Auth {
         public const string UNVERIFIED_EMAIL_MESSAGE = "User email not verified! Check your inbox.";
         
         // A message to send when the sign up is successful.
-        public const string SUCCESSFUL_SIGNUP_MESSAGE = "Sign up successful! Check email for verification."
+        public const string SUCCESSFUL_SIGNUP_MESSAGE = "Sign up successful! Check email for verification.";
 
         // An event to trigger when the log in process has begun.
         public UnityEvent onSignupStartEvent;
@@ -50,7 +51,9 @@ namespace SneakerWorld.Auth {
                     throw new Exception(INVALID_INPUT_MESSAGE);
                 }
 
+                // Create the user in the database.
                 AuthResult result = await FirebaseManager.CreateUserInDatabase(email, password);
+                // await result.User.UpdateUserProfileAsync(new() { DisplayName = username });
                 Debug.Log($"Firebase user created successfully: {result.User.DisplayName} ({result.User.UserId})");
 
                 // Set the new user as the current active user.
@@ -58,11 +61,11 @@ namespace SneakerWorld.Auth {
 
                 // Send an email to the user to verify.
                 FirebaseManager.SendSignupEmailVerification();
+                // await FirebaseManager.SetDatabaseValue<string>("users", result.User.UserId, "username", username);
 
                 // Trigger a successful sign up event.
+                Debug.Log(SUCCESSFUL_SIGNUP_MESSAGE);
                 onSignupSuccessEvent.Invoke(SUCCESSFUL_SIGNUP_MESSAGE);
-
-                await SaveDataAsync(userId, playerStats);
 
             }
             catch (FirebaseException exception) {
@@ -80,6 +83,10 @@ namespace SneakerWorld.Auth {
                 && IsValidEmail(email) 
                 && password == confirmedPassword;
         }
+
+        private bool IsValidEmail(string email) {
+            return Regex.IsMatch(email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
+        } 
 
     }
 
