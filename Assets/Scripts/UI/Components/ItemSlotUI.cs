@@ -10,13 +10,10 @@ using TMPro;
 
 namespace SneakerWorld.UI {
 
-    using CrateData = SneakerWorld.Main.CrateData;
-    using SneakerData = SneakerWorld.Main.SneakerData;
-    using RarityUtils = SneakerWorld.Main.RarityUtils;
+    using ItemData = SneakerWorld.Main.ItemData;
+    using Rarity = SneakerWorld.Main.Rarity;
+    // using RarityUtils = SneakerWorld.Main.RarityUtils;
 
-    /// <summary>
-    /// Listens to the store and updates the UI accordingly. 
-    /// </summary>
     public class ItemSlotUI : MonoBehaviour {
 
         // The elements of this UI component.
@@ -26,28 +23,31 @@ namespace SneakerWorld.UI {
         public Image rarityPanel;
         public Image mainPanel;
 
-        public void Draw(CrateData crateData) {
+        //
+        public string itemId;
 
-            nameText.text = crateData.name;
-            rarityText.text = crateData.rarity.ToString();
-            priceText.text = $"${crateData.price}";
+        public void Draw<TItemData>(TItemData itemData)
+            where TItemData : ItemData {
 
-            RarityUtils.SetRarityPanel(rarityPanel, crateData.rarity);
-            RarityUtils.SetRarityCrateIcon(mainPanel, crateData.rarity);
+            nameText.text = itemData.name;
+            rarityText.text = itemData.rarity.ToString();
+            priceText.text = $"${itemData.price}";
+
+            SetRarityPanel(rarityPanel, itemData.rarity);
+            SetIcon(mainPanel, itemData);
+
+            itemId = itemData.id;
 
             // mainPanel.sprite = Resources.Load<Sprite>(crateData.imagePath);
 
         }
 
-        public void Draw(SneakerData sneakerData) {
+        public static void SetRarityPanel(Image image, Rarity rarity) {
+            image.sprite = Resources.Load<Sprite>($"Graphics/Main/Rarities/{rarity.ToString()}");
+        }
 
-            nameText.text = sneakerData.name;
-            rarityText.text = sneakerData.rarity.ToString();
-            priceText.text = $"${sneakerData.price}";
-            // rarityPanel.sprite = Resources.Load<Sprite>(crateData.imagePath);
-            // Debug.Log(sneakerData.imagePath);
-            // mainPanel.sprite = Resources.Load<Sprite>(sneakerData.imagePath);
-
+        public static void SetIcon(Image image, ItemData item) {
+            image.sprite = Resources.Load<Sprite>(item.iconPath);
         }
 
 

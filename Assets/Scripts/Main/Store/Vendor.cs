@@ -141,7 +141,7 @@ namespace SneakerWorld.Main {
                     // For now, keep the logic here simple.
                     Debug.Log(randomCrate.name);
 
-                    crates.Add(new VendorItem(randomCrate.crateId, UnityEngine.Random.Range(10, 15)));
+                    crates.Add(new VendorItem(randomCrate.id, UnityEngine.Random.Range(10, 15)));
                     depth += 1;
                 }
 

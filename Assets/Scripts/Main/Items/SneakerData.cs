@@ -10,31 +10,54 @@ namespace SneakerWorld.Main {
     /// A convenient wrapper to put sneaker data into.
     /// </summary>
     [System.Serializable]
-    public class SneakerData {
+    public class SneakerData : ItemData {
 
         // The prefix used to identify crates.
         public const string SNEAKER_ID_PREFIX = "sneaker";
 
-        // The id of this crate.
-        public string sneakerId => GetSneakerId();
-
         // The details of this sneaker.
-        public string name;
-        public Rarity rarity;
-        public int price;
+        public Condition condition;
+        public Edition edition;
         // public string imagePath;
-        public int level;
-
         // public bool signed;
         // public int version;
-        // public Condition condition;
 
-        public string GetSneakerId() {
-            return GetSneakerId(name, rarity);
+        public SneakerData(Brand brand, Edition edition, Condition condition, Rarity rarity) {
+            this.brand = brand;
+            this.edition = edition;
+            this.condition = condition;
+            this.rarity = rarity;
         }
 
-        public static string GetSneakerId(string name, Rarity rarity) {
-            return $"{SNEAKER_ID_PREFIX}-{name.ToLower().Replace(" ", "_")}-{rarity.ToString().ToLower().Replace(" ", "_")}"; 
+        public SneakerData(Brand brand, Edition edition, Condition condition) {
+            this.brand = brand;
+            this.edition = edition;
+            this.condition = condition;
+            this.rarity = RarityUtils.RarityFromCondAndEd(brand, condition, edition);
+        }
+
+        public override string GetId() {
+            return GetSneakerId(brand, edition, condition, rarity);
+        }
+
+        public override string GetName() {
+            return GetSneakerName(brand, edition, condition);
+        }
+
+        public override int GetPrice() {
+            return 0;
+        }
+
+        public override string GetIconPath() {
+            return $"Art/Sneakers/{brand.ToString()}";
+        }
+
+        public static string GetSneakerName(Brand brand, Edition edition, Condition condition) {
+            return $"{CleanString(brand)} {CleanString(edition)} [{CleanString(condition)}]"; 
+        }
+
+        public static string GetSneakerId(Brand brand, Edition edition, Condition condition, Rarity rarity) {
+            return $"{SNEAKER_ID_PREFIX}{ID_BREAK}{UnderscoredString(brand)}{ID_BREAK}{CleanString(edition)}{ID_BREAK}{UnderscoredString(condition)}{ID_BREAK}{UnderscoredString(rarity)}"; 
         }
 
         // Get the data corresponding to this crate Id.

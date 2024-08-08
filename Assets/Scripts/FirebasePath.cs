@@ -36,9 +36,8 @@ namespace SneakerWorld {
         public static string Inventory => $"{User}/inventory";
         
         // Sneakers from inventory.
-        public static string InventorySneakers => $"{Inventory}/sneakers";
-        public static string InventorySneakersWithId(string sneakerId) {
-            return $"{InventorySneakers}/{sneakerId}";
+        public static string InventoryItemWithId(string itemId) {
+            return $"{Inventory}/{itemId}";
         }
 
         // Vendor paths.

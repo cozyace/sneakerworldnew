@@ -18,18 +18,16 @@ namespace SneakerWorld.Main {
         public class InventoryItem {
             public string itemId;
             public int quantity;
-            public int sellingPrice;
             public InventoryItem(string itemId) {
                 this.itemId = itemId;
                 this.quantity = 0;
-                this.sellingPrice = 0; // -> this should be display price, and set from the shelf.
             }
         }
 
         // Stores the inventory data retrieved from the database.
         [System.Serializable]
         public class InventoryData {
-            public List<InventoryItem> sneakers = new List<InventoryItem>(); 
+            public List<InventoryItem> items = new List<InventoryItem>(); 
         }
 
         // Triggers an event whenever the inventory changes.
@@ -72,7 +70,7 @@ namespace SneakerWorld.Main {
             return await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
         }
 
-        public async Task AddSneakerByID(string sneakerId, int quantity = 1) {
+        public async Task AddItemByID(string itemId, int quantity = 1) {
             // How does this handle not having a sneaker already?
             InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
             Debug.Log($"Managed to find inventory: {currentInventory!=null}");
@@ -81,15 +79,15 @@ namespace SneakerWorld.Main {
             if (currentInventory == null) {
                 currentInventory = new InventoryData();
             }
-            if (currentInventory.sneakers == null) {
-                currentInventory.sneakers = new List<InventoryItem>();
+            if (currentInventory.items == null) {
+                currentInventory.items = new List<InventoryItem>();
             }
             
             // Add the item.
-            InventoryItem item = currentInventory.sneakers.Find(item => item.itemId == sneakerId);
+            InventoryItem item = currentInventory.items.Find(item => item.itemId == itemId);
             if (item == null) {
-                item = new InventoryItem(sneakerId);
-                currentInventory.sneakers.Add(item);
+                item = new InventoryItem(itemId);
+                currentInventory.items.Add(item);
             }
             item.quantity += quantity;
 
@@ -101,7 +99,7 @@ namespace SneakerWorld.Main {
 
         }
 
-        public async Task RemoveSneakerByID(string sneakerId, int quantity = 1) {
+        public async Task RemoveItemByID(string itemId, int quantity = 1) {
             // How does this work if there is not a sneaker already?
             InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
             Debug.Log($"Managed to find inventory: {currentInventory!=null}");
@@ -110,12 +108,12 @@ namespace SneakerWorld.Main {
             if (currentInventory == null) {
                 currentInventory = new InventoryData();
             }
-            if (currentInventory.sneakers == null) {
-                currentInventory.sneakers = new List<InventoryItem>();
+            if (currentInventory.items == null) {
+                currentInventory.items = new List<InventoryItem>();
             }
 
             // Add the item.
-            InventoryItem item = currentInventory.sneakers.Find(item => item.itemId == sneakerId);
+            InventoryItem item = currentInventory.items.Find(item => item.itemId == itemId);
             if (item != null && item.quantity > quantity) {
                 
                 // Deduct the quantity.
@@ -129,22 +127,6 @@ namespace SneakerWorld.Main {
 
         }
 
-        public async Task<int> CheckStockForSneakerWithId(string sneakerId) {
-            return (await FirebaseManager.GetDatabaseValue<InventoryItem>(FirebasePath.InventorySneakersWithId(sneakerId))).quantity;
-        }
-
-        public async Task<bool> CheckHasStockForSneakerWithId(string sneakerId, int quantity = 1) {
-            int stock = await CheckStockForSneakerWithId(sneakerId);
-            return stock >= quantity;
-        }
-
-        public async Task<int> GetSellingPriceForSneakerWithId(string sneakerId) {
-            InventoryItem item = await FirebaseManager.GetDatabaseValue<InventoryItem>(FirebasePath.InventorySneakersWithId(sneakerId));
-            if (item != null) {
-                return item.sellingPrice;
-            }
-            return -1;
-        }
 
     }
 
