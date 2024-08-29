@@ -16,20 +16,19 @@ namespace SneakerWorld.Main {
     public class Wallet : PlayerSystem {
 
         // An event to trigger when a transaction has occured.
-        public UnityEvent<int, int> onTransactionEvent = new UnityEvent<int, int>();
-
-        // An event to trigger when a transaction has occured.
-        public UnityEvent<int, int> onGemTransactionEvent = new UnityEvent<int, int>();
+        public UnityEvent<int, int> onCashTransactionEvent = new UnityEvent<int, int>();
+        public UnityEvent<int, int> onGemsTransactionEvent = new UnityEvent<int, int>();
 
         // An event to trigger when this system has been initialized.
-        public UnityEvent<int, int> onInitEvent = new UnityEvent<int, int>();
-
+        public UnityEvent<int> onCashInitEvent = new UnityEvent<int>();
+        public UnityEvent<int> onGemsInitEvent = new UnityEvent<int>();
 
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
             int cash = await GetCash();
             int gems = await GetGems();
-            onInitEvent.Invoke(cash, gems);
+            onCashInitEvent.Invoke(cash);
+            onGemsInitEvent.Invoke(gems);
         }
 
         // Get the player's cash balance. 
@@ -57,7 +56,7 @@ namespace SneakerWorld.Main {
             Debug.Log($"Debited {player.id} for {value}. Cash is now {currentCash - value}");
 
             // Notify any listeners that a transaction event occurred.
-            onTransactionEvent.Invoke(currentCash, -value);
+            onCashTransactionEvent.Invoke(currentCash, -value);
             return true;
         }
 
@@ -69,7 +68,7 @@ namespace SneakerWorld.Main {
             Debug.Log($"Credited {player.id} for {value}. Cash is now {currentCash + value}");
 
             // Notify any listeners that a transaction event occurred.
-            onTransactionEvent.Invoke(currentCash, value);
+            onCashTransactionEvent.Invoke(currentCash, value);
         }
 
         // Credit gems to the players wallet.
@@ -80,7 +79,7 @@ namespace SneakerWorld.Main {
             Debug.Log($"Credited {player.id} for {value} gems. Gems is now {currentGems + value}");
 
             // Notify any listeners that a transaction event occurred.
-            onGemTransactionEvent.Invoke(currentGems, value);
+            onGemsTransactionEvent.Invoke(currentGems, value);
         }
 
     }

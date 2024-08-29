@@ -16,7 +16,8 @@ namespace SneakerWorld.Main {
     /// </summary>
     [System.Serializable]
     public class InventoryData {
-        public List<InventoryItem> items = new List<InventoryItem>(); 
+        public List<InventoryItem> sneakers = new List<InventoryItem>();
+        public List<InventoryItem> crates = new List<InventoryItem>(); 
     }
 
     /// <summary>

@@ -12,6 +12,7 @@ namespace SneakerWorld.Main {
     public abstract class PlayerSystem : MonoBehaviour {
 
         // Cache a reference to the player.
+        [HideInInspector]
         public Player player;
 
         // Initializes this system.
