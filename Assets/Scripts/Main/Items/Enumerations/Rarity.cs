@@ -17,6 +17,7 @@ namespace SneakerWorld.Main {
     public enum Brand {
         Badidas,
         Bike,
+        // Bunderarmour,
         // Bike_Max,
         // Bike_Force,
         Count
@@ -64,6 +65,13 @@ namespace SneakerWorld.Main {
             [Edition.Second] = 0.5f,
             [Edition.First] = 0.4f,
             [Edition.Original] = 0.1f,
+        };
+
+        public static Dictionary<Brand, int> brandLevelLock = new Dictionary<Brand, int>() {
+            [Brand.Badidas] = 0,
+            [Brand.Bike] = 3,
+            // [Brand.Bike_Max] = 0.85f,
+            // [Brand.Bike_Force] = 0.95f,
         };
 
         public static Dictionary<Brand, float> brandRarityAdjustment = new Dictionary<Brand, float>() {
@@ -150,18 +158,60 @@ namespace SneakerWorld.Main {
 
             float fullPrice = basePrice + additionalPrice;
 
+            return Round(fullPrice);
+
+        }
+
+        public static int Round(float price) {
             float roundError = 5f;
-            if (fullPrice > 100f) {
+            if (price > 100f) {
                 roundError = 10f;
             }
-            if (fullPrice > 500f) {
+            if (price > 500f) {
                 roundError = 50f;
             }
-            if (fullPrice > 1000f) {
+            if (price > 1000f) {
                 roundError = 100f;
             }
+            return (int)(Mathf.Ceil(price / roundError) * roundError);
+        }
 
-            return (int)(Mathf.Ceil(fullPrice / roundError) * roundError);
+        public static int GetLevel(Brand brand, Rarity crateRarity) {
+            return brandLevelLock[brand] + (int)crateRarity;
+        }
+
+        public static int ShoePriceCalculator(Brand brand, Rarity rarity) {
+            int rarityCount = (int)Rarity.Count;
+
+            Rarity[] rarities = new Rarity[rarityCount];
+            int[] prices = new int[rarityCount];
+            Dictionary<Rarity, int> rp = new Dictionary<Rarity, int>();
+
+            for (int i = 0; i < rarityCount; i++) {
+                rarities[i] = (Rarity)i;
+                prices[i] = CratePriceCalculator(brand, (Rarity)i);
+                rp.Add(rarities[i], prices[i]);
+            }
+
+            int count = 0;
+            float price = 0f;
+            float rarityProb = InvSample<Rarity>(rarity, rarityRequirement, Rarity.Count);
+            foreach (var kv in crateRarityRange) {
+
+                // Then possible to get from this crate.
+                if (rarityProb > kv.Value.x && rarityProb < kv.Value.y) {
+                    float amount = (kv.Value.y - rarityProb) / (kv.Value.y - kv.Value.x);
+                    price += ((float)rp[kv.Key] / amount);
+                    count += 1;
+                }
+
+            }
+
+            if (count > 0) {
+                return Round((float)price / count);
+            }
+            return 0;
+
         }
 
 

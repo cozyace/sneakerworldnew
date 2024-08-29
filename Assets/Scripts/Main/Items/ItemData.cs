@@ -17,17 +17,23 @@ namespace SneakerWorld.Main {
         public string name => GetName();
         public int price => GetPrice();
         public string iconPath => GetIconPath();
+        public int level => GetLevel();
+
+        // 
+        public int quantity = 0;
+        public bool featured = false;
 
         // The generic details of this item.
         public Brand brand;
         public Rarity rarity;
-        public int level;
 
         public abstract string GetName();
 
         public abstract string GetId();
 
         public abstract int GetPrice();
+
+        public abstract int GetLevel();
 
         public abstract string GetIconPath();
 

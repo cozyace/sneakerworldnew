@@ -45,7 +45,11 @@ namespace SneakerWorld.Main {
         }
 
         public override int GetPrice() {
-            return 0;
+            return RarityUtils.ShoePriceCalculator(brand, rarity);
+        }
+
+        public override int GetLevel() {
+            return RarityUtils.GetLevel(brand, rarity);
         }
 
         public override string GetIconPath() {
@@ -53,11 +57,40 @@ namespace SneakerWorld.Main {
         }
 
         public static string GetSneakerName(Brand brand, Edition edition, Condition condition) {
-            return $"{CleanString(brand)} {CleanString(edition)} [{CleanString(condition)}]"; 
+            return $"{CleanString(brand)} {AbbreviateEdition(edition)} [{CleanString(condition)}]"; 
+        }
+
+        public static string AbbreviateEdition(Edition edition) {
+            return edition switch {
+                Edition.Original => "",
+                Edition.First => "1st",
+                Edition.Second => "2nd",
+                Edition.RipOff => "Fake",
+            };
         }
 
         public static string GetSneakerId(Brand brand, Edition edition, Condition condition, Rarity rarity) {
             return $"{SNEAKER_ID_PREFIX}{ID_BREAK}{UnderscoredString(brand)}{ID_BREAK}{CleanString(edition)}{ID_BREAK}{UnderscoredString(condition)}{ID_BREAK}{UnderscoredString(rarity)}"; 
+        }
+
+        // Get the data corresponding to this crate Id.
+        public static SneakerData ParseId(string crateId) {
+            string[] idElems = crateId.Split(ID_BREAK);
+            string prefix = idElems[0];
+            if (prefix == SNEAKER_ID_PREFIX && idElems.Length == 5) {
+                Brand brand;
+                Edition ed;
+                Condition cond;
+                Rarity rarity;
+                Enum.TryParse(idElems[1], out brand);
+                Enum.TryParse(idElems[2], out ed);
+                Enum.TryParse(idElems[3], out cond);
+                Enum.TryParse(idElems[4], out rarity);
+                
+                Debug.Log("parsed a crate Id");
+                return new SneakerData(brand, ed, cond);
+            }
+            return null;
         }
 
         // Get the data corresponding to this crate Id.

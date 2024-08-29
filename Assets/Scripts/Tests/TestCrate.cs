@@ -33,8 +33,8 @@ namespace SneakerWorld.Tests {
                 Add<Rarity>(rarityCounter, sneaker.Item3);
             }
 
-            // PrintDictCounter<Edition>(edCounter, "Edition Counter: ", count);
-            // PrintDictCounter<Condition>(condCounter, "Condition Counter: ", count);
+            PrintDictCounter<Edition>(edCounter, "Edition Counter: ", count);
+            PrintDictCounter<Condition>(condCounter, "Condition Counter: ", count);
             PrintDictCounter<Rarity>(rarityCounter, "Rarity Counter: ", count);
 
         }

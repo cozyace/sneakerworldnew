@@ -6,64 +6,30 @@ using System.Threading.Tasks;
 // Unity.
 using UnityEngine;
 using UnityEngine.Events;
+// Sirenix.
+using Sirenix.OdinInspector;
 
 namespace SneakerWorld.Main {
 
     /// <summary>
-    /// Wraps the user data in a convenient class. 
+    /// All the functionality for the inventory.
     /// </summary>
-    public class Inventory : MonoBehaviour {
-
-        [System.Serializable]
-        public class InventoryItem {
-            public string itemId;
-            public int quantity;
-            public InventoryItem(string itemId) {
-                this.itemId = itemId;
-                this.quantity = 0;
-            }
-        }
-
-        // Stores the inventory data retrieved from the database.
-        [System.Serializable]
-        public class InventoryData {
-            public List<InventoryItem> items = new List<InventoryItem>(); 
-        }
+    public class Inventory : PlayerSystem {
 
         // Triggers an event whenever the inventory changes.
         public UnityEvent<InventoryData> onInventoryChanged = new UnityEvent<InventoryData>();
 
-        // Regularly updating stock within the inventory.
-        public InventoryData stock;
 
-        // Cache a reference to the player.
-        public Player player;
-
-
-        // Initializes the inventory.
-        public async Task<bool> Initialize(Player player) {
-            // Cache a reference to the player.
-            this.player = player;
-            try {
-                StartCoroutine(IEQueryInventory());
-                await default(Task);
-                return true;
-            }
-            catch (Exception exception) {
-                Debug.Log(exception.Message);
-            }
-            return false;
+        // Implement the initialization from the player.
+        protected override async Task TryInitialize() {
+            InventoryData stock = await GetInventoryData();
+            onInventoryChanged.Invoke(stock);
         }
 
-        private IEnumerator IEQueryInventory() {
-            while (true) {
-                UpdateInventory();
-                yield return new WaitForSeconds(1f);
-            }
-        }
-
-        public async Task UpdateInventory() {
-            stock = await GetInventoryData();
+        [Button]
+        public async void DeleteInventory() {
+            await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, new InventoryData());
+            Debug.Log("Deleted inventory");
         }
 
         public async Task<InventoryData> GetInventoryData() {

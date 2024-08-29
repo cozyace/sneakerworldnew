@@ -40,6 +40,10 @@ namespace SneakerWorld.Main {
             return RarityUtils.CratePriceCalculator(brand, rarity);
         }
 
+        public override int GetLevel() {
+            return RarityUtils.GetLevel(brand, rarity);
+        }
+
         public override string GetIconPath() {
             return $"Art/Crates/{brand.ToString()}";
         }
