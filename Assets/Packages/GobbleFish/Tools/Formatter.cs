@@ -47,7 +47,7 @@ namespace GobbleFish {
             // Collect the text meshes under the transform not overridden by another formatter.
             List<T> tList = new List<T>();
             CollectComponents(transform, ref tList);
-            Debug.Log(tList.Count);
+            // Debug.Log(tList.Count);
             foreach (T _t in tList) {
                 Format(_t);
             }

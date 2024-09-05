@@ -45,7 +45,7 @@ namespace SneakerWorld.Main {
         // The quantity being attempted to purchase.
         public int price = 0;
         public bool featuredItem = false;
-
+        public int debugTotalCost = 0;
 
         private CrateData crateData = null;
         private SneakerData sneakerData = null;
@@ -66,39 +66,6 @@ namespace SneakerWorld.Main {
                 quantity = maxQuanity;
             }
             onQuantityChanged.Invoke(quantity, maxQuanity, price);
-        }
-
-        public void AttemptPurchase(UI.StoreItem storeItem) {
-            StartPurchase(storeItem.itemId, storeItem.maxQuantity, storeItem.featured);
-            Debug.Log($"Attempting purchase of : {storeItem.itemId}");
-        }
-
-        public int debugTotalCost = 0;
-
-        [Button]
-        public void StartPurchaseOfCrate(Brand brand, Rarity rarity) {
-            CrateData crateData = new CrateData(brand, rarity);
-            Player player = GameObject.FindFirstObjectByType<Player>();
-
-            int _quantity = quantity;
-            StartPurchase(crateData.GetId(), quantity, featuredItem);
-            // SetQuantity(quantity);
-            quantity = _quantity;
-            debugTotalCost = price * quantity;
-            CompletePurchase(player, crateData.GetId(), quantity);
-        }
-
-        [Button]
-        public void StartPurchaseOfSneaker(Brand brand, Edition edition, Condition condition) {
-            SneakerData sneakerData = new SneakerData(brand, edition, condition);
-            Player player = GameObject.FindFirstObjectByType<Player>();
-
-            int _quantity = quantity;
-            StartPurchase(sneakerData.GetId(), quantity, featuredItem);
-            // SetQuantity(quantity);
-            quantity = _quantity;
-            debugTotalCost = price * quantity;
-            CompletePurchase(player, sneakerData.GetId(), quantity);
         }
 
         public void StartPurchase(string itemId, int maxQuanity, bool featuredItem) {

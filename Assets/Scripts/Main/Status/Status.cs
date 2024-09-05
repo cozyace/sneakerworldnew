@@ -21,7 +21,7 @@ namespace SneakerWorld.Main {
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
             StatusData state = await GetStatus();
-            Debug.Log(state.username);
+            Debug.Log($"Logged in for user with username: {state.username}");
             onStatusChanged.Invoke(state);
         }
 

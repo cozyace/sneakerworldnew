@@ -85,6 +85,46 @@ namespace SneakerWorld.Main {
             onFeaturedStoreUpdated.Invoke(featuredStoreData);
         }
 
+        public async Task<StoreData> RemoveRegularItemById(string itemId, int quantity) {
+            StoreData store = await GetStore();
+            if (store == null) {
+                return null;
+            }
+
+            InventoryItem sneaker = store.sneakers.Find(s => s.itemId == itemId);
+            if (sneaker != null) {
+                sneaker.quantity -= quantity;
+            }
+            InventoryItem crate = store.crates.Find(c => c.itemId == itemId);
+            if (crate != null) {
+                crate.quantity -= quantity;
+            }
+            await SetStore(store);
+
+            onStoreUpdated.Invoke(store);
+            return store;
+        }
+
+        public async Task<FeaturedStoreData> RemoveFeaturedItemById(string itemId, int quantity) {
+            FeaturedStoreData fStore = await GetFeaturedStore();
+            if (fStore == null) {
+                return null;
+            }
+
+            InventoryItem sneaker = fStore.sneakers.Find(s => s.itemId == itemId);
+            if (sneaker != null) {
+                sneaker.quantity -= quantity;
+            }
+            InventoryItem crate = fStore.crates.Find(c => c.itemId == itemId);
+            if (crate != null) {
+                crate.quantity -= quantity;
+            }
+            await SetFeaturedStore(fStore);
+
+            onFeaturedStoreUpdated.Invoke(fStore);
+            return fStore;
+        }
+
     }
 
 }

@@ -33,7 +33,7 @@ namespace SneakerWorld.UI {
                 InventorySlot slot = Instantiate(itemPrefab, contentSection).GetComponent<InventorySlot>();
                 slot.Draw(item[i].itemId, item[i].quantity);
             }
-            amountText.text = $"{item.Count}{amountStringTrail}";
+            if (amountText != null) { amountText.text = $"{item.Count}{amountStringTrail}"; }
         }
         
     }

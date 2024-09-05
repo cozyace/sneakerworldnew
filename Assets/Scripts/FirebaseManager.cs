@@ -53,6 +53,8 @@ namespace SneakerWorld {
             transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
 
+            FirebaseApp.LogLevel = LogLevel.Error;
+
             // Clean the firebase dependencies to be ready to use.
             await FixDependencies();
 
@@ -64,7 +66,6 @@ namespace SneakerWorld {
             Debug.Log($"Found Database Root: {databaseRoot!=null}");
 
             // Initialize the crash analytics and set the app to debug console.
-            FirebaseApp.LogLevel = LogLevel.Debug;
 
         }
 

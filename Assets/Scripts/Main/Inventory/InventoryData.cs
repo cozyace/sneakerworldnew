@@ -27,10 +27,17 @@ namespace SneakerWorld.Main {
     public class InventoryItem {
         public string itemId;
         public int quantity;
+
         public InventoryItem(string itemId) {
             this.itemId = itemId;
             this.quantity = 0;
         }
+
+        public InventoryItem(string itemId, int quantity) {
+            this.itemId = itemId;
+            this.quantity = quantity;
+        }
+
     }
 
 }

@@ -14,17 +14,22 @@ namespace SneakerWorld.UI {
 
     public class OpenCratePopup : MonoBehaviour {
 
-        public CrateInventorySlot slot;
+        public InventorySlot mainSlot;
+        public InventorySlot rewardSlot;
 
-        public void Open(CrateInventorySlot slot) {
-            Open(slot.itemId, slot.quantity);
-        }
-
-        public void Open(string crateId, int maxQuantity) {
-            Debug.Log(crateId);
-            slot.Draw(crateId, maxQuantity);
+        public void OpenPopup(InventorySlot slot) {
+            mainSlot.Draw(slot.itemId, slot.quantity);
             gameObject.SetActive(true);
         }
+
+        public void OpenCrate() {
+            CrateData crateData = CrateData.ParseId(mainSlot.itemId);
+            if (crateData != null) {
+                crateData.GetRandomSneakerFromCrate();
+                mainSlot.Draw(mainSlot.itemId, mainSlot.quantity - 1);
+            }
+        }
+
 
     }
 

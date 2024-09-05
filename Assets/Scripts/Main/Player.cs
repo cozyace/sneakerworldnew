@@ -32,8 +32,11 @@ namespace SneakerWorld.Main {
         public Status status;
         public FriendsList friends;
 
-        public static Player instance;
+        //
+        public UI.UserInterface ui;
         public PurchaseHandler purchaser;
+
+        public static Player instance;
 
         void Awake() {
             instance = this;

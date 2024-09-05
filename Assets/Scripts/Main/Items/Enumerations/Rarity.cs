@@ -98,26 +98,11 @@ namespace SneakerWorld.Main {
         };
 
         public static string GetSneakerFromCrate(Brand brand, Rarity crateRarity) {
-
-            Vector2 probDis = crateRarityRange[crateRarity];
-
-            float conditionProb = UnityEngine.Random.Range(probDis.x, probDis.y);
-            float editionProb = UnityEngine.Random.Range(probDis.x, probDis.y);
-
-            (Edition, float) ed = Sample<Edition>(editionProb, editionDict, Edition.Count);
-            (Condition, float) cond = Sample<Condition>(conditionProb, conditionDict, Condition.Count);
-
-            // float aveProb = (ed.Item2 + cond.Item2) / 2f;
-            float aveProb = (conditionProb * editionProb);
-            float brandAdjustedProb = brandRarityAdjustment[brand] * aveProb;
-            (Rarity, float) outputRarity = Sample<Rarity>(brandAdjustedProb, rarityRequirement, Rarity.Count);
-
-            return $"{ed.Item1}_{cond.Item1}_{outputRarity.Item1}";
-
+            (Edition, Condition, Rarity) sneakerParams = GetSneakerParamsFromCrate(brand, crateRarity);
+            return $"{sneakerParams.Item1}_{sneakerParams.Item2}_{sneakerParams.Item1}";
         }
 
         public static (Edition, Condition, Rarity) GetSneakerParamsFromCrate(Brand brand, Rarity crateRarity) {
-
             Vector2 probDis = crateRarityRange[crateRarity];
 
             float conditionProb = UnityEngine.Random.Range(probDis.x, probDis.y);

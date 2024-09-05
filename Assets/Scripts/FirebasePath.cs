@@ -75,6 +75,9 @@ namespace SneakerWorld {
 
         // Item paths.
         public static string Items => $"{Global}/items";
+        public static string ItemDict(string itemDict) {
+            return $"{Items}/{itemDict}";
+        }
 
         // The path to all the enabled items.
         public static string EnabledItems => $"{Items}/enabledItemList";

@@ -12,7 +12,6 @@ using Sirenix.OdinInspector;
 namespace SneakerWorld.Admin {
 
     using Main;
-    using FeaturedStoreData = Main.Store.FeaturedStoreData;
 
     /// <summary>
     /// A simple data structure to store / construct market events with.
@@ -31,31 +30,32 @@ namespace SneakerWorld.Admin {
         [Button]
         private async Task GenerateFeaturedItem(int day, int month, int year) {
             FeaturedStoreData featuredStoreData = new FeaturedStoreData();
-            featuredStoreData.featuredSneakers = FeaturedSneakers();
-            featuredStoreData.featuredCrates = FeaturedCrates();
+            featuredStoreData.sneakers = FeaturedSneakers();
+            featuredStoreData.crates = FeaturedCrates();
 
             FirebaseManager.SetDatabaseValue<FeaturedStoreData>(FirebasePath.FeaturedItemWithDate(FeaturedItem.GetTimeId(day, month, year)), featuredStoreData);
         }
 
-        public List<SneakerData> FeaturedSneakers() {
-            List<SneakerData> sneakers = new List<SneakerData>();
+        public List<InventoryItem> FeaturedSneakers() {
+            List<InventoryItem> sneakers = new List<InventoryItem>();
             
             for (int j = 0; j < 2; j++) {
                 Brand brand = (Brand)(UnityEngine.Random.Range(0, (int)Brand.Count));
                 SneakerData sneaker = new SneakerData(brand, Edition.Original, Condition.Mint);
-                sneakers.Add(sneaker);
+                sneakers.Add(new InventoryItem(sneaker.id, 1));
             }
             
             return sneakers;
 
         }
 
-        public List<CrateData> FeaturedCrates() {
-            List<CrateData> featuredCrates = new List<CrateData>();
+        public List<InventoryItem> FeaturedCrates() {
+            List<InventoryItem> featuredCrates = new List<InventoryItem>();
 
             int brandCount = (int)Brand.Count;
             for (int j = 0; j < 2; j++) {
-                featuredCrates.Add(new CrateData((Brand)j, Rarity.Legendary));
+                CrateData crate = new CrateData((Brand)j, Rarity.Legendary);
+                featuredCrates.Add(new InventoryItem(crate.id, 1));
             }
             
             return featuredCrates;

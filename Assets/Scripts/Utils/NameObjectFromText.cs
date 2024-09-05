@@ -15,8 +15,13 @@ namespace SneakerWorld.UI {
         
         void Update() {
             if (!Application.isPlaying) {
-                string titleText = ToTitleCase(nameText.text);
-                gameObject.name = $"{titleText} {tag}";
+                if (GetComponent<TextMeshProUGUI>() != null) {
+                    nameText = GetComponent<TextMeshProUGUI>();
+                }
+                if (nameText != null) {
+                    string titleText = ToTitleCase(nameText.text);
+                    gameObject.name = $"{titleText} {tag}";
+                }
             }
         }
 

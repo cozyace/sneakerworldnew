@@ -22,8 +22,8 @@ namespace SneakerWorld.Main {
 
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
-            InventoryData stock = await GetInventoryData();
-            onInventoryChanged.Invoke(stock);
+            InventoryData inventory = await GetInventoryData();
+            onInventoryChanged.Invoke(inventory);
         }
 
         [Button]
@@ -33,7 +33,12 @@ namespace SneakerWorld.Main {
         }
 
         public async Task<InventoryData> GetInventoryData() {
-            return await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
+            InventoryData inventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
+            if (inventory == null) {
+                inventory = new InventoryData();
+                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, inventory);
+            }
+            return inventory;
         }
 
         public async Task AddItemByID(string itemId, int quantity = 1) {
@@ -45,15 +50,25 @@ namespace SneakerWorld.Main {
             if (currentInventory == null) {
                 currentInventory = new InventoryData();
             }
-            if (currentInventory.items == null) {
-                currentInventory.items = new List<InventoryItem>();
-            }
             
-            // Add the item.
-            InventoryItem item = currentInventory.items.Find(item => item.itemId == itemId);
+            
+            // Find the item.
+            List<InventoryItem> searchList = new List<InventoryItem>();
+            if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
+                searchList = currentInventory.sneakers;
+            }
+            else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
+                searchList = currentInventory.crates;
+            }
+
+            if (searchList == null) {
+                searchList = new List<InventoryItem>();
+            }
+
+            InventoryItem item = searchList.Find(item => item.itemId == itemId);
             if (item == null) {
                 item = new InventoryItem(itemId);
-                currentInventory.items.Add(item);
+                searchList.Add(item);
             }
             item.quantity += quantity;
 
@@ -74,12 +89,21 @@ namespace SneakerWorld.Main {
             if (currentInventory == null) {
                 currentInventory = new InventoryData();
             }
-            if (currentInventory.items == null) {
-                currentInventory.items = new List<InventoryItem>();
-            }
 
             // Add the item.
-            InventoryItem item = currentInventory.items.Find(item => item.itemId == itemId);
+            List<InventoryItem> searchList = new List<InventoryItem>();
+            if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
+                searchList = currentInventory.sneakers;
+            }
+            else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
+                searchList = currentInventory.crates;
+            }
+
+            if (searchList == null) {
+                searchList = new List<InventoryItem>();
+            }
+
+            InventoryItem item = searchList.Find(item => item.itemId == itemId);
             if (item != null && item.quantity > quantity) {
                 
                 // Deduct the quantity.

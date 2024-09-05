@@ -74,8 +74,8 @@ namespace SneakerWorld.Main {
         }
 
         // Get the data corresponding to this crate Id.
-        public static SneakerData ParseId(string crateId) {
-            string[] idElems = crateId.Split(ID_BREAK);
+        public static SneakerData ParseId(string sneakerId) {
+            string[] idElems = sneakerId.Split(ID_BREAK);
             string prefix = idElems[0];
             if (prefix == SNEAKER_ID_PREFIX && idElems.Length == 5) {
                 Brand brand;
@@ -87,7 +87,7 @@ namespace SneakerWorld.Main {
                 Enum.TryParse(idElems[3], out cond);
                 Enum.TryParse(idElems[4], out rarity);
                 
-                Debug.Log("parsed a crate Id");
+                // Debug.Log($"Parsed a Sneaker ID with ID {sneakerId}");
                 return new SneakerData(brand, ed, cond);
             }
             return null;

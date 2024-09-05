@@ -26,6 +26,7 @@ namespace SneakerWorld.UI {
         // The elements of this UI component.
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI priceText;
+        public TextMeshProUGUI totalPriceText;
         public TextMeshProUGUI rarityText;
         public TextMeshProUGUI quantityText;
         public TextMeshProUGUI maxQuantityText;
@@ -43,6 +44,7 @@ namespace SneakerWorld.UI {
         public GameObject purchaseScreen;
         public GameObject loadingScreen;
         public GameObject claimScreen;
+        public GameObject openButton;
 
         public Image completePurchaseIcon;
         public Text completePurchaseText;
@@ -86,7 +88,8 @@ namespace SneakerWorld.UI {
         void DrawQuantity(int quantity, int maxQuanity, int price) {
             quantityText.text = quantity.ToString() + "/" + maxQuanity.ToString();
             maxQuantityText.text = " "; // maxQuanity.ToString() + " Left";
-            priceText.text = $"{int.Parse(quantityText.text) * price}";
+            priceText.text = price.ToString();
+            totalPriceText.text = (quantity * price).ToString();
         }
 
         // Draw the start of a purchase.
@@ -120,6 +123,14 @@ namespace SneakerWorld.UI {
 
             loadingScreen.SetActive(false);
             claimScreen.SetActive(true);
+
+            if (CrateData.ParseId(itemId) != null) {
+                openButton.SetActive(true);
+            }
+            else {
+                openButton.SetActive(false);
+            }
+
         }
 
         // Draw a failed purchase.

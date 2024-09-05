@@ -64,12 +64,8 @@ namespace SneakerWorld.Main {
                 Brand brand;
                 Rarity rarity;
                 Enum.TryParse(idElems[1], out brand);
-
-                Debug.Log(idElems[1]);
-                Debug.Log(brand);
-
                 Enum.TryParse(idElems[2], out rarity);
-                Debug.Log("parsed a crate Id");
+                // Debug.Log($"Parsed a Crate ID with ID {crateId}");
                 return new CrateData(brand, rarity);
             }
             return null;

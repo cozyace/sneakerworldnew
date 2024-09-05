@@ -11,6 +11,7 @@ namespace SneakerWorld.Utils {
 
         // Animating the opening and closing of the panel.
         private bool open;
+        public bool startClosed = true;
 
         // Position animation.
         public AnimationCurve openPosCurve;
@@ -29,6 +30,10 @@ namespace SneakerWorld.Utils {
         void Awake() {
             localPosition = transform.localPosition;
             localScale = transform.localScale;
+            if (startClosed) {
+                transform.localPosition = localPosition + posYFactor * Vector3.up * openPosCurve.Evaluate(0f);
+                transform.localScale = localScale + scaleYFactor * Vector3.up * openScaleCurve.Evaluate(0f);
+            }
         }
 
         void Update() {
