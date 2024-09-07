@@ -13,7 +13,7 @@ namespace SneakerWorld.UI {
     using Main;
 
     /// <summary>
-    /// Listens to the inventory and updates the UI accordingly. 
+    /// Listens to the inventory and updates the UI accordingly.
     /// </summary>
     public class InventoryContentDrawer : MonoBehaviour {
 
@@ -31,11 +31,11 @@ namespace SneakerWorld.UI {
             }
             for (int i = 0; i < item.Count; i++) {
                 InventorySlot slot = Instantiate(itemPrefab, contentSection).GetComponent<InventorySlot>();
-                slot.Draw(item[i].itemId, item[i].quantity);
+                slot.Draw(item[i].itemId, item[i].quantity, item[i].onSale, item[i].markup);
             }
-            if (amountText != null) { amountText.text = $"{item.Count}{amountStringTrail}"; }
+            // if (amountText != null) { amountText.text = $"{item.Count}{amountStringTrail}"; }
         }
-        
+
     }
 
 }

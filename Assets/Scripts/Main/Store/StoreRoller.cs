@@ -22,10 +22,20 @@ namespace SneakerWorld.Main {
         public const string SUCCESSFUL_REROLL_MESSAGE = "Successfully rerolled!";
 
         // Reroll events.
-        public UnityEvent<int> onRerollEvent = new UnityEvent<int>();
+        public UnityEvent<int> onRerollSneakersEvent = new UnityEvent<int>();
+        public UnityEvent<int> onRerollCratesEvent = new UnityEvent<int>();
+
+        public UnityEvent<int, int> onRerollInit = new UnityEvent<int, int>();
 
         // The price for rerolling
         public int pricePerReroll = 100;
+
+        public void Init(StoreData store) {
+            int nextRollPrice = GetRollPrice(store.sneakerRerolls);
+            int nextCratesRollPrice = GetRollPrice(store.crateRerolls);
+
+            onRerollInit.Invoke(nextRollPrice, nextCratesRollPrice);
+        }
 
         public List<CrateData> AllCrates() {
             List<CrateData> crateData = new List<CrateData>();
@@ -113,11 +123,21 @@ namespace SneakerWorld.Main {
             return items;
         }
 
-        public async Task RerollSneakers(int sneakerCount) {
+        public void RerollSneakers() {
+            AsyncRerollSneakers();
+        }
+
+        public void RerollCrates() {
+            AsyncRerollCrates();
+        }
+
+        public async Task AsyncRerollSneakers() {
 
             try {
                 StoreData store = await Player.instance.store.GetStore();
-                int rerollPrice = pricePerReroll * (store.sneakerRerolls + 1);
+                StoreStateData storeState = await Player.instance.store.state.GetState();
+                int sneakerCount = storeState.sneakerCount;
+                int rerollPrice = GetRollPrice(store.sneakerRerolls);
 
                 // Check the Player.instance can afford the crate.
                 bool hasFunds = await Player.instance.wallet.Debit(rerollPrice);
@@ -129,11 +149,13 @@ namespace SneakerWorld.Main {
                 // Add the sneaker to inventory.
                 store.sneakers = RandomSneakers(sneakerCount);
                 store.sneakerRerolls += 1;
+                int nextRollPrice = GetRollPrice(store.sneakerRerolls);
 
                 await Player.instance.store.SetStore(store);
 
                 Debug.Log(SUCCESSFUL_REROLL_MESSAGE);
                 // onRerollEvent.Invoke(rerollPrice, rerollPrice+pricePerReroll);
+                onRerollSneakersEvent.Invoke(nextRollPrice);
             
             }
             catch (Exception exception) {
@@ -143,11 +165,13 @@ namespace SneakerWorld.Main {
             
         }
 
-        public async Task RerollCrates(int crateCount) {
+        public async Task AsyncRerollCrates() {
 
             try {
                 StoreData store = await Player.instance.store.GetStore();
-                int rerollPrice = pricePerReroll * (store.crateRerolls + 1);
+                StoreStateData storeState = await Player.instance.store.state.GetState();
+                int crateCount = storeState.crateCount;
+                int rerollPrice = GetRollPrice(store.crateRerolls);
 
                 // Check the Player.instance can afford the crate.
                 bool hasFunds = await Player.instance.wallet.Debit(rerollPrice);
@@ -159,18 +183,22 @@ namespace SneakerWorld.Main {
                 // Add the sneaker to inventory.
                 store.crates = RandomCrates(crateCount, false);
                 store.crateRerolls += 1;
-                int nextRollPrice = pricePerReroll * (store.crateRerolls + 1);
+                int nextRollPrice = GetRollPrice(store.crateRerolls);
 
                 await Player.instance.store.SetStore(store);
 
                 Debug.Log(SUCCESSFUL_REROLL_MESSAGE);
-                onRerollEvent.Invoke(nextRollPrice);
+                onRerollCratesEvent.Invoke(nextRollPrice);
             
             }
             catch (Exception exception) {
                 Debug.LogError(exception.Message);
                 Player.instance.purchaser.onPurchaseFailedEvent.Invoke(exception.Message);
             }
+        }
+
+        public int GetRollPrice(int currRolls) {
+            return pricePerReroll * (currRolls + 1);
         }
 
     }

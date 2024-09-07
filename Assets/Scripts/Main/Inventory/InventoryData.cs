@@ -28,6 +28,9 @@ namespace SneakerWorld.Main {
         public string itemId;
         public int quantity;
 
+        public bool onSale = false;
+        public float markup = 0f;
+
         public InventoryItem(string itemId) {
             this.itemId = itemId;
             this.quantity = 0;

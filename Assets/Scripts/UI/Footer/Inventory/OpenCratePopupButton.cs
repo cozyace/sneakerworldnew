@@ -12,7 +12,7 @@ namespace SneakerWorld.UI {
     using Main;
 
     [RequireComponent(typeof(Button))]
-    public class OpenCrateButton : MonoBehaviour {
+    public class OpenCratePopupButton : MonoBehaviour {
 
         public InventorySlot slot;
         private Button button;
@@ -20,11 +20,11 @@ namespace SneakerWorld.UI {
 
         void Awake() {
             button = GetComponent<Button>();
-            button.onClick.AddListener(OpenCrate);
+            button.onClick.AddListener(SetCratePopup);
         }
 
-        public void OpenCrate() {
-            Player.instance.ui.crateRollerOverlay.GetComponent<OpenCratePopup>().OpenCrate();
+        public void SetCratePopup() {
+            Player.instance.ui.crateRollerOverlay.GetComponent<OpenCratePopup>().OpenPopup(slot);
         }
 
     }

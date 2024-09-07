@@ -28,16 +28,16 @@ namespace SneakerWorld.Main {
         public UnityEvent<StoreData> onStoreUpdated = new UnityEvent<StoreData>();
         public UnityEvent<FeaturedStoreData> onFeaturedStoreUpdated = new UnityEvent<FeaturedStoreData>();
 
-        // Reroll events.
-        public UnityEvent<int> onRerollEvent = new UnityEvent<int>();
-
         // Used to roll for new stuff.
         public StoreRoller roller;
+        public StoreUpgrader state;
 
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
-            await GetStore();
+            await state.Init();
+            StoreData storeData = await GetStore();
             await GetFeaturedStore();
+            roller.Init(storeData);
         }
 
         public async Task<StoreData> GetStore() {
@@ -47,8 +47,9 @@ namespace SneakerWorld.Main {
             StoreData store = await FirebaseManager.GetDatabaseValue<StoreData>(FirebasePath.DailyStore(timeId));
             if (store == null) {
                 store = new StoreData();
-                store.crates = roller.RandomCrates(6);
-                store.sneakers = roller.RandomSneakers(6);
+                StoreStateData stateData = await Player.instance.store.state.GetState();
+                store.crates = roller.RandomCrates(stateData.sneakerCount);
+                store.sneakers = roller.RandomSneakers(stateData.crateCount);
             }
             
             await SetStore(store);
@@ -126,5 +127,6 @@ namespace SneakerWorld.Main {
         }
 
     }
+
 
 }

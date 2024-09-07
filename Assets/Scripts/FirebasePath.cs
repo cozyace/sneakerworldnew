@@ -60,6 +60,18 @@ namespace SneakerWorld {
 
         // Vendor paths.
         public static string Store => $"{User}/store";
+        
+        //
+        public static string StatePath(string type) {
+            if (type == "store") {
+                return $"{Store}/state";
+            }
+            else if (type == "inventory") {
+                return $"{User}/inventoryState";
+            }
+            return null;
+        }
+
         public static string DailyStore(string datePath) {
             return $"{Store}/daily/{datePath}";
         }
@@ -68,6 +80,12 @@ namespace SneakerWorld {
         // public static string VendorSneakersWithId(string sneakerId) {
         //     return $"{VendorSneakers}/{sneakerId}";
         // }
+
+        // Shop paths.
+        public static string Shop => $"{User}/shop";
+        public static string MyShop() {
+            return $"{Shop}";
+        }
 
 
         // Global paths.

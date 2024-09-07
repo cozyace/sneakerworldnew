@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 // Unity.
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SneakerWorld.Decoration {
 
@@ -11,6 +12,9 @@ namespace SneakerWorld.Decoration {
     public class DecorPosition : MonoBehaviour {
 
         private SpriteRenderer spriteRenderer;
+
+        public Canvas canvas;
+        public Image progressBar; 
 
         public Grid grid;
         public Vector3Int gridPosition;
@@ -60,7 +64,12 @@ namespace SneakerWorld.Decoration {
                         }
                         else if (touch.phase == TouchPhase.Stationary && selectedGridPosition.x == gridPosition.x && selectedGridPosition.y == gridPosition.y) {
                             ticks += dt;
+                            if (ticks > 0f) {
+                                canvas.gameObject.SetActive(true);
+                                progressBar.fillAmount = ticks / selectTime;
+                            }
                             if (ticks > selectTime) {
+                                canvas.gameObject.SetActive(false);
                                 selected = true;
                             }
                             lastTouchPhase = TouchPhase.Stationary;
@@ -71,12 +80,14 @@ namespace SneakerWorld.Decoration {
                     
                     if (selected && touch.phase == TouchPhase.Ended) {
                         Drop();
+
                     }
 
                 }
                 else {
                     ticks = 0f;
                     selected = false;
+                    canvas.gameObject.SetActive(false);
                 }
 
 
@@ -94,6 +105,7 @@ namespace SneakerWorld.Decoration {
         public void Drop() {
             ticks = 0f;
             selected = false;
+            canvas.gameObject.SetActive(false);
         }
 
     }

@@ -111,6 +111,21 @@ namespace SneakerWorld.Main {
 
             try {
 
+                InventoryData inventory = await player.inventory.GetInventoryData();
+                StoreStateData state = await player.inventory.state.GetState();
+
+                // Check if there is space.
+                bool hasSpace = false;
+                if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
+                    hasSpace = inventory.sneakers.Find(item => item.itemId == itemId) != null || inventory.sneakers.Count < state.inventorySneakerMax;
+                }
+                else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
+                    hasSpace = inventory.crates.Find(item => item.itemId == itemId) != null || inventory.crates.Count < state.inventoryCratesMax;
+                }
+                if (!hasSpace) {
+                    throw new Exception("Not enough inventory space!");
+                }
+
                 // Check the player can afford the crate.
                 bool hasFunds = await player.wallet.Debit(quantity * price);
                 if (!hasFunds) {

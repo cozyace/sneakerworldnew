@@ -1,36 +1,59 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-// Unity.
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Events;
-// TMP.
-using TMPro;
+// using System;
+// using System.Collections;
+// using System.Collections.Generic;
+// // Unity.
+// using UnityEngine;
+// using UnityEngine.UI;
+// using UnityEngine.Events;
+// // TMP.
+// using TMPro;
 
-namespace SneakerWorld.UI {
+// namespace SneakerWorld.UI {
 
-    using Main;
-    using Utils;
+//     using Main;
+//     using Utils;
 
-    public class RerollPanel : MonoBehaviour {
+//     public class RerollPanel : MonoBehaviour {
 
-        public LerpInt lerpCost;
-        public TextMeshProUGUI costText;
-        // public Image cashIcon;
+//         public LerpInt lerpSneakerCost;
+//         public TextMeshProUGUI sneakerCostText;
 
-        void Awake() {
-            Player.instance.store.onRerollEvent.AddListener(DrawCost);
-        }
+//         public LerpInt lerpCratesCost;
+//         public TextMeshProUGUI cratesCostText;
+//         // public Image cashIcon;
 
-        void FixedUpdate() {
-            costText.text = lerpCost.currValue.ToString();
-        }
+//         void Awake() {
+//             Player.instance.store.roller.onRerollInit.AddListener(SetCost);
+//             Player.instance.store.roller.onRerollSneakersEvent.AddListener(DrawSneakerRerollCost);
+//             Player.instance.store.roller.onRerollCratesEvent.AddListener(DrawCratesRerollCost);
+//         }
 
-        void DrawCost(int newValue) {
-            lerpCost.targetValue = newValue;
-        }
+//         void FixedUpdate() {
+//             sneakerCostText.text = lerpSneakerCost.currValue.ToString();
+//             cratesCostText.text = lerpCratesCost.currValue.ToString();
+//         }
 
-    }
+//         void DrawSneakerRerollCost(int newValue) {
+//             lerpSneakerCost.targetValue = newValue;
+//         }
 
-}
+//         public void SetCost(int sneakerRerollCost, int cratesRerollCost) {
+//             SetSneakerRerollCost(sneakerRerollCost);
+//             SetCratesRerollCost(cratesRerollCost);
+//         }
+
+//         void SetSneakerRerollCost(int newValue) {
+//             lerpSneakerCost.currValue = newValue;
+//         }
+
+//         void DrawCratesRerollCost(int newValue) {
+//             lerpCratesCost.targetValue = newValue;
+//         }
+
+//         void SetCratesRerollCost(int newValue) {
+//             lerpCratesCost.currValue = newValue;
+//         }
+
+//     }
+
+// }

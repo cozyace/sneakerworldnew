@@ -11,8 +11,10 @@ namespace SneakerWorld.Main {
     // Stores data from the personal store.
     [System.Serializable]
     public class StoreData : InventoryData {
+        
         public int crateRerolls = 0;
         public int sneakerRerolls = 0;
+
     }
 
     // Stores data from the featured store.

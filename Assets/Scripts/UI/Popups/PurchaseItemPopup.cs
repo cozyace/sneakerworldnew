@@ -39,8 +39,11 @@ namespace SneakerWorld.UI {
         public Image claimRarityPanel;
         public Image claimIcon;
 
+        public InventorySlot claimSlot;
+
 
         // 
+        public GameObject background;
         public GameObject purchaseScreen;
         public GameObject loadingScreen;
         public GameObject claimScreen;
@@ -68,6 +71,7 @@ namespace SneakerWorld.UI {
             purchaseScreen.SetActive(false);
             popupTransform.gameObject.SetActive(false);
             claimScreen.SetActive(false);
+            background.SetActive(false);
             loadingScreen.SetActive(false);
 
         }
@@ -103,6 +107,7 @@ namespace SneakerWorld.UI {
 
             purchaseScreen.SetActive(true);
             popupTransform.gameObject.SetActive(true);
+            background.SetActive(true);
 
             popupTicks = 0f;
         }
@@ -114,12 +119,15 @@ namespace SneakerWorld.UI {
         }
 
         // Draw a successful purchase.
-        void DrawSuccessfulPurchase(string message, string itemId, int quantity) {
-            claimNameText.text = nameText.text;
-            claimRarityText.text = rarityText.text;
-            claimQuantityText.text = "x"+quantity.ToString();
-            claimRarityPanel.sprite = rarityPanel.sprite;
-            claimIcon.sprite = icon.sprite;
+        public void DrawSuccessfulPurchase(string message, string itemId, int quantity) {
+            // claimNameText.text = nameText.text;
+            // claimRarityText.text = rarityText.text;
+            // claimQuantityText.text = "x"+quantity.ToString();
+            // claimRarityPanel.sprite = rarityPanel.sprite;
+            // claimIcon.sprite = icon.sprite;
+            // background.SetActive(true);
+
+            claimSlot.Draw(itemId, quantity, false, 1f);
 
             loadingScreen.SetActive(false);
             claimScreen.SetActive(true);

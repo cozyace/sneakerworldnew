@@ -12,19 +12,17 @@ namespace SneakerWorld.UI {
     using Main;
 
     [RequireComponent(typeof(Button))]
-    public class OpenCrateButton : MonoBehaviour {
+    public class UpgradeStoreButton : MonoBehaviour {
 
-        public InventorySlot slot;
         private Button button;
-        public bool popupState;
 
         void Awake() {
             button = GetComponent<Button>();
-            button.onClick.AddListener(OpenCrate);
+            button.onClick.AddListener(UpgradeStore);
         }
 
-        public void OpenCrate() {
-            Player.instance.ui.crateRollerOverlay.GetComponent<OpenCratePopup>().OpenCrate();
+        public void UpgradeStore() {
+            Player.instance.store.state.UpgradeStore();
         }
 
     }

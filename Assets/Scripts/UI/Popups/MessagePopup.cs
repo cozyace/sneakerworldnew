@@ -25,6 +25,8 @@ namespace SneakerWorld.UI {
 
         void Awake() {
             Player.instance.purchaser.onPurchaseFailedEvent.AddListener(PlayMessage);
+            // Player.instance.shop.onSaleFailedEvent.AddListener(PlayMessage);
+            Player.instance.store.state.onUpgradeFailed.AddListener(PlayMessage);
             localScale = transform.localScale;
             messageText.gameObject.SetActive(false);
         }
