@@ -15,14 +15,14 @@ namespace SneakerWorld.Main {
     public class Status : PlayerSystem {
 
         // Triggers an event whenever the inventory changes.
-        public UnityEvent<StatusData> onStatusChanged = new UnityEvent<StatusData>();
+        public UnityEvent<StatusData> onStatusUpdated = new UnityEvent<StatusData>();
 
 
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
             StatusData state = await GetStatus();
             Debug.Log($"Logged in for user with username: {state.username}");
-            onStatusChanged.Invoke(state);
+            onStatusUpdated.Invoke(state);
         }
 
         // Get the status data.
@@ -42,7 +42,7 @@ namespace SneakerWorld.Main {
             status.username = username;
 
             await FirebaseManager.SetDatabaseValue<StatusData>(FirebasePath.Status, status);
-            onStatusChanged.Invoke(status);
+            onStatusUpdated.Invoke(status);
         }
 
         // Set the username.
@@ -59,7 +59,7 @@ namespace SneakerWorld.Main {
             }
 
             await FirebaseManager.SetDatabaseValue<StatusData>(FirebasePath.Status, status);
-            onStatusChanged.Invoke(status);
+            onStatusUpdated.Invoke(status);
         }
 
         // Get experience for level.

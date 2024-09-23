@@ -23,20 +23,11 @@ namespace SneakerWorld.Main {
         public const string SUCCESSFUL_PURCHASE_MESSAGE = "Successfully purchased this crate!";
 
         // An event on the beginning of the purchase.
-        public UnityEvent<CrateData> onPurchaseCrateStartEvent = new UnityEvent<CrateData>();
-        public UnityEvent<SneakerData> onPurchaseSneakerStartEvent = new UnityEvent<SneakerData>();
-
-        //
+        public UnityEvent<Item> onPurchaseStartEvent = new UnityEvent<Item>();
         public UnityEvent onProcessingPurchase = new UnityEvent();
-
-        // An event on a successful purchase.
-        public UnityEvent<string, string, int> onPurchaseSuccessEvent = new UnityEvent<string, string, int>();
-
-        // An event on a failed purchase.
-        public UnityEvent<string> onPurchaseFailedEvent = new UnityEvent<string>();
-
-        // An event
         public UnityEvent<int, int, int> onQuantityChanged = new UnityEvent<int, int, int>();
+        public UnityEvent<string> onPurchaseFailedEvent = new UnityEvent<string>();
+        public UnityEvent<string, string, int> onPurchaseSuccessEvent = new UnityEvent<string, string, int>();
 
         // The quantity being attempted to purchase.
         public int quantity = 1;
@@ -47,9 +38,7 @@ namespace SneakerWorld.Main {
         public bool featuredItem = false;
         public int debugTotalCost = 0;
 
-        private CrateData crateData = null;
-        private SneakerData sneakerData = null;
-        string cachedItemId = "";
+        Item cachedItem;
 
         public void SetQuantity(int value = 1) {
             quantity = value;
@@ -68,61 +57,39 @@ namespace SneakerWorld.Main {
             onQuantityChanged.Invoke(quantity, maxQuanity, price);
         }
 
-        public void StartPurchase(string itemId, int maxQuanity, bool featuredItem) {
-            crateData = null;
-            sneakerData = null;
+        public void StartPurchase(Item item, int maxQuanity, bool featuredItem) {
 
-            crateData = CrateData.ParseId(itemId);
-            if (crateData != null) {
-                // Debug.Log("had crate data");
-
-                onPurchaseCrateStartEvent.Invoke(crateData);
-                price = crateData.price;
-            }
-            sneakerData = SneakerData.ParseId(itemId);
-            if (sneakerData != null) {
-                // Debug.Log("had sneaker data");
-
-                onPurchaseSneakerStartEvent.Invoke(sneakerData);
-                this.price = sneakerData.price;
-            }
-
+            onPurchaseStartEvent.Invoke(item);
+            this.price = item.price;
             this.maxQuanity = maxQuanity;
-            this.featuredItem = featuredItem;
-            cachedItemId = itemId;
+            // this.featuredItem = featuredItem;
+            cachedItem = item;
 
             SetQuantity(1);
 
         }
 
         public void ExitPurchase() {
-            crateData = null;
-            sneakerData = null;
+            cachedItem = null;
         }
 
-        public void CompletePurchase(Player player) {
-            CompletePurchase(player, cachedItemId, quantity);
+        public void CompletePurchase() {
+            CompletePurchase(cachedItem, Player.instance.inventory);
         }
 
         // Process the logic for signing the player up.
-        public async Task CompletePurchase(Player player, string itemId, int quantity) {
+        public async Task CompletePurchase(Item item, int quantity, InventorySystem to) {
 
             onProcessingPurchase.Invoke();
+            item = item.Duplicate(quantity);
 
             try {
 
-                InventoryData inventory = await player.inventory.GetInventoryData();
-                StoreStateData state = await player.inventory.state.GetState();
+                InventoryData inventory = await to.Inventory();
 
-                // Check if there is space.
-                bool hasSpace = false;
-                if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
-                    hasSpace = inventory.sneakers.Find(item => item.itemId == itemId) != null || inventory.sneakers.Count < state.inventorySneakerMax;
-                }
-                else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
-                    hasSpace = inventory.crates.Find(item => item.itemId == itemId) != null || inventory.crates.Count < state.inventoryCratesMax;
-                }
-                if (!hasSpace) {
+                // Check if there is capacity.
+                bool hasCapacity = inventory.HasCapacity(item);
+                if (!hasCapacity) {
                     throw new Exception("Not enough inventory space!");
                 }
 
@@ -133,18 +100,13 @@ namespace SneakerWorld.Main {
                 }
                 Debug.Log("Managed to process debit.");
 
-                // Add the sneaker to inventory.
-                await player.inventory.AddItemByID(itemId, quantity);
-                if (featuredItem) {
-                    await player.store.RemoveFeaturedItemById(itemId, quantity);
-                }
-                else {
-                    await player.store.RemoveRegularItemById(itemId, quantity);
-                }
+                // Add the item to the inventory.
+                inventory.Add(item);
+                to.Set(inventory);
                 Debug.Log("Mananged to add item.");
 
                 Debug.Log(SUCCESSFUL_PURCHASE_MESSAGE);
-                onPurchaseSuccessEvent.Invoke(SUCCESSFUL_PURCHASE_MESSAGE, itemId, quantity);
+                onPurchaseSuccessEvent.Invoke(SUCCESSFUL_PURCHASE_MESSAGE, item);
             
             }
             catch (Exception exception) {

@@ -11,186 +11,143 @@ using Sirenix.OdinInspector;
 
 namespace SneakerWorld.Main {
 
+    public class Counter {
+        public ItemType itemType;
+        public int value;
+        public Counter(ItemType itemType, int value) {
+            this.itemType = itemType;
+            this.value = value;
+        }
+    }
+
     /// <summary>
-    /// All the functionality for the inventory.
+    /// Stores the inventory data retrieved from the database.
     /// </summary>
-    public class Inventory : PlayerSystem {
+    [System.Serializable]
+    public class Inventory {
 
-        // Triggers an event whenever the inventory changes.
-        public UnityEvent<InventoryData> onInventoryChanged = new UnityEvent<InventoryData>();
+        // The complete list of all items in the inventory.
+        public List<Item> items = new List<Item>();
 
-        public StoreUpgrader state;
+        // The upgrading parameters.
+        public bool isUpgrading = false;
+        public long startUpgradeTime = 0;
+        public float upgradeDuration = -1f;
 
-        // Implement the initialization from the player.
-        protected override async Task TryInitialize() {
-            await state.Init();
-            InventoryData inventory = await GetInventoryData();
-            onInventoryChanged.Invoke(inventory);
+        // The inventory capacity.
+        public int level = 1;
+        public int maxSneakersOnSale => 3 * level;
+
+        // The number of rerolls.
+        public List<Counter> capacity = new List<Counter>();
+        public List<Counter> rerolls = new List<Counter>();
+
+        // The seperated list of items by item type.
+        public List<Item> sneakers => items.Get(ItemType.Sneaker);
+        public List<Item> crates => items.Get(ItemType.Crates);
+
+        // Gets the item by item type.
+        public List<Item> Get(ItemType itemType) {
+            return items.FindAll(itemType);
         }
 
-        [Button]
-        public async void DeleteInventory() {
-            await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, new InventoryData());
-            Debug.Log("Deleted inventory");
+        // Clears the full list of items.
+        public void Clear() {
+            items = new List<Item>();
         }
 
-        public async Task<InventoryData> GetInventoryData() {
-            InventoryData inventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
-            if (inventory == null) {
-                inventory = new InventoryData();
-                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, inventory);
+        // Clears a specific list of item based on item type.
+        public void Clear(ItemType itemType) {
+            List<Item> specificItems = Get(itemType);
+            foreach (Item item in specificItems) {
+                items.Remove(item);
             }
-            return inventory;
         }
 
-        public async Task AddItemByID(string itemId, int quantity = 1) {
-            // How does this handle not having a sneaker already?
-            InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
-            Debug.Log($"Managed to find inventory: {currentInventory!=null}");
-
-            // Make sure everything exists.
-            if (currentInventory == null) {
-                currentInventory = new InventoryData();
+        // Adds an item into the full item list.
+        public void Add(List<Item> addItems) {
+            foreach (Item item in addItems) {
+                Add(item);
             }
-            
-            
-            // Find the item.
-            List<InventoryItem> searchList = new List<InventoryItem>();
-            if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
-                searchList = currentInventory.sneakers;
-            }
-            else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
-                searchList = currentInventory.crates;
-            }
-
-            if (searchList == null) {
-                searchList = new List<InventoryItem>();
-            }
-
-            InventoryItem item = searchList.Find(item => item.itemId == itemId);
-            if (item == null) {
-                item = new InventoryItem(itemId);
-                searchList.Add(item);
-            }
-            item.quantity += quantity;
-
-            // Send the data back to the database.
-            await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, currentInventory);
-            
-            // Trigger any listeners.
-            onInventoryChanged.Invoke(currentInventory);
-
         }
 
-        public async Task<InventoryItem> GetItem(InventoryData currentInventory, string itemId) {
-            // How does this work if there is not a sneaker already?
-            Debug.Log($"Managed to find inventory: {currentInventory!=null}");
-
-            // Make sure everything exists.
-            if (currentInventory == null) {
-                currentInventory = new InventoryData();
-            }
-
-            // Add the item.
-            List<InventoryItem> searchList = new List<InventoryItem>();
-            if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
-                searchList = currentInventory.sneakers;
-            }
-            else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
-                searchList = currentInventory.crates;
-            }
-
-            if (searchList == null) {
-                searchList = new List<InventoryItem>();
-            }
-
-            InventoryItem item = searchList.Find(item => item.itemId == itemId);
-            return item;
-        }
-
-        public async Task PutItemOnSale(string itemId, bool onSale) {
-            InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
-            StoreStateData stateData = await state.GetState();
-
-            InventoryItem item = await GetItem(currentInventory, itemId);
-
-            int currOnSale = currentInventory.sneakers.FindAll(s=>s.onSale).Count;
-            if (currOnSale >= stateData.maxSneakersOnSale && onSale) {
-                Player.instance.purchaser.onPurchaseFailedEvent.Invoke("Too many sneakers on sale!");
-                onInventoryChanged.Invoke(currentInventory);
-                return;
-            }
-
+        // Adds an item into the full item list.
+        public void Add(Item addItem) {
+            Item item = items.Find(item => item.isEqual(addItem));
             if (item != null) {
-                // Deduct the quantity.
-                item.onSale = onSale;
-                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, currentInventory);
-
-                // Trigger any listeners.
-                onInventoryChanged.Invoke(currentInventory);
+                item.quantity += addItem.quantity;
+            }
+            else if (HasCapacity(addItem.itemType)) {
+                items.Add(addItem);
             }
         }
 
-        public async Task AdjustMarkup(string itemId, float amount) {
-            InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
-            InventoryItem item = await GetItem(currentInventory, itemId);
-            if (item != null) {
-                // Deduct the quantity.
-                item.markup += amount;
-                if (item.markup < -1f) {
-                    item.markup = -1f;
-                }
-                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, currentInventory);
-
-                // Trigger any listeners.
-                onInventoryChanged.Invoke(currentInventory);
-            }
-        }
-
-
-        public async Task RemoveItemByID(string itemId, int quantity = 1) {
-            // How does this work if there is not a sneaker already?
-            InventoryData currentInventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
-            Debug.Log($"Managed to find inventory: {currentInventory!=null}");
-
-            // Make sure everything exists.
-            if (currentInventory == null) {
-                currentInventory = new InventoryData();
-            }
-
-            // Add the item.
-            List<InventoryItem> searchList = new List<InventoryItem>();
-            if (itemId.Contains(SneakerData.SNEAKER_ID_PREFIX)) {
-                searchList = currentInventory.sneakers;
-            }
-            else if (itemId.Contains(CrateData.CRATE_ID_PREFIX)) {
-                searchList = currentInventory.crates;
-            }
-
-            if (searchList == null) {
-                searchList = new List<InventoryItem>();
-            }
-
-            InventoryItem item = searchList.Find(item => item.itemId == itemId);
-            if (item != null) {
-                
-                // Deduct the quantity.
-                item.quantity -= quantity;
+        // Removes an item from the full item list.
+        public void Remove(Item removeItem) {
+            Item item = items.Find(item => item.isEqual(removeItem));
+            if (item != null && item.quantity > removeItem.quantity) {
+                item.quantity -= removeItem.quantity;
                 if (item.quantity <= 0) {
-                    if (searchList.Contains(item)) { searchList.Remove(item); }
-
-                    // if (currentInventory.sneakers.Contains(item)) { currentInventory.sneakers.Remove(item); }
-                    // if (currentInventory.crates.Contains(item)) { currentInventory.crates.Remove(item); }
+                    items.Remove(item);
                 }
-                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, currentInventory);
-
-                // Trigger any listeners.
-                onInventoryChanged.Invoke(currentInventory);
             }
-            
-
         }
 
+        // Finds the item from the full item list.
+        public Item Find(Item findItem) {
+            return items.Find(item => item.isEqual(findItem));
+        }
+
+        // Check whether there is space to add this item to the inventory.
+        public bool HasCapacity(ItemType itemType) {
+            return Get(itemType).Count < GetMaxCapacity(itemType);
+        }
+
+        // Get the max capacity of this item type.
+        public int GetMaxCapacity(ItemType itemType) {
+            GetCounterValue(capacity, itemType, 2 * level);
+        }
+
+        // Get the number of rerolls on this inventory.
+        public int GetRerolls(ItemType itemType) {
+            GetCounterValue(rerolls, itemType, 0);
+        }
+
+        // Get an value from a list of counters based on item type.
+        public int GetCounterValue(List<Counter> counters, ItemType itemType, int defaultValue) {
+            Counter counter = counters.Find(x => x.itemType == itemType);
+            if (counter != null) {
+                return counter.value;
+            }
+            counter = new Counter(itemType, defaultValue);
+            rerolls.Add(counter);
+            return counter.value;
+        }
+
+        // Start upgrading this inventory.
+        public bool StartUpgrade(DateTime startTime, float duration) {
+            isUpgrading = true;
+            startUpgradeTime = startTime.ToBinary();
+            upgradeDuration = duration;
+        }
+
+        // Check the upgrade on this inventory.
+        public bool CheckUpgrade(DateTime now) {
+            TimeSpan timeSpan = now.Subtract(DateTime.FromBinary(startUpgradeTime)); 
+            if (timeSpan.TotalSeconds > upgradeDuration) {
+                if (isUpgrading) {
+                    level += 1;
+                    foreach (Counter counter in capacity) {
+                        counter.value = 2 * level;
+                    }
+                }
+                isUpgrading = false;
+                startUpgradeTime = DateTime.UtcNow.ToBinary();
+                upgradeDuration = -1f;
+                return true;
+            }
+            return false;
+        }
 
     }
 

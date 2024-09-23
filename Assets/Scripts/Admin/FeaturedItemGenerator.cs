@@ -29,36 +29,44 @@ namespace SneakerWorld.Admin {
 
         [Button]
         private async Task GenerateFeaturedItem(int day, int month, int year) {
-            FeaturedStoreData featuredStoreData = new FeaturedStoreData();
-            featuredStoreData.sneakers = FeaturedSneakers();
-            featuredStoreData.crates = FeaturedCrates();
+            Inventory inventory = new Inventory();
+            inventory.Add(FeaturedSneakers());
+            inventory.Add(FeaturedCrates());
 
-            FirebaseManager.SetDatabaseValue<FeaturedStoreData>(FirebasePath.FeaturedItemWithDate(FeaturedItem.GetTimeId(day, month, year)), featuredStoreData);
+            FirebaseManager.SetDatabaseValue<FeaturedStoreData>(FirebasePath.FeaturedItemWithDate(FeaturedItem.GetTimeId(day, month, year)), inventory);
         }
 
-        public List<InventoryItem> FeaturedSneakers() {
-            List<InventoryItem> sneakers = new List<InventoryItem>();
+        public List<Item> FeaturedSneakers() {
+            List<Item> sneakers = new List<Item>();
             
             for (int j = 0; j < 2; j++) {
-                Brand brand = (Brand)(UnityEngine.Random.Range(0, (int)Brand.Count));
-                SneakerData sneaker = new SneakerData(brand, Edition.Original, Condition.Mint);
-                sneakers.Add(new InventoryItem(sneaker.id, 1));
+                // Make the featured sneaker.
+                Item sneaker = new Item(ItemType.Sneaker, 1);
+                sneaker.AddId<Brand>(ItemMaker.RandomEnum<Brand>(Brand.Count));
+                sneaker.AddId<Edition>(Edition.Original);
+                sneaker.AddId<Condition>(Condition.Mint);
+                // Add it to the pile.
+                sneakers.Add(sneaker);
             }
             
             return sneakers;
 
         }
 
-        public List<InventoryItem> FeaturedCrates() {
-            List<InventoryItem> featuredCrates = new List<InventoryItem>();
+        public List<Item> FeaturedCrates() {
+            List<Item> crates = new List<Item>();
 
             int brandCount = (int)Brand.Count;
             for (int j = 0; j < 2; j++) {
-                CrateData crate = new CrateData((Brand)j, Rarity.Legendary);
-                featuredCrates.Add(new InventoryItem(crate.id, 1));
+                // Make the featured crate.
+                Item crate = new Item(ItemType.Crate, 1);
+                crate.AddId<Brand>(ItemMaker.RandomEnum<Brand>(Brand.Count));
+                crate.AddId<Rarity>(Rarity.Legendary);
+                // Add it to the pile.
+                crates.Add(crate);
             }
             
-            return featuredCrates;
+            return crates;
 
         }
 
