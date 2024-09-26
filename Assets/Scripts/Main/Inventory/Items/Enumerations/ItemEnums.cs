@@ -31,7 +31,18 @@ namespace SneakerWorld.Main {
         Count,
     }
 
-    public enum Recolor {
+    public enum ItemColor {
+        Blue,
+        Brown,
+        Green,
+        Purple,
+        Red,
+        Teal,
+        Yellow,
+        Count,
+    }
+
+    public enum ManagerType {
         Blue,
         Brown,
         Green,

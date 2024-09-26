@@ -20,9 +20,6 @@ namespace SneakerWorld.Main {
         // The store events.
         public UnityEvent<Inventory> onSupplyUpdated = new UnityEvent<Inventory>();
 
-        // Used to roll for new stuff.
-        public StoreRoller roller;
-
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
             await state.Init();
@@ -49,19 +46,12 @@ namespace SneakerWorld.Main {
             int day = DateTime.Now.Day; int month = DateTime.Now.Month; int year = DateTime.Now.Year;
             string timeId = FeaturedItem.GetTimeId(day, month, year);
 
-            await FirebaseManager.SetDatabaseValue<StoreData>(FirebasePath.DailyStore(timeId), store);
+            await FirebaseManager.SetDatabaseValue<Inventory>(FirebasePath.DailyStore(timeId), store);
             onStoreUpdated.Invoke(store);
         }
 
         public async Task<Inventory> Remove(Item item) {
-            InventoryData inventory = await Get();
-            inventory.Add(item);
-            await Set(inventory);
-            return inventory;
-        }
-
-        public async Task<Inventory> Remove(Item item) {
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             inventory.Add(item);
             await Set(inventory);
             return inventory;

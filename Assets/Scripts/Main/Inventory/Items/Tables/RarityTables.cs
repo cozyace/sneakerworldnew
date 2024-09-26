@@ -18,7 +18,7 @@ namespace SneakerWorld.Main {
             [Rarity.Legendary] = new Vector2(0.8f, 1f),
         };
 
-        public static Dictionary<SneakerCondition, int> conditionWeightDict = new Dictionary<Condition, float>() {
+        public static Dictionary<Condition, int> conditionWeights = new Dictionary<Condition, float>() {
             [Condition.Tattered] = 20,
             [Condition.Worn] = 20,
             [Condition.Decent] = 40,
@@ -26,14 +26,14 @@ namespace SneakerWorld.Main {
             [Condition.Mint] = 2,
         };
 
-        public static Dictionary<SneakerEdition, int> editionDict = new Dictionary<Edition, float>() {
+        public static Dictionary<Edition, int> editionWeights = new Dictionary<Edition, float>() {
             [Edition.RipOff] = 2,
             [Edition.Second] = 50,
             [Edition.First] = 30,
             [Edition.Original] = 2,
         };
 
-        public static Dictionary<SneakerColor, int> colorWeightDict = new Dictionary<Recolor, int>() {
+        public static Dictionary<ItemColor, int> colorWeights = new Dictionary<ItemColor, int>() {
             [Recolor.Brown] = 5,
             [Recolor.Blue] = 10,
             [Recolor.Green] = 15,
@@ -43,7 +43,7 @@ namespace SneakerWorld.Main {
             [Recolor.Yellow] = 50,
         };
 
-        public static Dictionary<Rarity, float> rarityWeight = new Dictionary<Rarity, float>() {
+        public static Dictionary<Rarity, float> rarityWeights = new Dictionary<Rarity, float>() {
             [Rarity.Common] = 50,
             [Rarity.Uncommon] = 30,
             [Rarity.Rare] = 20,
@@ -51,10 +51,10 @@ namespace SneakerWorld.Main {
             [Rarity.Legendary] = 2,
         };
 
+        // Convert the weights to normalized percentages.
         public static PercentileDictionary<Condition> conditionPercentiles;
         public static PercentileDictionary<Edition> editionPercentiles;
-        public static PercentileDictionary<Recolor> colorPercentiles;
-        
+        public static PercentileDictionary<ItemColor> colorPercentiles;
         public static PercentileDictionary<Rarity> rarityPercentiles;
 
     }

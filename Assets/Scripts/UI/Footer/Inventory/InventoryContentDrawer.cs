@@ -25,15 +25,14 @@ namespace SneakerWorld.UI {
         // text.
         public string amountStringTrail = "/45 Sneakers";
 
-        public void Draw(List<InventoryItem> item) {
+        public void Draw(List<Item> item) {
             foreach (Transform child in contentSection.transform) {
                 Destroy(child.gameObject);
             }
             for (int i = 0; i < item.Count; i++) {
-                InventorySlot slot = Instantiate(itemPrefab, contentSection).GetComponent<InventorySlot>();
+                ItemSlot slot = Instantiate(itemPrefab, contentSection).GetComponent<ItemSlot>();
                 slot.Draw(item[i].itemId, item[i].quantity, item[i].onSale, item[i].markup);
             }
-            // if (amountText != null) { amountText.text = $"{item.Count}{amountStringTrail}"; }
         }
 
     }

@@ -39,30 +39,31 @@ namespace SneakerWorld.Main {
 
         public UnityEvent<string> onSaleFailedEvent = new UnityEvent<string>();
 
+        private bool initialized = false;
 
         // Triggers an event whenever the inventory changes.
-        public UnityEvent<InventoryData> onShelfUpdated = new UnityEvent<InventoryData>();
+        public UnityEvent<Inventory> onShelfUpdated = new UnityEvent<Inventory>();
         
         // Implement the initialization from the player.
         protected override async Task TryInitialize() {
             await state.Init();
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             onShelfUpdated.Invoke(inventory);
         }
 
         [Button]
         public async void Delete() {
-            await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, new InventoryData());
+            await FirebaseManager.SetDatabaseValue<Inventory>(FirebasePath.Inventory, new Inventory());
             Debug.Log("Deleted inventory");
         }
 
         public override async Task<Inventory> Get() {
-            InventoryData inventory = await FirebaseManager.GetDatabaseValue<InventoryData>(FirebasePath.Inventory);
+            Inventory inventory = await FirebaseManager.GetDatabaseValue<Inventory>(FirebasePath.Inventory);
             Debug.Log($"Managed to find inventory: {inventory!=null}");
             
             if (inventory == null) {
-                inventory = new InventoryData();
-                await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, inventory);
+                inventory = new Inventory();
+                await FirebaseManager.SetDatabaseValue<Inventory>(FirebasePath.Inventory, inventory);
             }
 
             markup = MarkupCalculator(inventory.level);
@@ -74,24 +75,24 @@ namespace SneakerWorld.Main {
         }
 
         public override async Task Set(Inventory inventory) {
-            await FirebaseManager.SetDatabaseValue<InventoryData>(FirebasePath.Inventory, inventory);
+            await FirebaseManager.SetDatabaseValue<Inventory>(FirebasePath.Inventory, inventory);
             onShelfUpdated.Invoke(inventory);
         }
 
         public async Task Add(Item item) {
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             inventory.Add(item);
             await Set(inventory);
         }
 
         public async Task Remove(Item item) {
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             inventory.Remove(item);
             await Set(inventory);
         }
 
         public async Task<Item> Get(Item item) {
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             Item item = inventory.Find(item);
             return item;
         }
@@ -99,7 +100,6 @@ namespace SneakerWorld.Main {
         //
         void FixedUpdate() {
             if (!initialized) { return; }
-
             UpdateCustomers(Time.fixedDeltaTime);
         }
 

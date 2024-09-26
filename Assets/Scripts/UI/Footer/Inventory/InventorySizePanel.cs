@@ -27,7 +27,7 @@ namespace SneakerWorld.UI {
             Player.instance.inventory.onInventoryChanged.AddListener(Draw);
         }
         
-        async void Draw(InventoryData data) {
+        async void Draw(Inventory data) {
             StoreStateData invState = await Player.instance.inventory.state.GetState();
             sneakerAmount.text = $"{data.sneakers.Count}/{invState.inventorySneakerMax} Sneakers Owned";
 

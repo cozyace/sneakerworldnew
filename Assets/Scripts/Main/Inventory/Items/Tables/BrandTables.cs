@@ -8,20 +8,20 @@ using UnityEngine.UI;
 
 namespace SneakerWorld.Main {
 
+    public enum Brand {
+        Badidas,
+        Bike,
+        // Bunderarmour,
+        // Bike_Max,
+        // Bike_Force,
+        Count
+    }
+
     public static class BrandTables {
         
         // public int requiredLevel;
         // public int basePrice;
         // public int luxuryValue;
-
-        public enum Brand {
-            Badidas,
-            Bike,
-            // Bunderarmour,
-            // Bike_Max,
-            // Bike_Force,
-            Count
-        }
 
         public static Dictionary<Brand, int> brandLevelLock = new Dictionary<Brand, int>() {
             [Brand.Badidas] = 0,

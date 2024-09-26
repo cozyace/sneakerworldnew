@@ -15,7 +15,7 @@ namespace SneakerWorld.UI {
     using Main;
     using Utils;
 
-    public class TrackStoreUpgrade : MonoBehaviour {
+    public class TrackInventoryUpgrade : MonoBehaviour {
 
         public string type = "store";
 

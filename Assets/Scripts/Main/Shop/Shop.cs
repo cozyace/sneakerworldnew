@@ -38,7 +38,7 @@
 //         // Implement the initialization from the player.
 //         protected override async Task TryInitialize() {
 //             await GetShop();
-//             InventoryData inventory = await Player.instance.inventory.GetInventoryData();
+//             Inventory inventory = await Player.instance.inventory.GetInventory();
 //             Player.instance.inventory.onInventoryChanged.Invoke(inventory);
 //             initialized = true;
 //         }

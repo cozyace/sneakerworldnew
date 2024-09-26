@@ -24,8 +24,8 @@ namespace SneakerWorld.UI {
         public InventoryContentDrawer featuredSneakersContent;
         public InventoryContentDrawer featuredCratesContent;
 
-        public InventoryData stock;
-        public InventoryData featuredStock;
+        public Inventory stock;
+        public Inventory featuredStock;
 
         // Runs once on instantiation.
         void Awake() {

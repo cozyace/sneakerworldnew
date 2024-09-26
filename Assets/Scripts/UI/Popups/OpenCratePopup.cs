@@ -63,7 +63,7 @@ namespace SneakerWorld.UI {
 
         public async void OpenCrate() {
             // Check if there is space.
-            InventoryData inventory = await Player.instance.inventory.GetInventoryData();
+            Inventory inventory = await Player.instance.inventory.GetInventory();
             StoreStateData state = await Player.instance.inventory.state.GetState();
             bool hasSpace = inventory.sneakers.Count < state.inventorySneakerMax;
             if (!hasSpace) {

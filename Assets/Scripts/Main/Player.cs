@@ -22,12 +22,14 @@ namespace SneakerWorld.Main {
         public UnityEvent<float> onSystemLoaded = new UnityEvent<float>();
         public UnityEvent onFailedToLoad = new UnityEvent();
         private int systemsLoaded = 0;
-        private int totalSystems = 6;
+        private int totalSystems = 8;
         public float percentLoaded => (float)systemsLoaded / (float)totalSystems;
 
         // The components this script manages.
-        public Store store;
-        public Shop shop;
+        public FeaturedSupply featuredSupply;
+        public Supply supply;
+        public Stock stock;
+        public Shelf shelf;
         public Inventory inventory;
         public Wallet wallet;
         public Status status;
@@ -54,11 +56,20 @@ namespace SneakerWorld.Main {
         // Initializes the user.
         public async Task<bool> Initialize() {
             try {
-                await friends.Initialize(this);
+
+                await featuredSupply.Initialize(this);
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 
-                await store.Initialize(this);
+                await supply.Initialize(this);
+                systemsLoaded += 1;
+                onSystemLoaded.Invoke(percentLoaded);
+
+                await stock.Initialize(this);
+                systemsLoaded += 1;
+                onSystemLoaded.Invoke(percentLoaded);
+
+                await shelf.Initialize(this);
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 
@@ -66,15 +77,15 @@ namespace SneakerWorld.Main {
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 
+                await wallet.Initialize(this);
+                systemsLoaded += 1;
+                onSystemLoaded.Invoke(percentLoaded);
+
                 await status.Initialize(this);
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 
-                await shop.Initialize(this);
-                systemsLoaded += 1;
-                onSystemLoaded.Invoke(percentLoaded);
-
-                await wallet.Initialize(this);
+                await friends.Initialize(this);
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 

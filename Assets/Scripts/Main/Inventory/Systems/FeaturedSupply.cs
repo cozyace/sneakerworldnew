@@ -49,7 +49,7 @@ namespace SneakerWorld.Main {
         }
 
         public async Task<Inventory> Remove(Item item) {
-            InventoryData inventory = await Get();
+            Inventory inventory = await Get();
             inventory.Remove(item);
             await Set(inventory);
             return inventory;

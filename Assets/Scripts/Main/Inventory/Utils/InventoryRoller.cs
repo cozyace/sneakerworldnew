@@ -24,12 +24,6 @@ namespace SneakerWorld.Main {
         // The price for rerolling
         public int pricePerReroll = 100;
 
-        public void Init(StoreData store) {
-            int nextRollPrice = GetRollPrice(store.sneakerRerolls);
-            int nextCratesRollPrice = GetRollPrice(store.crateRerolls);
-
-            onRerollInit.Invoke(nextRollPrice, nextCratesRollPrice);
-        }
 
         public async Task Reroll(InventorySystem inventorySystem, ItemType itemType) {
             Inventory inventory = await inventorySystem.Get();

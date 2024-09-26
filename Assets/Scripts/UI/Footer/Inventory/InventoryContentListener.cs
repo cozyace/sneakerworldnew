@@ -21,19 +21,20 @@ namespace SneakerWorld.UI {
         public InventoryContentDrawer sneakerContent;
         public InventoryContentDrawer cratesContent;
 
-        public InventoryData stock;
+        public InventorySystem inventorySystem;
+        // public Inventory stock;
 
         // Runs once on instantiation.
         void Awake() {
-            Player.instance.inventory.onInventoryChanged.AddListener(DrawInventory);
+            inventorySystem.onInventoryChanged.AddListener(DrawInventory);
         }
         
         // Draw the inventory ui.
-        public void DrawInventory(InventoryData inventoryData) {
+        public void DrawInventory(Inventory inventory) {
             // Cache the inventory data.
-            stock = inventoryData;
-            sneakerContent.Draw(inventoryData.sneakers);
-            cratesContent.Draw(inventoryData.crates);
+            // stock = inventory;
+            sneakerContent.Draw(inventory.sneakers);
+            cratesContent.Draw(inventory.crates);
         }
 
     }

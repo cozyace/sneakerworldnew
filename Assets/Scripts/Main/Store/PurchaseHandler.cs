@@ -85,7 +85,7 @@ namespace SneakerWorld.Main {
 
             try {
 
-                InventoryData inventory = await to.Inventory();
+                Inventory inventory = await to.Inventory();
 
                 // Check if there is capacity.
                 bool hasCapacity = inventory.HasCapacity(item);
