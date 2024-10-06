@@ -42,15 +42,12 @@ namespace SneakerWorld.Main {
         Count,
     }
 
-    public enum ManagerType {
-        Blue,
-        Brown,
-        Green,
-        Purple,
-        Red,
-        Teal,
-        Yellow,
-        Count,
+    public enum ManagerRole {
+        Sales,
+        Construction,
+        Efficiency,
+        Executive,
+        Marketing,
     }
 
     public enum Rarity {
@@ -61,5 +58,14 @@ namespace SneakerWorld.Main {
         Legendary,
         Count,
     }
+
+    // public enum Brand {
+    //     Badidas,
+    //     Bike,
+    //     // Bunderarmour,
+    //     // Bike_Max,
+    //     // Bike_Force,
+    //     Count
+    // }
 
 }

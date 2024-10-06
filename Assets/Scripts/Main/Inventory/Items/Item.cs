@@ -21,14 +21,16 @@ namespace SneakerWorld.Main {
 		public string identifierValue;
 
         public static ItemIdentifier New<TEnum>(TEnum tenum) where TEnum : Enum {
-            identifierValue = tenum.ToString();
-            identifierType = tenum.Type.Name;
+            ItemIdentifier newId = new ItemIdentifier();
+            newId.identifierValue = tenum.ToString();
+            newId.identifierType = tenum.GetType().Name;
+            return newId;
         }
 
         public bool IsSameType<TEnum>() where TEnum : Enum {
-            string inputType = TEnum.Name;
+            string inputType = (default(TEnum)).GetType().Name;
             return (inputType == identifierType);
-        } 
+        }
 	}
 
     [System.Serializable]
@@ -42,6 +44,7 @@ namespace SneakerWorld.Main {
         // The other stuff.
         public string name => NameGenerator.GenerateName(this);
         public int price => PriceCalculator.CalculatePrice(this);
+        public int totalPrice => quantity * PriceCalculator.CalculatePrice(this);
 
         // public string imagePath => GetImagePath();
         // public int level => GetLevel();
@@ -57,7 +60,7 @@ namespace SneakerWorld.Main {
             this.itemType = itemType;
             this.quantity = quantity;
             this.ids = ids;
-            if (this.ids = null) {
+            if (this.ids == null) {
                 this.ids = new List<ItemIdentifier>();
             }
         } 
@@ -75,7 +78,7 @@ namespace SneakerWorld.Main {
 
             // Check all their identifiers are the same.
             for (int i = 0; i < ids.Count; i++) {
-                string correspondingId = item.ids.Find(id => id.identifierType == ids[i].identifierType);
+                ItemIdentifier correspondingId = item.ids.Find(id => id.identifierType == ids[i].identifierType);
                 if (correspondingId == null || correspondingId.identifierValue != ids[i].identifierValue) {
                     return false;
                 }

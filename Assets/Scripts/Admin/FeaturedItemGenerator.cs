@@ -33,7 +33,7 @@ namespace SneakerWorld.Admin {
             inventory.Add(FeaturedSneakers());
             inventory.Add(FeaturedCrates());
 
-            FirebaseManager.SetDatabaseValue<FeaturedStoreData>(FirebasePath.FeaturedItemWithDate(FeaturedItem.GetTimeId(day, month, year)), inventory);
+            FirebaseManager.SetDatabaseValue<Inventory>(FirebasePath.FeaturedItemWithDate(FeaturedItem.GetTimeId(day, month, year)), inventory);
         }
 
         public List<Item> FeaturedSneakers() {

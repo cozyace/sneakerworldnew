@@ -16,18 +16,11 @@ namespace SneakerWorld.Main {
     /// </summary>
     public class PurchaseHandler : MonoBehaviour {
 
-        // The message to throw up if the player does not have enough funds.
-        public const string NOT_ENOUGH_FUNDS_MESSAGE = "Not enough funds to purchase this crate!";
-
-        // The message to throw up when the player makes a successful purchase.
-        public const string SUCCESSFUL_PURCHASE_MESSAGE = "Successfully purchased this crate!";
-
         // An event on the beginning of the purchase.
         public UnityEvent<Item> onPurchaseStartEvent = new UnityEvent<Item>();
-        public UnityEvent onProcessingPurchase = new UnityEvent();
-        public UnityEvent<int, int, int> onQuantityChanged = new UnityEvent<int, int, int>();
+        public UnityEvent<Item, int> onProcessingPurchase = new UnityEvent<Item, int>();
         public UnityEvent<string> onPurchaseFailedEvent = new UnityEvent<string>();
-        public UnityEvent<string, string, int> onPurchaseSuccessEvent = new UnityEvent<string, string, int>();
+        public UnityEvent<Item, string> onPurchaseSuccessEvent = new UnityEvent<Item, string>();
 
         // The quantity being attempted to purchase.
         public int quantity = 1;
@@ -41,12 +34,17 @@ namespace SneakerWorld.Main {
         Item cachedItem;
 
         public void SetQuantity(int value = 1) {
-            quantity = value;
-            onQuantityChanged.Invoke(quantity, maxQuanity, price);
+            if (cachedItem == null) { return; }
+            
+            cachedItem.quantity = value;
+            onProcessingPurchase.Invoke(cachedItem, maxQuanity);
         }
 
         // The quantity being attempted to purchase.
         public void AddQuantity(int value = 1) {
+            if (cachedItem == null) { return; }
+            int quantity = cachedItem.quantity;
+
             quantity += value;
             if (quantity <= 0) {
                 quantity = 1;
@@ -54,19 +52,17 @@ namespace SneakerWorld.Main {
             else if (quantity >= maxQuanity) {
                 quantity = maxQuanity;
             }
-            onQuantityChanged.Invoke(quantity, maxQuanity, price);
+
+            cachedItem.quantity = quantity;
+            onProcessingPurchase.Invoke(cachedItem, maxQuanity);
         }
 
         public void StartPurchase(Item item, int maxQuanity, bool featuredItem) {
-
-            onPurchaseStartEvent.Invoke(item);
-            this.price = item.price;
             this.maxQuanity = maxQuanity;
-            // this.featuredItem = featuredItem;
-            cachedItem = item;
-
+            cachedItem = item.Duplicate(1);
             SetQuantity(1);
 
+            onPurchaseStartEvent.Invoke(item);
         }
 
         public void ExitPurchase() {
@@ -74,39 +70,37 @@ namespace SneakerWorld.Main {
         }
 
         public void CompletePurchase() {
-            CompletePurchase(cachedItem, Player.instance.inventory);
+            CompletePurchase(cachedItem, Player.instance.stock);
         }
 
         // Process the logic for signing the player up.
-        public async Task CompletePurchase(Item item, int quantity, InventorySystem to) {
+        public async Task CompletePurchase(Item item, InventorySystem targetInventorySystem) {
 
-            onProcessingPurchase.Invoke();
-            item = item.Duplicate(quantity);
+            onProcessingPurchase.Invoke(item, maxQuanity);
 
             try {
 
-                Inventory inventory = await to.Inventory();
+                Inventory cachedInventory = await targetInventorySystem.Get();
 
                 // Check if there is capacity.
-                bool hasCapacity = inventory.HasCapacity(item);
+                bool hasCapacity = cachedInventory.HasCapacity(cachedItem.itemType);
                 if (!hasCapacity) {
                     throw new Exception("Not enough inventory space!");
                 }
 
                 // Check the player can afford the crate.
-                bool hasFunds = await player.wallet.Debit(quantity * price);
+                bool hasFunds = await Player.instance.wallet.Debit(cachedItem.totalPrice);
                 if (!hasFunds) {
-                    throw new Exception(NOT_ENOUGH_FUNDS_MESSAGE);
+                    throw new Exception("Not enough funds to purchase this crate!");
                 }
                 Debug.Log("Managed to process debit.");
 
                 // Add the item to the inventory.
-                inventory.Add(item);
-                to.Set(inventory);
-                Debug.Log("Mananged to add item.");
+                cachedInventory.Add(cachedItem);
+                targetInventorySystem.Set(cachedInventory);
 
-                Debug.Log(SUCCESSFUL_PURCHASE_MESSAGE);
-                onPurchaseSuccessEvent.Invoke(SUCCESSFUL_PURCHASE_MESSAGE, item);
+                // Invoke the event.
+                onPurchaseSuccessEvent.Invoke(cachedItem, "Successfully purchased this crate!");
             
             }
             catch (Exception exception) {

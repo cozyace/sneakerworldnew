@@ -16,7 +16,7 @@ namespace SneakerWorld.Main {
         // public class SamplePacket<T> {
         //     public T value;
         //     public float percentile;
-        // } 
+        // }
 
         public PercentileDictionary(Dictionary<T, int> wDict, T maxEnum) {
             

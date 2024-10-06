@@ -18,7 +18,7 @@ namespace SneakerWorld.Main {
             switch (itemType) {
                 case (ItemType.Sneaker):
                     return GenerateRandomSneakers(count, repeats);
-                case (ItemType.Crates):
+                case (ItemType.Crate):
                     return GenerateRandomCrates(count, repeats);
                 default:
                     return new List<Item>(); 
@@ -55,6 +55,7 @@ namespace SneakerWorld.Main {
             sneaker.AddId<Condition>(condition);
             sneaker.AddId<Edition>(edition);
             sneaker.AddId<ItemColor>(color);
+            sneaker.AddId<Rarity>(PriceCalculator.GetSneakerRarity(sneaker));
             return sneaker;
         }
 
@@ -105,7 +106,7 @@ namespace SneakerWorld.Main {
         }
 
         // Generate a random count of sneakers.
-        public static List<Item> GenerateRandomSneakers(int count) {
+        public static List<Item> GenerateRandomSneakers(int count, bool allowRepeats = false) {
             // Create an empty list.
             List<Item> sneakers = new List<Item>();
 
@@ -124,7 +125,7 @@ namespace SneakerWorld.Main {
         
         
         // Generate a random count of sneakers by simulating crates.
-        public static List<SneakerData> GenerateSneakersFromRandomCrates(int count) {
+        public static List<Item> GenerateSneakersFromRandomCrates(int count, bool allowRepeats = false) {
 
             // Initialize the lists.
             List<Item> crates = GenerateRandomCrates(count, true);
@@ -136,7 +137,7 @@ namespace SneakerWorld.Main {
 
                 // Open until we get a unique sneaker.
                 int depth = 0;
-                while (existingSneaker != null && depth < 200) {
+                while (!allowRepeats && existingSneaker != null && depth < 200) {
                     sneaker = OpenCrate(crate);
                     existingSneaker = sneakers.Find(s => s.IsEqual(sneaker));
                     depth += 1;

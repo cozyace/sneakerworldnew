@@ -43,12 +43,12 @@ namespace SneakerWorld.Main {
         public List<Counter> rerolls = new List<Counter>();
 
         // The seperated list of items by item type.
-        public List<Item> sneakers => items.Get(ItemType.Sneaker);
-        public List<Item> crates => items.Get(ItemType.Crates);
+        public List<Item> sneakers => Get(ItemType.Sneaker);
+        public List<Item> crates => Get(ItemType.Crate);
 
         // Gets the item by item type.
         public List<Item> Get(ItemType itemType) {
-            return items.FindAll(itemType);
+            return items.FindAll(x => x.itemType == itemType); 
         }
 
         // Clears the full list of items.
@@ -73,7 +73,7 @@ namespace SneakerWorld.Main {
 
         // Adds an item into the full item list.
         public void Add(Item addItem) {
-            Item item = items.Find(item => item.isEqual(addItem));
+            Item item = items.Find(item => item.IsEqual(addItem));
             if (item != null) {
                 item.quantity += addItem.quantity;
             }
@@ -84,7 +84,7 @@ namespace SneakerWorld.Main {
 
         // Removes an item from the full item list.
         public void Remove(Item removeItem) {
-            Item item = items.Find(item => item.isEqual(removeItem));
+            Item item = items.Find(item => item.IsEqual(removeItem));
             if (item != null && item.quantity > removeItem.quantity) {
                 item.quantity -= removeItem.quantity;
                 if (item.quantity <= 0) {
@@ -95,7 +95,7 @@ namespace SneakerWorld.Main {
 
         // Finds the item from the full item list.
         public Item Find(Item findItem) {
-            return items.Find(item => item.isEqual(findItem));
+            return items.Find(item => item.IsEqual(findItem));
         }
 
         // Check whether there is space to add this item to the inventory.
@@ -105,12 +105,12 @@ namespace SneakerWorld.Main {
 
         // Get the max capacity of this item type.
         public int GetMaxCapacity(ItemType itemType) {
-            GetCounterValue(capacity, itemType, 2 * level);
+            return GetCounterValue(capacity, itemType, 2 * level);
         }
 
         // Get the number of rerolls on this inventory.
         public int GetRerolls(ItemType itemType) {
-            GetCounterValue(rerolls, itemType, 0);
+            return GetCounterValue(rerolls, itemType, 0);
         }
 
         // Get an value from a list of counters based on item type.

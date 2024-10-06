@@ -22,7 +22,7 @@ namespace SneakerWorld.Main {
         public UnityEvent<string> onUpgradeSuccess = new UnityEvent<string>();
 
         // Set the username.
-        public async Task TryUpgrade(InventorySystem inventorySystem) {
+        public static async Task TryUpgrade(InventorySystem inventorySystem) {
             Inventory inventory = await inventorySystem.Get();
 
             try {
@@ -56,8 +56,9 @@ namespace SneakerWorld.Main {
             
         }
 
-        private bool checking = false;
-        public async Task CheckFinishedUpgrading(InventorySystem inventorySystem) {
+        private static bool checking = false; // since this is no longer per system, needs to be a dictionary
+        // tied to the one it was sent with.
+        public static async Task CheckFinishedUpgrading(InventorySystem inventorySystem) {
             
             // So that only one check can run at a time.
             if (checking) { return; }
@@ -75,11 +76,11 @@ namespace SneakerWorld.Main {
 
         }
 
-        public int GetUpgradePrice(int level) {
+        public static int GetUpgradePrice(int level) {
             return (int)(200f * Mathf.Pow(2f, (float)level));
         }
 
-        public float GetUpgradeDuration(int level) {
+        public static float GetUpgradeDuration(int level) {
             return Mathf.Min(60f*60f*24f*7f, 2f * Mathf.Pow(2f, (float)level));
         }
 

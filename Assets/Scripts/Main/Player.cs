@@ -22,7 +22,7 @@ namespace SneakerWorld.Main {
         public UnityEvent<float> onSystemLoaded = new UnityEvent<float>();
         public UnityEvent onFailedToLoad = new UnityEvent();
         private int systemsLoaded = 0;
-        private int totalSystems = 8;
+        private int totalSystems = 7;
         public float percentLoaded => (float)systemsLoaded / (float)totalSystems;
 
         // The components this script manages.
@@ -30,13 +30,9 @@ namespace SneakerWorld.Main {
         public Supply supply;
         public Stock stock;
         public Shelf shelf;
-        public Inventory inventory;
         public Wallet wallet;
         public Status status;
         public FriendsList friends;
-
-        //
-        public UI.UserInterface ui;
         public PurchaseHandler purchaser;
 
         public static Player instance;
@@ -70,10 +66,6 @@ namespace SneakerWorld.Main {
                 onSystemLoaded.Invoke(percentLoaded);
 
                 await shelf.Initialize(this);
-                systemsLoaded += 1;
-                onSystemLoaded.Invoke(percentLoaded);
-
-                await inventory.Initialize(this);
                 systemsLoaded += 1;
                 onSystemLoaded.Invoke(percentLoaded);
 

@@ -10,14 +10,29 @@ namespace SneakerWorld.Main {
 
     public static class PriceCalculator {
 
-        public static Rarity RarityFromCondAndEd(Brand brand, Condition c, Edition ed) {
-            float cProb = InvSample<Condition>(c, conditionDict, Condition.Count);
-            float eProb = InvSample<Edition>(ed, editionDict, Edition.Count);
+        public static Rarity GetSneakerRarity(Item sneaker) {
+            // float cProb = InvSample<Condition>(c, conditionDict, Condition.Count);
+            // float eProb = InvSample<Edition>(ed, editionDict, Edition.Count);
 
-            float aveProb = (cProb * eProb);
-            float brandAdjustedProb = brandRarityAdjustment[brand] * aveProb;
-            (Rarity, float) outputRarity = Sample<Rarity>(brandAdjustedProb, rarityRequirement, Rarity.Count);
-            return outputRarity.Item1;
+            // float aveProb = (cProb * eProb);
+            // float brandAdjustedProb = brandRarityAdjustment[brand] * aveProb;
+            // (Rarity, float) outputRarity = Sample<Rarity>(brandAdjustedProb, rarityRequirement, Rarity.Count);
+            // return outputRarity.Item1;
+
+            int price = sneaker.price;
+            if (price > 2000) {
+                return Rarity.Legendary;
+            }
+            if (price > 1000) {
+                return Rarity.Epic;
+            }
+            if (price > 500) {
+                return Rarity.Rare;
+            }
+            if (price > 200) {
+                return Rarity.Uncommon;
+            }
+            return Rarity.Common;
         }
 
         public static int CalculatePrice(Item item) {
@@ -29,7 +44,7 @@ namespace SneakerWorld.Main {
 
         public static int CalculateCratePrice(Item item) {
             // Simple validation.
-            if (!item.HasId<Brand>() || !item.HasId<Rarity>) {
+            if (!item.HasId<Brand>() || !item.HasId<Rarity>()) {
                 return 0;
             }
 
