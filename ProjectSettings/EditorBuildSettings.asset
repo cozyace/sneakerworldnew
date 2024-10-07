@@ -5,11 +5,14 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Reference Scenes/Authentication.unity
     guid: f6bc5c8a8b42b1540b8e787287081cd2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Reference Scenes/Main.unity
     guid: 3672aa53de3ef0f47afc8fb9f9ba92b2
+  - enabled: 1
+    path: Assets/Scenes/empty scene.unity
+    guid: da8191161b3254875b772fd06d1bbea1
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
