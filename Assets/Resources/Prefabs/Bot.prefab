@@ -64,14 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
-  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
-  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
-  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
-  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
-  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
-  - {fileID: 2100000, guid: e6ead2aea549b044e8d0044bb39b8469, type: 2}
-  - {fileID: 2100000, guid: 1dfac76d08455a549884af3d387952b5, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -210,19 +203,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c05cc0804ac34e6d81c1096c09e6fd5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AvailableSprites:
-  - {fileID: 21300000, guid: 80f1ac44a11146446be33851b02888fa, type: 3}
-  - {fileID: 21300000, guid: 24070c7228f8ab54e8f62cea7fd36226, type: 3}
-  - {fileID: 21300000, guid: fd09930fbd20a6747b2472e09b42a300, type: 3}
-  - {fileID: 21300000, guid: 4377289b65b54a44784671f7d4f5c5fb, type: 3}
-  Skeleton: {fileID: 7779241704475449017}
-  MoveSpeed: 1.5
-  Animator: {fileID: 7298173618722100009}
-  PopupPosition: {fileID: 4556622734690868873}
-  ItemPopupPrefab: {fileID: 7449272868971740933, guid: ff8153b90aaa37c42bdba652a0546f7d, type: 3}
-  CashPopupPrefab: {fileID: 1893233047879416294, guid: 9935fe14373bb4940a3208d494d98ad9, type: 3}
-  WaitingBarPrefab: {fileID: 1692546066539820077, guid: 93bc348c9cec6714885a9d1d98e6917f, type: 3}
-  XpGainedPerPurchase: 10
+  skeleton: {fileID: 0}
+  moveSpeed: 0
+  animator: {fileID: 0}
 --- !u!95 &7298173618722100009
 Animator:
   serializedVersion: 7

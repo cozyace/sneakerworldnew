@@ -161,6 +161,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.cozyace.sneakerworld
+    Standalone: com.cozyace.sneaker-world
     iPhone: com.cozyace.sneaker-world
   buildNumber:
     Bratwurst: 0
