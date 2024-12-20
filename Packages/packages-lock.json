@@ -29,7 +29,7 @@
       "hash": "523887a52805e74b7acd1ba02bd0be183539e371"
     },
     "com.google.firebase.app": {
-      "version": "file:C:/Users/romai/Downloads/com.google.firebase.app-12.5.0.tgz",
+      "version": "file:com.google.firebase.app-12.5.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -37,7 +37,7 @@
       }
     },
     "com.google.firebase.auth": {
-      "version": "file:C:/Users/romai/Downloads/com.google.firebase.auth-12.5.0.tgz",
+      "version": "file:com.google.firebase.auth-12.5.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -45,7 +45,7 @@
       }
     },
     "com.google.firebase.database": {
-      "version": "file:C:/Users/romai/Downloads/com.google.firebase.database-12.5.0.tgz",
+      "version": "file:com.google.firebase.database-12.5.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
@@ -53,7 +53,7 @@
       }
     },
     "com.google.firebase.messaging": {
-      "version": "file:C:/Users/romai/Downloads/com.google.firebase.messaging-12.5.0.tgz",
+      "version": "file:com.google.firebase.messaging-12.5.0.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
