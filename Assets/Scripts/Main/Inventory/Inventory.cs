@@ -125,7 +125,7 @@ namespace SneakerWorld.Main {
         }
 
         // Start upgrading this inventory.
-        public bool StartUpgrade(DateTime startTime, float duration) {
+        public void StartUpgrade(DateTime startTime, float duration) {
             isUpgrading = true;
             startUpgradeTime = startTime.ToBinary();
             upgradeDuration = duration;

@@ -18,8 +18,8 @@ namespace SneakerWorld.Main {
     public class InventoryUpgrader : MonoBehaviour {
 
         // The message to throw up if the player does not have enough funds.
-        public UnityEvent<string> onUpgradeFailed = new UnityEvent<string>();
-        public UnityEvent<string> onUpgradeSuccess = new UnityEvent<string>();
+        public static UnityEvent<string> onUpgradeFailed = new UnityEvent<string>();
+        public static UnityEvent<string> onUpgradeSuccess = new UnityEvent<string>();
 
         // Set the username.
         public static async Task TryUpgrade(InventorySystem inventorySystem) {
@@ -41,7 +41,7 @@ namespace SneakerWorld.Main {
                 Debug.Log("Managed to process debit.");
 
                 // Start the inventory upgrade.
-                inventory.StartUpgrade(DateTime.UtcNow.ToBinary(), 
+                inventory.StartUpgrade(DateTime.UtcNow, 
                     GetUpgradeDuration(inventory.level));
                 
                 await inventorySystem.Set(inventory);              

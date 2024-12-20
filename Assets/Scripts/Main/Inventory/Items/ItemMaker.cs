@@ -77,7 +77,7 @@ namespace SneakerWorld.Main {
             int brandCount = (int)Brand.Count;
             for (int j = 0; j < brandCount; j++) {
                 for (int i = 0; i < rarityCount; i++) {
-                    Item crate = MakeCrate((Brand)j, (Rarity)rarity);
+                    Item crate = MakeCrate((Brand)j, (Rarity)i);
                     crates.Add(crate);
                 }
             }
@@ -185,7 +185,6 @@ namespace SneakerWorld.Main {
             int x = UnityEngine.Random.Range(0, (int)maxValue);
             return (TEnum)x;
         }
-
     }
 
 }

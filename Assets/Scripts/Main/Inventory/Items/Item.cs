@@ -1,4 +1,5 @@
 // System.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,34 +8,40 @@ using SneakerWorld.Main;
 // Unity.
 using UnityEngine;
 
-namespace SneakerWorld.Main {
+namespace SneakerWorld.Main
+{
 
-    public enum ItemType {
+    public enum ItemType
+    {
         Sneaker,
         Crate,
         Manager,
         Decoration
     }
 
-    public class ItemIdentifier {
-		public string identifierType;
-		public string identifierValue;
+    public class ItemIdentifier
+    {
+        public string identifierType;
+        public string identifierValue;
 
-        public static ItemIdentifier New<TEnum>(TEnum tenum) where TEnum : Enum {
+        public static ItemIdentifier New<TEnum>(TEnum tenum) where TEnum : Enum
+        {
             ItemIdentifier newId = new ItemIdentifier();
             newId.identifierValue = tenum.ToString();
             newId.identifierType = tenum.GetType().Name;
             return newId;
         }
 
-        public bool IsSameType<TEnum>() where TEnum : Enum {
+        public bool IsSameType<TEnum>() where TEnum : Enum
+        {
             string inputType = (default(TEnum)).GetType().Name;
             return (inputType == identifierType);
         }
-	}
+    }
 
     [System.Serializable]
-    public class Item {
+    public class Item
+    {
 
         // The id of this crate.
         public ItemType itemType;
@@ -56,30 +63,37 @@ namespace SneakerWorld.Main {
         public bool onSale = false;
         public float markup = 0f;
 
-        public Item(ItemType itemType, int quantity = 1, List<ItemIdentifier> ids = null) {
+        public Item(ItemType itemType, int quantity = 1, List<ItemIdentifier> ids = null)
+        {
             this.itemType = itemType;
             this.quantity = quantity;
             this.ids = ids;
-            if (this.ids == null) {
+            if (this.ids == null)
+            {
                 this.ids = new List<ItemIdentifier>();
             }
-        } 
+        }
 
-        public bool IsEqual(Item item) {
+        public bool IsEqual(Item item)
+        {
             // Check they are the same item type.
-            if (itemType != item.itemType) { 
+            if (itemType != item.itemType)
+            {
                 return false;
             }
 
             // Check they have the same number of identifiers.
-            if (ids.Count != item.ids.Count) {
+            if (ids.Count != item.ids.Count)
+            {
                 return false;
             }
 
             // Check all their identifiers are the same.
-            for (int i = 0; i < ids.Count; i++) {
+            for (int i = 0; i < ids.Count; i++)
+            {
                 ItemIdentifier correspondingId = item.ids.Find(id => id.identifierType == ids[i].identifierType);
-                if (correspondingId == null || correspondingId.identifierValue != ids[i].identifierValue) {
+                if (correspondingId == null || correspondingId.identifierValue != ids[i].identifierValue)
+                {
                     return false;
                 }
             }
@@ -89,32 +103,35 @@ namespace SneakerWorld.Main {
 
         }
 
-        public void AddId<TEnum>(TEnum tenum) where TEnum : Enum {
+        public void AddId<TEnum>(TEnum tenum) where TEnum : Enum
+        {
             ItemIdentifier id = ids.Find(x => x.IsSameType<TEnum>());
-            if (id != null) {
-                id = new ItemIdentifier.New<TEnum>(tenum);
+            if (id != null)
+            {
+                id = ItemIdentifier.New(tenum);
                 return;
             }
-            ids.Add(new ItemIdentifier.New<TEnum>(tenum));
+            ids.Add(ItemIdentifier.New(tenum));
         }
 
-        public bool HasId<TEnum>() where TEnum : Enum {
+        public bool HasId<TEnum>() where TEnum : Enum
+        {
             ItemIdentifier id = ids.Find(x => x.IsSameType<TEnum>());
-            if (id != null) {
+            if (id != null)
+            {
                 return true;
             }
             return false;
         }
 
-        public TEnum FindId<TEnum>() where TEnum : Enum {
+        public TEnum FindId<TEnum>() where TEnum : struct, Enum
+        {
             ItemIdentifier id = ids.Find(x => x.IsSameType<TEnum>());
-            if (id != null) {
-                return TEnum.Parse(id.identifierValue);
-            }
-            return (TEnum)0;
+            return id != null ? Enum.Parse<TEnum>(id.identifierValue) : default;
         }
 
-        public Item Duplicate(int quantity = -1) {
+        public Item Duplicate(int quantity = -1)
+        {
             quantity = quantity < 0 ? this.quantity : quantity;
             return new Item(itemType, quantity, ids);
         }
@@ -122,4 +139,3 @@ namespace SneakerWorld.Main {
     }
 
 }
-
